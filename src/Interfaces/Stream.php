@@ -63,7 +63,7 @@ interface Stream
     public function setTimeout(int $seconds, int $microseconds): bool;
 
     /**
-     * Retrieves timeout meta data from the stream.
+     * Retrieves timeout metadata from the stream.
      * @return bool TRUE if the stream timed out while waiting for data on the last readChar().
      * @throws StreamStateException
      */
