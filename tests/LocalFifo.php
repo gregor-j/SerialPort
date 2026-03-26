@@ -6,6 +6,7 @@ use Exception;
 
 /**
  * Class LocalFifo
+ * Creates a local FIFO and opens a TCP server on a random port to access that FIFO.
  * @package Tests\GregorJ\SerialPort
  * @author Gregor J.
  */

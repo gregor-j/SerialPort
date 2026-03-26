@@ -18,7 +18,7 @@ use function strlen;
 
 /**
  * Class TcpSocket
- * Create a TCP connection stream
+ * Create a TCP connection stream.
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178

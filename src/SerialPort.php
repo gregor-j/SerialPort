@@ -9,6 +9,7 @@ use GregorJ\SerialPort\Interfaces\Stream;
 
 /**
  * Class SerialPort
+ * Invoke serial port commands on a configured stream.
  * @package GregorJ\SerialPort
  * @author  Gregor J.
  */
