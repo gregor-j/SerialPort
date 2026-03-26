@@ -15,7 +15,7 @@ interface Value
      * As you will be requesting this value, you should know what type it has.
      * @return bool|int|float|string
      */
-    public function get();
+    public function get(): float|bool|int|string;
 
     /**
      * Get the unit of this value, e.g. ampere, seconds, celsius, etc.
