@@ -32,7 +32,7 @@ final class TcpSocket implements Stream
     /**
      * Default connection timeout in seconds.
      */
-    public const DEFAULT_CONNECTION_TIMEOUT = 2;
+    public const DEFAULT_CONNECTION_TIMEOUT = 2.0;
 
     /**
      * @var string Hostname/IP
