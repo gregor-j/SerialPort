@@ -18,7 +18,7 @@ use function strlen;
 
 /**
  * Class TcpSocket
- * Create a TCP connection stream
+ * Create a TCP connection stream.
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
@@ -32,7 +32,7 @@ final class TcpSocket implements Stream
     /**
      * Default connection timeout in seconds.
      */
-    public const DEFAULT_CONNECTION_TIMEOUT = 2;
+    public const DEFAULT_CONNECTION_TIMEOUT = 2.0;
 
     /**
      * @var string Hostname/IP
@@ -121,8 +121,10 @@ final class TcpSocket implements Stream
         $bytes = fwrite($this->socket, $string, $length);
         if ($bytes === false) {
             $lastError = error_get_last();
-            $message = ($lastError !== null) ? $lastError['message'] : 'An unknown error occurred.';
-            throw new WriteStreamException($message);
+            if (!is_array($lastError)) {
+                throw new WriteStreamException('Unknown error.');
+            }
+            throw new WriteStreamException($lastError['message'], $lastError['type']);
         }
         return $bytes;
     }

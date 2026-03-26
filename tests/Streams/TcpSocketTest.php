@@ -10,6 +10,7 @@ use Tests\GregorJ\SerialPort\LocalFifo;
 
 /**
  * Class TcpSocketTest
+ * Unit tests for the TcpSocket class.
  * @package Tests\GregorJ\SerialPort\Streams
  * @author  Gregor J.
  */
