@@ -14,10 +14,7 @@ use GregorJ\SerialPort\Interfaces\Stream;
  */
 final class SerialPort implements Communication
 {
-    /**
-     * @var Stream
-     */
-    private $stream;
+    private Stream $stream;
 
     /**
      * @inheritDoc
