@@ -1,0 +1,70 @@
+name: "CI pipeline"
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events
+  push:
+  pull_request:
+
+  workflow_dispatch:
+
+permissions:
+  contents: "read"
+
+jobs:
+
+  composer:
+    name: "Composer config validation"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "GIT checkout"
+        # noinspection UndefinedAction
+        uses: "actions/checkout@v3"
+      - name: "Validate composer.json"
+        run: "composer validate --strict"
+
+  # tests depending on PHP version
+  php:
+    name: "PHP"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php_version: [ '8.1', '8.2', '8.3' ]
+
+    steps:
+
+      - name: "GIT checkout"
+        # noinspection UndefinedAction
+        uses: "actions/checkout@v3"
+
+      - name: "Setup PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php_version }}"
+          coverage: "xdebug"
+
+      - name: "Get composer cache directory"
+        id: "composer-cache"
+        run: 'echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT'
+
+      - name: "Cache composer dependencies"
+        uses: "actions/cache@v3"
+        with:
+          path: "${{ steps.composer-cache.outputs.dir }}"
+          key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
+          restore-keys: "${{ runner.os }}-composer-"
+
+      - name: "Composer install dependencies"
+        run: "composer install --prefer-dist --no-progress"
+
+      - name: "PHP_CodeSniffer"
+        run: "php vendor/bin/phpcs"
+
+      - name: "PHPStan Static Analysis"
+        uses: "php-actions/phpstan@v3"
+        with:
+          php_version: "${{ matrix.php_version }}"
+          configuration: "phpstan.neon"
+
+      - name: "PHPUnit tests"
+        run: "php vendor/bin/phpunit"
