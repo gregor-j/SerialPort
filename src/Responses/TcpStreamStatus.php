@@ -64,7 +64,7 @@ final class TcpStreamStatus implements Response
     /**
      * @inheritDoc
      */
-    public function get(string $name): float|bool|int|string
+    public function get(string $name): mixed
     {
         if (!$this->has($name)) {
             throw new NotFoundException(sprintf('Metadata "%s" does not exist.', $name));

@@ -16,10 +16,10 @@ interface Response
     /**
      * Get a value from the Response.
      * @param string $name The name of the value.
-     * @return float|bool|int|string
+     * @return mixed
      * @throws NotFoundException
      */
-    public function get(string $name): float|bool|int|string;
+    public function get(string $name): mixed;
 
     /**
      * Determine whether the Response contains a Value.
