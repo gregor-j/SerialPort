@@ -8,7 +8,7 @@ use GregorJ\SerialPort\Interfaces\Stream;
 
 /**
  * A Command is a string sent to a serial port. Depending on the Command,
- * there can be a Container containing Values. Therefore, the Command not only
+ * there can be a Response containing Values. Therefore, the Command not only
  * defines the command string, but also which Values to expect, how to read
  * them, and how long to wait for them.
  * @package GregorJ\SerialPort\Interfaces
@@ -19,11 +19,11 @@ interface Command
     /**
      * Invoke this Command on the given stream.
      * @param Stream $stream
-     * @return Container|null
+     * @return Response|null
      * @throws WriteStreamException
      * @throws ReadException
      */
-    public function invoke(Stream $stream): ?Container;
+    public function invoke(Stream $stream): ?Response;
 
     /**
      * Transform the Command to a printable string for logging.

@@ -3,7 +3,7 @@
 namespace GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Interfaces\Communication\Command;
-use GregorJ\SerialPort\Interfaces\Communication\Container;
+use GregorJ\SerialPort\Interfaces\Communication\Response;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\Stream;
 
@@ -37,7 +37,7 @@ final class SerialPort implements Communication
     /**
      * @inheritDoc
      */
-    public function invoke(Command $command): ?Container
+    public function invoke(Command $command): ?Response
     {
         return $command->invoke($this->stream);
     }
