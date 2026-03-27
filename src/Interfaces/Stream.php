@@ -55,12 +55,11 @@ interface Stream
 
     /**
      * Set timeout period on the stream.
-     * @param int $seconds The seconds part of the timeout to be set.
-     * @param int $microseconds The microseconds part of the timeout to be set.
+     * @param float $seconds The seconds part of the timeout to be set.
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws StreamStateException
      */
-    public function setTimeout(int $seconds, int $microseconds): bool;
+    public function setTimeout(float $seconds): bool;
 
     /**
      * Retrieves timeout metadata from the stream.

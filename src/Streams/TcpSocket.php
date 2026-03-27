@@ -147,12 +147,14 @@ final class TcpSocket implements Stream
     /**
      * @inheritDoc
      */
-    public function setTimeout(int $seconds, int $microseconds): bool
+    public function setTimeout(float $seconds): bool
     {
         if (!$this->isOpen()) {
             throw new StreamStateException('Stream not opened.');
         }
-        return stream_set_timeout($this->socket, $seconds, $microseconds);
+        $timeoutSeconds = floor($seconds);
+        $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
+        return stream_set_timeout($this->socket, (int)$timeoutSeconds, (int)$timeoutMicroseconds);
     }
 
     /**
