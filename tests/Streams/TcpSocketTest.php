@@ -26,7 +26,7 @@ final class TcpSocketTest extends TestCase
         $socket->open();
         $bytes = $socket->write('1234');
         static::assertSame(4, $bytes);
-        $socket->setTimeout(0, 500000);
+        $socket->setTimeout(0.5);
         $response = '';
         while ($char = $socket->readChar()) {
             $response .= $char;
@@ -95,7 +95,7 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
         $this->expectException(StreamStateException::class);
         $this->expectExceptionMessage('Stream not opened.');
-        $socket->setTimeout(0, 0);
+        $socket->setTimeout(0);
     }
 
     /**
