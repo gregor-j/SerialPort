@@ -11,10 +11,10 @@ use GregorJ\SerialPort\Exceptions\NotFoundException;
  * @package GregorJ\SerialPort\Interfaces
  * @author  Gregor J.
  */
-interface Container
+interface Response
 {
     /**
-     * Get a Value from the Container.
+     * Get a Value from the Response.
      * @param string $name The name of the Value.
      * @return Value
      * @throws NotFoundException
@@ -22,14 +22,14 @@ interface Container
     public function get(string $name): Value;
 
     /**
-     * Determine whether the Container contains a Value.
+     * Determine whether the Response contains a Value.
      * @param string $name The name of the Value.
      * @return bool
      */
     public function has(string $name): bool;
 
     /**
-     * Transform the Container to a printable string for logging.
+     * Transform the Response to a printable string for logging.
      * Non-printable characters are expected to be displayed as printable!
      * @return string
      */

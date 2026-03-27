@@ -7,7 +7,7 @@ use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
-use GregorJ\SerialPort\Interfaces\Communication\Container;
+use GregorJ\SerialPort\Interfaces\Communication\Response;
 
 /**
  * A stream communication interface to send commands and get responses.
@@ -32,14 +32,9 @@ interface Communication
     /**
      * Invoke a command on the stream.
      * @param Command $command
-     * @return Container|null Returns
-     *                                                                    null in
-     *                                                                    case the
-     *                                                                    command
-     *                                                                    expects no
-     *                                                                    response
+     * @return Response|null Returns null in case the command expects no response
      * @throws WriteStreamException
      * @throws ReadException
      */
-    public function invoke(Command $command): ?Container;
+    public function invoke(Command $command): ?Response;
 }
