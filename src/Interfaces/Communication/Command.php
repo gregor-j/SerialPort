@@ -3,6 +3,7 @@
 namespace GregorJ\SerialPort\Interfaces\Communication;
 
 use GregorJ\SerialPort\Exceptions\ReadException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Stream;
 
@@ -22,6 +23,7 @@ interface Command
      * @return Response|null
      * @throws WriteStreamException
      * @throws ReadException
+     * @throws UnexpectedResponseException
      */
     public function invoke(Stream $stream): ?Response;
 

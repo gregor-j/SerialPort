@@ -8,6 +8,7 @@ use GregorJ\SerialPort\Exceptions\NotFoundException;
  * The Command needs to know which values will be returned and assigns
  * these values to names. A value from the response can be queried by its name.
  * Use Command class constants for value names.
+ * In case the constructor fails to interpret the raw response, throw an UnexpectedResponseException.
  * @package GregorJ\SerialPort\Interfaces
  * @author  Gregor J.
  */

@@ -5,6 +5,7 @@ namespace GregorJ\SerialPort\Interfaces;
 use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
@@ -35,6 +36,7 @@ interface Communication
      * @return Response|null Returns null in case the command expects no response
      * @throws WriteStreamException
      * @throws ReadException
+     * @throws UnexpectedResponseException
      */
     public function invoke(Command $command): ?Response;
 }
