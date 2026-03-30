@@ -6,6 +6,7 @@ use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Stream;
+use GregorJ\SerialPort\Responses\TcpStreamStatus;
 
 use function error_get_last;
 use function fclose;
@@ -13,6 +14,7 @@ use function fgetc;
 use function fsockopen;
 use function fwrite;
 use function is_resource;
+use function stream_get_meta_data;
 use function stream_set_timeout;
 use function strlen;
 
@@ -119,6 +121,10 @@ final class TcpSocket implements Stream
         }
         $length = strlen($string);
         $bytes = fwrite($this->socket, $string, $length);
+        /**
+         * This should never happen, but we prepare for it anyway.
+         */
+        // @codeCoverageIgnoreStart
         if ($bytes === false) {
             $lastError = error_get_last();
             if (!is_array($lastError)) {
@@ -126,6 +132,7 @@ final class TcpSocket implements Stream
             }
             throw new WriteStreamException($lastError['message'], $lastError['type']);
         }
+        // @codeCoverageIgnoreEnd
         return $bytes;
     }
 
@@ -160,12 +167,11 @@ final class TcpSocket implements Stream
     /**
      * @inheritDoc
      */
-    public function timedOut(): bool
+    public function getStatus(): TcpStreamStatus
     {
         if (!$this->isOpen()) {
             throw new StreamStateException('Stream not opened.');
         }
-        $metadata = stream_get_meta_data($this->socket);
-        return (bool)$metadata['timed_out'];
+        return new TcpStreamStatus(stream_get_meta_data($this->socket));
     }
 }

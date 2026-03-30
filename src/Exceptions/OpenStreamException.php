@@ -8,6 +8,6 @@ namespace GregorJ\SerialPort\Exceptions;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-class OpenStreamException extends RuntimeException
+final class OpenStreamException extends RuntimeException
 {
 }

@@ -7,4 +7,4 @@ parameters:
   scanDirectories:
     - vendor/
   ignoreErrors:
-    - '/Property GregorJ\\SerialPort\\Streams\\TcpSocket::\$socket \(resource\) does not accept null./'
+    - '/Property GregorJ\\SerialPort\\Streams\\TcpSocket::\$socket \(resource\) does not accept null\./'

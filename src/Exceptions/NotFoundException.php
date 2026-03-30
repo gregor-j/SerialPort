@@ -8,6 +8,6 @@ namespace GregorJ\SerialPort\Exceptions;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-class NotFoundException extends LogicException
+final class NotFoundException extends LogicException
 {
 }

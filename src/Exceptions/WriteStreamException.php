@@ -8,6 +8,6 @@ namespace GregorJ\SerialPort\Exceptions;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-class WriteStreamException extends RuntimeException
+final class WriteStreamException extends RuntimeException
 {
 }

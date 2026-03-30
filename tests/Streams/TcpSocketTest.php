@@ -32,7 +32,7 @@ final class TcpSocketTest extends TestCase
             $response .= $char;
         }
         static::assertNull($char);
-        static::assertTrue($socket->timedOut());
+        static::assertTrue($socket->getStatus()->timedOut());
         static::assertSame('1234', $response);
         $socket->close();
     }
@@ -107,6 +107,20 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
         $this->expectException(StreamStateException::class);
         $this->expectExceptionMessage('Stream not opened.');
-        $socket->timedOut();
+        $timedOut = $socket->getStatus()->timedOut();
+    }
+
+    /**
+     * Test exception thrown in case stream is not opened.
+     */
+    public function testFifoWentAway(): void
+    {
+        $fifo = new LocalFifo();
+        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $fifo = null;
+        sleep(1);
+        $this->expectException(StreamStateException::class);
+        $this->expectExceptionMessage('Stream not opened.');
+        $bytes = $socket->write('lalala');
     }
 }

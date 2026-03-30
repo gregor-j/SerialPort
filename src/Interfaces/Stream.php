@@ -5,6 +5,7 @@ namespace GregorJ\SerialPort\Interfaces;
 use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Interfaces\Communication\Response;
 
 /**
  * A stream interface to write to and read from.
@@ -62,9 +63,10 @@ interface Stream
     public function setTimeout(float $seconds): bool;
 
     /**
-     * Retrieves timeout metadata from the stream.
-     * @return bool TRUE if the stream timed out while waiting for data on the last readChar().
+     * Retrieves status response from the stream with additional information.
+     * Use has() and get() methods to query status details.
+     * @return Response
      * @throws StreamStateException
      */
-    public function timedOut(): bool;
+    public function getStatus(): Response;
 }
