@@ -99,6 +99,7 @@ final class TcpSocket implements Stream
         if (!is_resource($socket)) {
             throw new OpenStreamException($errstr, $errno);
         }
+        stream_set_blocking($socket,  true);
         $this->socket = $socket;
     }
 
