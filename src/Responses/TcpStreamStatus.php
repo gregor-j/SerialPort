@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Responses;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
+
+use function array_key_exists;
+use function sprintf;
 
 /**
  * Interpret the return value of stream_get_meta_data().
@@ -17,12 +21,12 @@ final class TcpStreamStatus implements Response
     public const EOF = 'eof';
     public const UNREAD_BYTES = 'unread_bytes';
     public const STREAM_TYPE = 'stream_type';
-    public const WRAPPER_TYPE = 'wrapper_type';
-    public const WRAPPER_DATA = 'wrapper_data';
+    //public const WRAPPER_TYPE = 'wrapper_type'; // not present for TCP sockets
+    //public const WRAPPER_DATA = 'wrapper_data'; // not present for TCP sockets
     public const MODE = 'mode';
     public const SEEKABLE = 'seekable';
-    public const URI = 'uri';
-    public const CRYPTO = 'crypto';
+    //public const URI = 'uri'; // not present for TCP sockets
+    //public const CRYPTO = 'crypto'; //not present for TCP sockets
 
     /**
      * @var non-empty-array<string, mixed>
@@ -30,35 +34,20 @@ final class TcpStreamStatus implements Response
     private array $metadata;
 
     /**
-     * @var mixed
-     */
-    private mixed $wrapperData;
-
-    /**
-     * @var mixed|null
-     */
-    private mixed $crypto;
-
-    /**
      * Construct the instance with the return value of stream_get_meta_data().
      * @param array<string, mixed> $metadata
+     * @throws UnexpectedResponseException
      */
     public function __construct(array $metadata)
     {
-        //extract everything but wrapper_data and crypto.
-        $this->metadata = [
-            self::TIMED_OUT => $metadata[self::TIMED_OUT],
-            self::BLOCKED => $metadata[self::BLOCKED],
-            self::EOF => $metadata[self::EOF],
-            self::UNREAD_BYTES => $metadata[self::UNREAD_BYTES],
-            self::STREAM_TYPE => $metadata[self::STREAM_TYPE],
-            self::WRAPPER_TYPE => $metadata[self::WRAPPER_TYPE],
-            self::MODE => $metadata[self::MODE],
-            self::SEEKABLE => $metadata[self::SEEKABLE],
-            self::URI => $metadata[self::URI],
-        ];
-        $this->wrapperData = $metadata[self::WRAPPER_DATA];
-        $this->crypto = $metadata[self::CRYPTO] ?? null;
+        // wrapper_type, wrapper_data, uri, and crypto are not part of the metadata for TCP sockets.
+        $keys = [self::TIMED_OUT, self::BLOCKED, self::EOF, self::UNREAD_BYTES, self::STREAM_TYPE, self::MODE, self::SEEKABLE];
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $metadata)) {
+                throw new UnexpectedResponseException(sprintf('Missing "%s" in stream_get_meta_data() return value.', $key), 0, null, $metadata);
+            }
+            $this->metadata[$key] = $metadata[$key];
+        }
     }
 
     /**
@@ -131,28 +120,6 @@ final class TcpStreamStatus implements Response
         return (string)$this->metadata[self::STREAM_TYPE];
     }
 
-    /**
-     * A label describing the protocol wrapper implementation layered over the stream.
-     * See Supported Protocols and Wrappers for more information about wrappers:
-     * @link https://www.php.net/manual/en/wrappers.php
-     * @return string
-     */
-    public function wrapperType(): string
-    {
-        // @phpstan-ignore cast.string
-        return (string)$this->metadata[self::WRAPPER_TYPE];
-    }
-
-    /**
-     * Wrapper specific data attached to this stream.
-     * See Supported Protocols and Wrappers for more information about wrappers and their wrapper data:
-     * @link https://www.php.net/manual/en/wrappers.php
-     * @return mixed
-     */
-    public function wrapperData(): mixed
-    {
-        return $this->wrapperData;
-    }
 
     /**
      * The type of access required for this stream.
@@ -176,42 +143,19 @@ final class TcpStreamStatus implements Response
     }
 
     /**
-     * The URI/filename associated with this stream.
-     * @return string
-     */
-    public function uri(): string
-    {
-        // @phpstan-ignore cast.string
-        return (string)$this->metadata[self::URI];
-    }
-
-    /**
-     * The TLS connection metadata for this stream.
-     * Note: Only provided when the resource's stream uses TLS.
-     * @return array<mixed, mixed>|null
-     * @noinspection PhpPluralMixedCanBeReplacedWithArrayInspection
-     */
-    public function crypto(): ?array
-    {
-        return is_array($this->crypto) ? $this->crypto : null;
-    }
-
-    /**
      * @inheritDoc
      */
     public function __toString(): string
     {
         return sprintf(
-            '[timed out: %s] [blocked: %s] [EOF: %s] [unread_bytes: %u] [stream type: "%s"] [wrapper type: "%s"] [mode: %s] [seekable: %s] [uri: %s]',
+            '[timed out: %s] [blocked: %s] [EOF: %s] [unread_bytes: %u] [stream type: "%s"] [mode: %s] [seekable: %s]',
             $this->timedOut() ? 'true' : 'false',
             $this->blocked() ? 'true' : 'false',
             $this->eof() ? 'true' : 'false',
             $this->unreadBytes(),
             $this->streamType(),
-            $this->wrapperType(),
             $this->mode(),
-            $this->seekable() ? 'true' : 'false',
-            $this->uri(),
+            $this->seekable() ? 'true' : 'false'
         );
     }
 }
