@@ -34,12 +34,19 @@ final class TcpStreamStatus implements Response
     private array $metadata;
 
     /**
+     * The raw uninterpreted response.
+     * @var array<string, mixed>
+     */
+    private array $rawResponse;
+
+    /**
      * Construct the instance with the return value of stream_get_meta_data().
      * @param array<string, mixed> $metadata
      * @throws UnexpectedResponseException
      */
     public function __construct(array $metadata)
     {
+        $this->rawResponse = $metadata;
         // wrapper_type, wrapper_data, uri, and crypto are not part of the metadata for TCP sockets.
         $keys = [self::TIMED_OUT, self::BLOCKED, self::EOF, self::UNREAD_BYTES, self::STREAM_TYPE, self::MODE, self::SEEKABLE];
         foreach ($keys as $key) {
@@ -157,5 +164,14 @@ final class TcpStreamStatus implements Response
             $this->mode(),
             $this->seekable() ? 'true' : 'false'
         );
+    }
+
+    /**
+     * Get the raw uninterpreted response for debugging.
+     * @return array<string, mixed>
+     */
+    public function getRawResponse(): array
+    {
+        return $this->rawResponse;
     }
 }

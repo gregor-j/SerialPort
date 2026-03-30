@@ -35,4 +35,10 @@ interface Response
      * @return string
      */
     public function __toString(): string;
+
+    /**
+     * Get the raw uninterpreted response for debugging.
+     * @return mixed
+     */
+    public function getRawResponse(): mixed;
 }

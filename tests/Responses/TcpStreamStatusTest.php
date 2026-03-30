@@ -73,4 +73,10 @@ class TcpStreamStatusTest extends TestCase
         $this->expectExceptionMessage('Missing "timed_out" in stream_get_meta_data() return value.');
         new TcpStreamStatus(['blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
     }
+
+    public function testGetRawResponse(): void
+    {
+        $status = new TcpStreamStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
+        $this->assertSame(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false], $status->getRawResponse());
+    }
 }
