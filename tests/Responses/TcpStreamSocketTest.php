@@ -74,6 +74,11 @@ class TcpStreamSocketTest extends TestCase
         new TcpSocketStatus(['blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
     }
 
+    /**
+     * Test getting the raw uninterpreted response.
+     * @return void
+     * @throws UnexpectedResponseException
+     */
     public function testGetRawResponse(): void
     {
         $status = new TcpSocketStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);

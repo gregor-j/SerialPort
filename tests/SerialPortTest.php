@@ -3,6 +3,10 @@
 namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\OpenStreamException;
+use GregorJ\SerialPort\Exceptions\ReadException;
+use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
+use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\SerialPort;
@@ -17,12 +21,10 @@ use PHPUnit\Framework\TestCase;
 class SerialPortTest extends TestCase
 {
     /**
-     * TCP port ncat listens on.
-     */
-    public const ECHO_PORT = 9999;
-
-    /**
      * Test connection failed exception.
+     * @return void
+     * @throws OpenStreamException
+     * @throws StreamStateException
      */
     public function testConnectionFailed(): void
     {
@@ -38,6 +40,12 @@ class SerialPortTest extends TestCase
 
     /**
      * Test invoking a command.
+     * @return void
+     * @throws OpenStreamException
+     * @throws StreamStateException
+     * @throws ReadException
+     * @throws UnexpectedResponseException
+     * @throws WriteStreamException
      */
     public function testInvokingCommand(): void
     {

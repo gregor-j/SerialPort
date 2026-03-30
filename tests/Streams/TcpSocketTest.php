@@ -4,6 +4,8 @@ namespace Tests\GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
+use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
 use Tests\GregorJ\SerialPort\LocalFifo;
@@ -18,6 +20,11 @@ final class TcpSocketTest extends TestCase
 {
     /**
      * Test actual reading and writing from an echo service.
+     * @return void
+     * @throws OpenStreamException
+     * @throws StreamStateException
+     * @throws UnexpectedResponseException
+     * @throws WriteStreamException
      */
     public function testReadingAndWriting(): void
     {
@@ -39,6 +46,9 @@ final class TcpSocketTest extends TestCase
 
     /**
      * Test exception thrown in case stream is already opened.
+     * @return void
+     * @throws OpenStreamException
+     * @throws StreamStateException
      */
     public function testOpeningTwice(): void
     {
@@ -51,7 +61,10 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * Test exception thrown in case stream is already opened.
+     * Test exception thrown in case the remote host refuses a connection.
+     * @return void
+     * @throws OpenStreamException
+     * @throws StreamStateException
      */
     public function testConnectionError(): void
     {
@@ -64,6 +77,9 @@ final class TcpSocketTest extends TestCase
 
     /**
      * Test exception thrown in case stream is not opened.
+     * @return void
+     * @throws StreamStateException
+     * @throws WriteStreamException
      */
     public function testWritingWithoutOpeningFirst(): void
     {
@@ -76,6 +92,8 @@ final class TcpSocketTest extends TestCase
 
     /**
      * Test exception thrown in case stream is not opened.
+     * @return void
+     * @throws StreamStateException
      */
     public function testReadWithoutOpeningFirst(): void
     {
@@ -88,6 +106,8 @@ final class TcpSocketTest extends TestCase
 
     /**
      * Test exception thrown in case stream is not opened.
+     * @return void
+     * @throws StreamStateException
      */
     public function testSetTimeoutWithoutOpeningFirst(): void
     {
@@ -100,6 +120,9 @@ final class TcpSocketTest extends TestCase
 
     /**
      * Test exception thrown in case stream is not opened.
+     * @return void
+     * @throws StreamStateException
+     * @throws UnexpectedResponseException
      */
     public function testTimedOutWithoutOpeningFirst(): void
     {
@@ -111,7 +134,10 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * Test exception thrown in case stream is not opened.
+     * Test exception thrown in case fifo went away.
+     * @return void
+     * @throws StreamStateException
+     * @throws WriteStreamException
      */
     public function testFifoWentAway(): void
     {
