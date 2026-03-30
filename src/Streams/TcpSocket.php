@@ -6,7 +6,7 @@ use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Stream;
-use GregorJ\SerialPort\Responses\TcpStreamStatus;
+use GregorJ\SerialPort\Responses\TcpSocketStatus;
 
 use function error_get_last;
 use function fclose;
@@ -167,11 +167,11 @@ final class TcpSocket implements Stream
     /**
      * @inheritDoc
      */
-    public function getStatus(): TcpStreamStatus
+    public function getStatus(): TcpSocketStatus
     {
         if (!$this->isOpen()) {
             throw new StreamStateException('Stream not opened.');
         }
-        return new TcpStreamStatus(stream_get_meta_data($this->socket));
+        return new TcpSocketStatus(stream_get_meta_data($this->socket));
     }
 }

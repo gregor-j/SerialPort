@@ -14,7 +14,7 @@ use function sprintf;
 /**
  * Interpret the return value of stream_get_meta_data().
  */
-final class TcpStreamStatus implements Response
+final class TcpSocketStatus implements Response
 {
     public const TIMED_OUT = 'timed_out';
     public const BLOCKED = 'blocked';

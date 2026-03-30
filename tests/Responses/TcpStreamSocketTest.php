@@ -4,38 +4,38 @@ namespace Tests\GregorJ\SerialPort\Responses;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Responses\TcpStreamStatus;
+use GregorJ\SerialPort\Responses\TcpSocketStatus;
 use PHPUnit\Framework\TestCase;
 
-class TcpStreamStatusTest extends TestCase
+class TcpStreamSocketTest extends TestCase
 {
     /**
-     * Test TcpStreamStatus methods.
+     * Test TcpSocketStatus methods.
      * @return void
      * @throws NotFoundException
      * @throws UnexpectedResponseException
      */
     public function testTcpStreamStatus(): void
     {
-        $status = new TcpStreamStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
+        $status = new TcpSocketStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
         //assert has() method
-        $this->assertTrue($status->has(TcpStreamStatus::TIMED_OUT));
-        $this->assertTrue($status->has(TcpStreamStatus::BLOCKED));
-        $this->assertTrue($status->has(TcpStreamStatus::EOF));
-        $this->assertTrue($status->has(TcpStreamStatus::UNREAD_BYTES));
-        $this->assertTrue($status->has(TcpStreamStatus::STREAM_TYPE));
-        $this->assertTrue($status->has(TcpStreamStatus::MODE));
-        $this->assertTrue($status->has(TcpStreamStatus::SEEKABLE));
+        $this->assertTrue($status->has(TcpSocketStatus::TIMED_OUT));
+        $this->assertTrue($status->has(TcpSocketStatus::BLOCKED));
+        $this->assertTrue($status->has(TcpSocketStatus::EOF));
+        $this->assertTrue($status->has(TcpSocketStatus::UNREAD_BYTES));
+        $this->assertTrue($status->has(TcpSocketStatus::STREAM_TYPE));
+        $this->assertTrue($status->has(TcpSocketStatus::MODE));
+        $this->assertTrue($status->has(TcpSocketStatus::SEEKABLE));
         //assert that status has not an arbitrary field
         $this->assertFalse($status->has('foo'));
         //assert get() method
-        $this->assertSame(false, $status->get(TcpStreamStatus::TIMED_OUT));
-        $this->assertSame(false, $status->get(TcpStreamStatus::BLOCKED));
-        $this->assertSame(false, $status->get(TcpStreamStatus::EOF));
-        $this->assertSame(0, $status->get(TcpStreamStatus::UNREAD_BYTES));
-        $this->assertSame('lalala', $status->get(TcpStreamStatus::STREAM_TYPE));
-        $this->assertSame('hahaha', $status->get(TcpStreamStatus::MODE));
-        $this->assertSame(false, $status->get(TcpStreamStatus::SEEKABLE));
+        $this->assertSame(false, $status->get(TcpSocketStatus::TIMED_OUT));
+        $this->assertSame(false, $status->get(TcpSocketStatus::BLOCKED));
+        $this->assertSame(false, $status->get(TcpSocketStatus::EOF));
+        $this->assertSame(0, $status->get(TcpSocketStatus::UNREAD_BYTES));
+        $this->assertSame('lalala', $status->get(TcpSocketStatus::STREAM_TYPE));
+        $this->assertSame('hahaha', $status->get(TcpSocketStatus::MODE));
+        $this->assertSame(false, $status->get(TcpSocketStatus::SEEKABLE));
         //assert field specific methods
         $this->assertSame(false, $status->timedOut());
         $this->assertSame(false, $status->blocked());
@@ -56,14 +56,14 @@ class TcpStreamStatusTest extends TestCase
      */
     public function testGetNotFoundException(): void
     {
-        $status = new TcpStreamStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
+        $status = new TcpSocketStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('Metadata "lalala" does not exist.');
         $status->get('lalala');
     }
 
     /**
-     * Test UnexpectedResponseException in TcpStreamStatus constructor.
+     * Test UnexpectedResponseException in TcpSocketStatus constructor.
      * @return void
      * @throws UnexpectedResponseException
      */
@@ -71,12 +71,12 @@ class TcpStreamStatusTest extends TestCase
     {
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('Missing "timed_out" in stream_get_meta_data() return value.');
-        new TcpStreamStatus(['blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
+        new TcpSocketStatus(['blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
     }
 
     public function testGetRawResponse(): void
     {
-        $status = new TcpStreamStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
+        $status = new TcpSocketStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
         $this->assertSame(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false], $status->getRawResponse());
     }
 }
