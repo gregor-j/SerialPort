@@ -130,6 +130,7 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
         $this->expectException(StreamStateException::class);
         $this->expectExceptionMessage('Stream not opened.');
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $timedOut = $socket->getStatus()->timedOut();
     }
 
@@ -147,6 +148,7 @@ final class TcpSocketTest extends TestCase
         sleep(1);
         $this->expectException(StreamStateException::class);
         $this->expectExceptionMessage('Stream not opened.');
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $bytes = $socket->write('lalala');
     }
 }
