@@ -7,7 +7,7 @@ use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 use PHPUnit\Framework\TestCase;
 
-class TcpStreamSocketTest extends TestCase
+class TcpSocketStatusTest extends TestCase
 {
     /**
      * Test TcpSocketStatus methods.
