@@ -121,6 +121,10 @@ final class TcpSocket implements Stream
         }
         $length = strlen($string);
         $bytes = fwrite($this->socket, $string, $length);
+        /**
+         * This should never happen, but we prepare for it anyway.
+         */
+        // @codeCoverageIgnoreStart
         if ($bytes === false) {
             $lastError = error_get_last();
             if (!is_array($lastError)) {
@@ -128,6 +132,7 @@ final class TcpSocket implements Stream
             }
             throw new WriteStreamException($lastError['message'], $lastError['type']);
         }
+        // @codeCoverageIgnoreEnd
         return $bytes;
     }
 
