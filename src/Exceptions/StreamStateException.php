@@ -8,6 +8,6 @@ namespace GregorJ\SerialPort\Exceptions;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-class StreamStateException extends LogicException
+final class StreamStateException extends LogicException
 {
 }

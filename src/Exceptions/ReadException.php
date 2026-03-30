@@ -8,6 +8,6 @@ namespace GregorJ\SerialPort\Exceptions;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-class ReadException extends RuntimeException
+final class ReadException extends RuntimeException
 {
 }
