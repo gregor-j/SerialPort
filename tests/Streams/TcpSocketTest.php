@@ -25,15 +25,15 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
         $socket->open();
         $bytes = $socket->write('1234');
-        static::assertSame(4, $bytes);
+        $this->assertSame(4, $bytes);
         $socket->setTimeout(0.5);
         $response = '';
         while ($char = $socket->readChar()) {
             $response .= $char;
         }
-        static::assertNull($char);
-        static::assertTrue($socket->getStatus()->timedOut());
-        static::assertSame('1234', $response);
+        $this->assertNull($char);
+        $this->assertTrue($socket->getStatus()->timedOut());
+        $this->assertSame('1234', $response);
         $socket->close();
     }
 
