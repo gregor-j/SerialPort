@@ -4,6 +4,7 @@ namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\OpenStreamException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
 
@@ -67,6 +68,7 @@ interface Stream
      * Use has() and get() methods to query status details.
      * @return Response
      * @throws StreamStateException
+     * @throws UnexpectedResponseException
      */
     public function getStatus(): Response;
 }
