@@ -43,7 +43,7 @@ final class LocalFifo
      * @param string $name
      * @throws Exception
      */
-    public function assertCliTool(string $name): void
+    private function assertCliTool(string $name): void
     {
         $result = shell_exec(sprintf('which %s', $name));
         if ($result === null) {
