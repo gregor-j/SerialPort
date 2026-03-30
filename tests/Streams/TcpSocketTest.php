@@ -109,4 +109,18 @@ final class TcpSocketTest extends TestCase
         $this->expectExceptionMessage('Stream not opened.');
         $timedOut = $socket->getStatus()->timedOut();
     }
+
+    /**
+     * Test exception thrown in case stream is not opened.
+     */
+    public function testFifoWentAway(): void
+    {
+        $fifo = new LocalFifo();
+        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $fifo = null;
+        sleep(1);
+        $this->expectException(StreamStateException::class);
+        $this->expectExceptionMessage('Stream not opened.');
+        $bytes = $socket->write('lalala');
+    }
 }
