@@ -4,7 +4,7 @@ namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
@@ -30,7 +30,7 @@ interface Stream
     /**
      * Opens a stream
      * @throws ConnectionException
-     * @throws StreamStateException
+     * @throws StateException
      */
     public function open(): void;
 
@@ -43,7 +43,7 @@ interface Stream
      * Writes the contents of the string to the stream.
      * @param string $string The string that is to be written.
      * @return int returns the number of bytes written
-     * @throws StreamStateException
+     * @throws StateException
      * @throws WriteStreamException
      * @throws InvalidValueException
      */
@@ -53,7 +53,7 @@ interface Stream
      * Read a single character from the stream.
      * @return string|null Returns a string containing a single character read
      *                     from the stream. Returns NULL on EOF.
-     * @throws StreamStateException
+     * @throws StateException
      */
     public function readChar(): ?string;
 
@@ -61,7 +61,7 @@ interface Stream
      * Set timeout period on the stream.
      * @param float $seconds The seconds part of the timeout to be set.
      * @return bool Returns TRUE on success or FALSE on failure.
-     * @throws StreamStateException
+     * @throws StateException
      * @throws InvalidValueException
      */
     public function setTimeout(float $seconds): bool;
@@ -73,7 +73,7 @@ interface Stream
      *                       the stream. In non-blocking mode an fgets call will always return right away while in
      *                       blocking mode it will wait for data to become available on the stream.
      * @return bool true on success or false on failure.
-     * @throws StreamStateException
+     * @throws StateException
      */
     public function setBlocking(bool $blocking): bool;
 
@@ -81,7 +81,7 @@ interface Stream
      * Retrieves status response from the stream with additional information.
      * Use has() and get() methods to query status details.
      * @return Response
-     * @throws StreamStateException
+     * @throws StateException
      * @throws UnexpectedResponseException
      */
     public function getStatus(): Response;

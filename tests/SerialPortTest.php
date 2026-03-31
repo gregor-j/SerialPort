@@ -4,7 +4,7 @@ namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ReadException;
-use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
@@ -24,7 +24,7 @@ class SerialPortTest extends TestCase
      * Test connection failed exception.
      * @return void
      * @throws ConnectionException
-     * @throws StreamStateException
+     * @throws StateException
      */
     public function testConnectionFailed(): void
     {
@@ -42,7 +42,7 @@ class SerialPortTest extends TestCase
      * Test invoking a command.
      * @return void
      * @throws ConnectionException
-     * @throws StreamStateException
+     * @throws StateException
      * @throws ReadException
      * @throws UnexpectedResponseException
      * @throws WriteStreamException

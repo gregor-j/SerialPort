@@ -4,7 +4,7 @@ namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ReadException;
-use GregorJ\SerialPort\Exceptions\StreamStateException;
+use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
@@ -21,7 +21,7 @@ interface Communication
      * Open a connection using the given stream.
      * @param Stream $stream
      * @throws ConnectionException
-     * @throws StreamStateException
+     * @throws StateException
      */
     public function __construct(Stream $stream);
 
