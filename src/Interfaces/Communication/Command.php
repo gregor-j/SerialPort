@@ -4,10 +4,11 @@ namespace GregorJ\SerialPort\Interfaces\Communication;
 
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
+use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
-use GregorJ\SerialPort\Interfaces\Stream;
+use GregorJ\SerialPort\Interfaces\Communication;
 
 /**
  * A Command is a string sent to a serial port. Depending on the Command,
@@ -21,15 +22,16 @@ interface Command
 {
     /**
      * Invoke this Command on the given stream.
-     * @param Stream $stream
+     * @param Communication $communication
      * @return Response|null
-     * @throws WriteException
-     * @throws ReadException
-     * @throws UnexpectedResponseException
-     * @throws TimeoutException
      * @throws InvalidValueException
+     * @throws ReadException
+     * @throws StateException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
      */
-    public function invoke(Stream $stream): ?Response;
+    public function invoke(Communication $communication): ?Response;
 
     /**
      * Transform the Command to a printable string for logging.
