@@ -2,9 +2,11 @@
 
 namespace GregorJ\SerialPort\Interfaces\Communication;
 
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
+use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 
 /**
@@ -21,9 +23,11 @@ interface Command
      * Invoke this Command on the given stream.
      * @param Stream $stream
      * @return Response|null
-     * @throws WriteStreamException
+     * @throws WriteException
      * @throws ReadException
      * @throws UnexpectedResponseException
+     * @throws TimeoutException
+     * @throws InvalidValueException
      */
     public function invoke(Stream $stream): ?Response;
 

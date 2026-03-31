@@ -2,9 +2,9 @@
 
 namespace GregorJ\SerialPort\Streams;
 
-use GregorJ\SerialPort\Exceptions\OpenStreamException;
-use GregorJ\SerialPort\Exceptions\StreamStateException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\StateException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 
@@ -93,11 +93,11 @@ final class TcpSocket implements Stream
     public function open(): void
     {
         if ($this->isOpen()) {
-            throw new StreamStateException('Stream already opened.');
+            throw new StateException('Stream already opened.');
         }
         $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!is_resource($socket)) {
-            throw new OpenStreamException($errstr, $errno);
+            throw new ConnectionException($errstr, $errno);
         }
         $this->socket = $socket;
     }
@@ -119,7 +119,7 @@ final class TcpSocket implements Stream
     public function write(string $string): int
     {
         if (!$this->isOpen()) {
-            throw new StreamStateException('Stream not opened.');
+            throw new StateException('Stream not opened.');
         }
         $length = strlen($string);
         $bytes = fwrite($this->socket, $string, $length);
@@ -130,9 +130,9 @@ final class TcpSocket implements Stream
         if ($bytes === false) {
             $lastError = error_get_last();
             if (!is_array($lastError)) {
-                throw new WriteStreamException('Unknown error.');
+                throw new WriteException('Unknown error.');
             }
-            throw new WriteStreamException($lastError['message'], $lastError['type']);
+            throw new WriteException($lastError['message'], $lastError['type']);
         }
         // @codeCoverageIgnoreEnd
         return $bytes;
@@ -144,7 +144,7 @@ final class TcpSocket implements Stream
     public function readChar(): ?string
     {
         if (!$this->isOpen()) {
-            throw new StreamStateException('Stream not opened.');
+            throw new StateException('Stream not opened.');
         }
         $char = fgetc($this->socket);
         if ($char === false) {
@@ -159,7 +159,7 @@ final class TcpSocket implements Stream
     public function setTimeout(float $seconds): bool
     {
         if (!$this->isOpen()) {
-            throw new StreamStateException('Stream not opened.');
+            throw new StateException('Stream not opened.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
@@ -172,7 +172,7 @@ final class TcpSocket implements Stream
     public function setBlocking(bool $blocking): bool
     {
         if (!$this->isOpen()) {
-            throw new StreamStateException('Stream not opened.');
+            throw new StateException('Stream not opened.');
         }
         return stream_set_blocking($this->socket, $blocking);
     }
@@ -184,7 +184,7 @@ final class TcpSocket implements Stream
     public function getStatus(): TcpSocketStatus
     {
         if (!$this->isOpen()) {
-            throw new StreamStateException('Stream not opened.');
+            throw new StateException('Stream not opened.');
         }
         return new TcpSocketStatus(stream_get_meta_data($this->socket));
     }
