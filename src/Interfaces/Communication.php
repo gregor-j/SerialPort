@@ -2,41 +2,50 @@
 
 namespace GregorJ\SerialPort\Interfaces;
 
-use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StateException;
+use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
-use GregorJ\SerialPort\Interfaces\Communication\Command;
-use GregorJ\SerialPort\Interfaces\Communication\Response;
 
 /**
- * A stream communication interface to send commands and get responses.
+ * A communication interface to send commands and get responses.
  * @package GregorJ\SerialPort\Interfaces
  * @author  Gregor J.
  */
 interface Communication
 {
     /**
-     * Open a connection using the given stream.
-     * @param Stream $stream
-     * @throws ConnectionException
+     * Write the string to the stream and append an optional termination character to that string.
+     * @param string $string
+     * @param string $terminator optional termination string to append
+     * @return void
+     * @throws InvalidValueException
+     * @throws StateException
+     * @throws WriteException
+     */
+    public function write(string $string, string $terminator = ''): void;
+
+    /**
+     * Set the time in seconds to wait for a response.
+     * @param float $seconds
+     * @return void
+     * @throws InvalidValueException
      * @throws StateException
      */
-    public function __construct(Stream $stream);
+    public function setTimeout(float $seconds): void;
 
     /**
-     * Close the connection to the stream.
-     */
-    public function __destruct();
-
-    /**
-     * Invoke a command on the stream.
-     * @param Command $command
-     * @return Response|null Returns null in case the command expects no response
-     * @throws WriteException
+     * Read the response from the stream.
+     * In case a terminator string is given, read until that string appears.
+     * @param string $terminator
+     * @return string
+     * @throws InvalidValueException
      * @throws ReadException
+     * @throws StateException
+     * @throws TimeoutException
      * @throws UnexpectedResponseException
      */
-    public function invoke(Command $command): ?Response;
+    public function read(string $terminator = ''): string;
 }

@@ -3,6 +3,7 @@
 namespace Tests\GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -25,6 +26,7 @@ final class TcpSocketTest extends TestCase
      * @throws StateException
      * @throws UnexpectedResponseException
      * @throws WriteException
+     * @throws InvalidValueException
      */
     public function testReadingAndWriting(): void
     {
@@ -40,7 +42,7 @@ final class TcpSocketTest extends TestCase
             $response .= $char;
         }
         $this->assertNull($char);
-        $this->assertTrue($socket->getStatus()->timedOut());
+        $this->assertTrue($socket->timedOut());
         $this->assertSame('1234', $response);
         $socket->close();
     }
@@ -81,6 +83,7 @@ final class TcpSocketTest extends TestCase
      * @return void
      * @throws StateException
      * @throws WriteException
+     * @throws InvalidValueException
      */
     public function testWritingWithoutOpeningFirst(): void
     {
@@ -109,6 +112,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case stream is not opened.
      * @return void
      * @throws StateException
+     * @throws InvalidValueException
      */
     public function testSetTimeoutWithoutOpeningFirst(): void
     {
@@ -146,7 +150,41 @@ final class TcpSocketTest extends TestCase
         $this->expectException(StateException::class);
         $this->expectExceptionMessage('Stream not opened.');
         /** @noinspection PhpUnusedLocalVariableInspection */
-        $timedOut = $socket->getStatus()->timedOut();
+        $status = $socket->getStatus();
+    }
+
+    /**
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidValueException
+     * @throws StateException
+     */
+    public function testSetInvalidTimeout(): void
+    {
+        $fifo = new LocalFifo();
+        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $socket->open();
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Timeout has to be positive.');
+        $socket->setTimeout(-0.5);
+    }
+
+    /**
+     * Test InvalidValueException when trying to write an empty string.
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidValueException
+     * @throws StateException
+     * @throws WriteException
+     */
+    public function testWritingEmptyString(): void
+    {
+        $fifo = new LocalFifo();
+        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $socket->open();
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Cannot write empty string.');
+        $socket->write('');
     }
 
     /**
@@ -154,6 +192,7 @@ final class TcpSocketTest extends TestCase
      * @return void
      * @throws StateException
      * @throws WriteException
+     * @throws InvalidValueException
      */
     public function testFifoWentAway(): void
     {
