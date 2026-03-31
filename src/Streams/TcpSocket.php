@@ -99,7 +99,6 @@ final class TcpSocket implements Stream
         if (!is_resource($socket)) {
             throw new OpenStreamException($errstr, $errno);
         }
-        stream_set_blocking($socket,  true);
         $this->socket = $socket;
     }
 
@@ -166,6 +165,18 @@ final class TcpSocket implements Stream
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
         return stream_set_timeout($this->socket, (int)$timeoutSeconds, (int)$timeoutMicroseconds);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setBlocking(bool $blocking): bool
+    {
+        if (!$this->isOpen()) {
+            throw new StreamStateException('Stream not opened.');
+        }
+        return stream_set_blocking($this->socket, $blocking);
+    }
+
 
     /**
      * @inheritDoc

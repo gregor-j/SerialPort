@@ -34,6 +34,7 @@ final class TcpSocketTest extends TestCase
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);
         $socket->setTimeout(0.5);
+        $socket->setBlocking(true);
         $response = '';
         while ($char = $socket->readChar()) {
             $response .= $char;
@@ -116,6 +117,20 @@ final class TcpSocketTest extends TestCase
         $this->expectException(StreamStateException::class);
         $this->expectExceptionMessage('Stream not opened.');
         $socket->setTimeout(0);
+    }
+
+    /**
+     * Test exception thrown in case stream is not opened.
+     * @return void
+     * @throws StreamStateException
+     */
+    public function testSetBlockingWithoutOpeningFirst(): void
+    {
+        $fifo = new LocalFifo();
+        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $this->expectException(StreamStateException::class);
+        $this->expectExceptionMessage('Stream not opened.');
+        $socket->setBlocking(true);
     }
 
     /**
