@@ -177,6 +177,13 @@ final class TcpSocket implements Stream
         return stream_set_blocking($this->socket, $blocking);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function timedOut(): bool
+    {
+        return $this->getStatus()->timedOut();
+    }
 
     /**
      * @inheritDoc
