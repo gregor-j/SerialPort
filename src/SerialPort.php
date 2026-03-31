@@ -93,7 +93,7 @@ final class SerialPort implements Communication
                 $response .= $char;
             }
         } while (!$this->contains($response, $terminator) && !$this->stream->timedOut());
-        if ($this->stream->timedOut()) {
+        if ($terminator !== '' && !$this->contains($response, $terminator) && $this->stream->timedOut()) {
             throw new TimeoutException('Timed out while reading.');
         }
         return $response;
