@@ -3,6 +3,7 @@
 namespace GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
@@ -121,6 +122,9 @@ final class TcpSocket implements Stream
         if (!$this->isOpen()) {
             throw new StateException('Stream not opened.');
         }
+        if ($string === '') {
+            throw new InvalidValueException('Cannot write empty string.');
+        }
         $length = strlen($string);
         $bytes = fwrite($this->socket, $string, $length);
         /**
@@ -160,6 +164,9 @@ final class TcpSocket implements Stream
     {
         if (!$this->isOpen()) {
             throw new StateException('Stream not opened.');
+        }
+        if ($seconds < 0.0) {
+            throw new InvalidValueException('Timeout has to be positive.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
