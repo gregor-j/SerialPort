@@ -108,7 +108,7 @@ class SerialPortTest extends TestCase
             ->with(true);
         $serialPort = new SerialPort($stream);
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('Empty string to send to the stream.');
+        $this->expectExceptionMessage('Cannot write empty string.');
         $serialPort->write('', "\n");
     }
 

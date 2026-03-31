@@ -58,7 +58,7 @@ final class SerialPort implements Communication
     public function write(string $string, string $terminator = ''): void
     {
         if ($string === '') {
-            throw new InvalidValueException('Empty string to send to the stream.');
+            throw new InvalidValueException('Cannot write empty string.');
         }
         $this->stream->setTimeout($this->timeout);
         $sendString = $string . $terminator;
