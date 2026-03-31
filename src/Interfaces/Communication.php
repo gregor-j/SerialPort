@@ -6,7 +6,7 @@ use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
 
@@ -34,7 +34,7 @@ interface Communication
      * Invoke a command on the stream.
      * @param Command $command
      * @return Response|null Returns null in case the command expects no response
-     * @throws WriteStreamException
+     * @throws WriteException
      * @throws ReadException
      * @throws UnexpectedResponseException
      */

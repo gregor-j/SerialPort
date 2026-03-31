@@ -6,7 +6,7 @@ use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
 
 /**
@@ -44,7 +44,7 @@ interface Stream
      * @param string $string The string that is to be written.
      * @return int returns the number of bytes written
      * @throws StateException
-     * @throws WriteStreamException
+     * @throws WriteException
      * @throws InvalidValueException
      */
     public function write(string $string): int;

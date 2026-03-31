@@ -6,7 +6,7 @@ use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\SerialPort;
@@ -45,7 +45,7 @@ class SerialPortTest extends TestCase
      * @throws StateException
      * @throws ReadException
      * @throws UnexpectedResponseException
-     * @throws WriteStreamException
+     * @throws WriteException
      */
     public function testInvokingCommand(): void
     {

@@ -5,7 +5,7 @@ namespace Tests\GregorJ\SerialPort\Streams;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
 use Tests\GregorJ\SerialPort\LocalFifo;
@@ -24,7 +24,7 @@ final class TcpSocketTest extends TestCase
      * @throws ConnectionException
      * @throws StateException
      * @throws UnexpectedResponseException
-     * @throws WriteStreamException
+     * @throws WriteException
      */
     public function testReadingAndWriting(): void
     {
@@ -80,7 +80,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case stream is not opened.
      * @return void
      * @throws StateException
-     * @throws WriteStreamException
+     * @throws WriteException
      */
     public function testWritingWithoutOpeningFirst(): void
     {
@@ -153,7 +153,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case fifo went away.
      * @return void
      * @throws StateException
-     * @throws WriteStreamException
+     * @throws WriteException
      */
     public function testFifoWentAway(): void
     {

@@ -4,7 +4,7 @@ namespace GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\StateException;
-use GregorJ\SerialPort\Exceptions\WriteStreamException;
+use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 
@@ -130,9 +130,9 @@ final class TcpSocket implements Stream
         if ($bytes === false) {
             $lastError = error_get_last();
             if (!is_array($lastError)) {
-                throw new WriteStreamException('Unknown error.');
+                throw new WriteException('Unknown error.');
             }
-            throw new WriteStreamException($lastError['message'], $lastError['type']);
+            throw new WriteException($lastError['message'], $lastError['type']);
         }
         // @codeCoverageIgnoreEnd
         return $bytes;
