@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\GregorJ\SerialPort\Exceptions;
 
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
