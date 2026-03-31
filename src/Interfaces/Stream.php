@@ -3,6 +3,7 @@
 namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
@@ -44,6 +45,7 @@ interface Stream
      * @return int returns the number of bytes written
      * @throws StreamStateException
      * @throws WriteStreamException
+     * @throws InvalidValueException
      */
     public function write(string $string): int;
 
@@ -60,6 +62,7 @@ interface Stream
      * @param float $seconds The seconds part of the timeout to be set.
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws StreamStateException
+     * @throws InvalidValueException
      */
     public function setTimeout(float $seconds): bool;
 
