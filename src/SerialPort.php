@@ -61,7 +61,7 @@ final class SerialPort implements Communication
             throw new InvalidValueException('Empty string to send to the stream.');
         }
         $this->stream->setTimeout($this->timeout);
-        $sendString = $string.$terminator;
+        $sendString = $string . $terminator;
         $expectLength = strlen($sendString);
         $bytes = $this->stream->write($sendString);
         if ($bytes !== $expectLength) {
@@ -92,7 +92,7 @@ final class SerialPort implements Communication
             if (is_string($char) && $char !== '') {
                 $response .= $char;
             }
-        } while(!$this->contains($response, $terminator) && !$this->stream->timedOut());
+        } while (!$this->contains($response, $terminator) && !$this->stream->timedOut());
         if ($this->stream->timedOut()) {
             throw new TimeoutException('Timed out while reading.');
         }
