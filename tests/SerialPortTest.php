@@ -2,7 +2,7 @@
 
 namespace Tests\GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Exceptions\OpenStreamException;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
@@ -23,7 +23,7 @@ class SerialPortTest extends TestCase
     /**
      * Test connection failed exception.
      * @return void
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      */
     public function testConnectionFailed(): void
@@ -31,8 +31,8 @@ class SerialPortTest extends TestCase
         $stream = $this->getMockBuilder(Stream::class)->getMock();
         $stream->expects(static::once())
             ->method('open')
-            ->willThrowException(new OpenStreamException('Connection failed!', 111));
-        $this->expectException(OpenStreamException::class);
+            ->willThrowException(new ConnectionException('Connection failed!', 111));
+        $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection failed!');
         $this->expectExceptionCode(111);
         new SerialPort($stream);
@@ -41,7 +41,7 @@ class SerialPortTest extends TestCase
     /**
      * Test invoking a command.
      * @return void
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      * @throws ReadException
      * @throws UnexpectedResponseException

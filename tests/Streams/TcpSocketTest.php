@@ -2,7 +2,7 @@
 
 namespace Tests\GregorJ\SerialPort\Streams;
 
-use GregorJ\SerialPort\Exceptions\OpenStreamException;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
@@ -21,7 +21,7 @@ final class TcpSocketTest extends TestCase
     /**
      * Test actual reading and writing from an echo service.
      * @return void
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      * @throws UnexpectedResponseException
      * @throws WriteStreamException
@@ -48,7 +48,7 @@ final class TcpSocketTest extends TestCase
     /**
      * Test exception thrown in case stream is already opened.
      * @return void
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      */
     public function testOpeningTwice(): void
@@ -64,13 +64,13 @@ final class TcpSocketTest extends TestCase
     /**
      * Test exception thrown in case the remote host refuses a connection.
      * @return void
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      */
     public function testConnectionError(): void
     {
         $socket = new TcpSocket('127.0.0.16', 7777);
-        $this->expectException(OpenStreamException::class);
+        $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection refused');
         $this->expectExceptionCode(111);
         $socket->open();

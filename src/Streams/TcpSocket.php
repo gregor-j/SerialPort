@@ -2,7 +2,7 @@
 
 namespace GregorJ\SerialPort\Streams;
 
-use GregorJ\SerialPort\Exceptions\OpenStreamException;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
 use GregorJ\SerialPort\Interfaces\Stream;
@@ -97,7 +97,7 @@ final class TcpSocket implements Stream
         }
         $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!is_resource($socket)) {
-            throw new OpenStreamException($errstr, $errno);
+            throw new ConnectionException($errstr, $errno);
         }
         $this->socket = $socket;
     }

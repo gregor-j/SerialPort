@@ -2,7 +2,7 @@
 
 namespace GregorJ\SerialPort\Interfaces;
 
-use GregorJ\SerialPort\Exceptions\OpenStreamException;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\StreamStateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteStreamException;
@@ -28,7 +28,7 @@ interface Stream
 
     /**
      * Opens a stream
-     * @throws OpenStreamException
+     * @throws ConnectionException
      * @throws StreamStateException
      */
     public function open(): void;
