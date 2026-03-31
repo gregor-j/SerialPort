@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test the basic string response class.
  */
-class StringResponseTest extends TestCase
+final class StringResponseTest extends TestCase
 {
     /**
      * Test the difference between a raw and a clean response.

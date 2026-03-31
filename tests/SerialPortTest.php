@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
  * @package Tests\GregorJ\SerialPort
  * @author  Gregor J.
  */
-class SerialPortTest extends TestCase
+final class SerialPortTest extends TestCase
 {
     /**
      * Test setting an invalid timeout.
