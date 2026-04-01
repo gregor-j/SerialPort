@@ -67,12 +67,18 @@ final class TcpSocket implements Stream
      * @param string     $host The hostname.
      * @param int        $port The port number.
      * @param float|null $timeout The optional connection timeout, in seconds.
+     * @throws InvalidValueException
      */
     public function __construct(string $host, int $port, float $timeout = null)
     {
+        // set default timeout in case no timeout is provided
+        $timeout = $timeout ?? self::DEFAULT_CONNECTION_TIMEOUT;
+        if ($timeout < 0.0) {
+            throw new InvalidValueException('Timeout has to be positive.');
+        }
+        $this->connectionTimeout = $timeout;
         $this->host = $host;
         $this->port = $port;
-        $this->connectionTimeout = $timeout ?: self::DEFAULT_CONNECTION_TIMEOUT;
     }
 
     /**
