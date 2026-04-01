@@ -58,9 +58,9 @@ final class TcpSocket implements Stream
     private float $connectionTimeout;
 
     /**
-     * @var resource
+     * @var resource|null
      */
-    private $socket;
+    private $socket = null;
 
     /**
      * Create a TCP socket.
