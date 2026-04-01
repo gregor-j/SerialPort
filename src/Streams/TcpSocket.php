@@ -98,7 +98,7 @@ final class TcpSocket implements Stream
     }
 
     /**
-     * Return the open socket resource or throw if the stream is closed.
+     * Return the open socket resource or throw if the socket is closed.
      *
      * @return resource
      * @throws StateException
@@ -106,7 +106,7 @@ final class TcpSocket implements Stream
     private function getSocket()
     {
         if (!is_resource($this->socket)) {
-            throw new StateException('Stream not opened.');
+            throw new StateException('TCP connection not established.');
         }
         return $this->socket;
     }
@@ -117,7 +117,7 @@ final class TcpSocket implements Stream
     public function open(): void
     {
         if ($this->isOpen()) {
-            throw new StateException('Stream already opened.');
+            throw new StateException('TCP connection already established.');
         }
         $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!is_resource($socket)) {
@@ -181,7 +181,7 @@ final class TcpSocket implements Stream
             $totalBytes += $bytes;
         }
 
-        // Return the total number of bytes written to the stream.
+        // Return the total number of bytes written to the socket.
         return $totalBytes;
     }
 
