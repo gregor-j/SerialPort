@@ -223,7 +223,8 @@ final class TcpSocket implements Stream
      */
     public function timedOut(): bool
     {
-        return $this->getStatus()->timedOut();
+        $metadata = stream_get_meta_data($this->getSocket());
+        return (bool)$metadata['timed_out'];
     }
 
     /**
