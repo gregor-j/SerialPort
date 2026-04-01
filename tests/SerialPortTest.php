@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
@@ -19,7 +21,7 @@ use PHPUnit\Framework\TestCase;
  * @package Tests\GregorJ\SerialPort
  * @author  Gregor J.
  */
-class SerialPortTest extends TestCase
+final class SerialPortTest extends TestCase
 {
     /**
      * Test setting an invalid timeout.
