@@ -46,4 +46,15 @@ class BasicCommandTest extends TestCase
         $this->assertSame("WORLD\r", $response->getRawResponse());
         static::assertSame('WORLD', (string)$response);
     }
+
+    /**
+     * Constructor must reject negative timeout values.
+     */
+    public function testConstructorWithNegativeTimeout(): void
+    {
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Timeout has to be positive.');
+
+        new BasicCommand('HELLO', "\n", "\r", -1.0);
+    }
 }
