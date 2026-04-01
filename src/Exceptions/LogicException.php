@@ -8,7 +8,7 @@ use Exception;
 
 /**
  * Class LogicException
- * Logic exceptions indicate a programming error in some way.
+ * The logic exceptions indicates a programming error in some way.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

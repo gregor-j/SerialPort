@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Exceptions;
 
 /**
  * Class ReadException
- * Read exceptions are thrown in case reading from the stream failed.
+ * The read exception is thrown in case reading failed.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

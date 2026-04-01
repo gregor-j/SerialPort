@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Exceptions;
 
 /**
  * Class StateException
- * Stream state exceptions are thrown in case the logic of opening and closing streams is violated.
+ * The state exception is thrown in case the logic of opening and closing a connection is violated.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

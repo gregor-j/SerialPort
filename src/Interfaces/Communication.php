@@ -19,7 +19,7 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 interface Communication
 {
     /**
-     * Write the string to the stream and append an optional termination character to that string.
+     * Write the string and append an optional termination character to that string.
      * @param string $string
      * @param string $terminator optional termination string to append
      * @return void
@@ -39,7 +39,7 @@ interface Communication
     public function setTimeout(float $seconds): void;
 
     /**
-     * Read the response from the stream.
+     * Read the response.
      * In case a terminator string is given, read until that string appears.
      * @param string $terminator
      * @return string

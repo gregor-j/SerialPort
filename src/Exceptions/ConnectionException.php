@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Exceptions;
 
 /**
  * Class ConnectionException
- * Open stream exceptions are thrown in case a stream cannot be opened.
+ * The connection exception is thrown in case a connection cannot be opened.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

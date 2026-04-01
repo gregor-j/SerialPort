@@ -8,7 +8,7 @@ use Exception;
 
 /**
  * Class RuntimeException
- * Runtime exceptions are caused by environmental circumstances rather than code.
+ * The runtime exception is caused by environmental circumstances rather than code.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

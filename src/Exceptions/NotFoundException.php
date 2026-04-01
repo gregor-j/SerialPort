@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Exceptions;
 
 /**
  * Class NotFoundException
- * Not found exceptions are thrown if an expected values cannot be retrieved.
+ * The not found exception is thrown if a value is expected but cannot be found.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

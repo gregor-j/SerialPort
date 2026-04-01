@@ -7,8 +7,11 @@ namespace GregorJ\SerialPort\Exceptions;
 use Throwable;
 
 /**
- * Exception thrown in case the response doesn't match the expectations of the class implementing the Response
- * interface.
+ * Class UnexpectedResponseException
+ * The unexpected response exception is thrown in case the response didn't match the expectation of the class
+ * implementing the Response interface.
+ * @package GregorJ\SerialPort\Exceptions
+ * @author  Gregor J.
  */
 final class UnexpectedResponseException extends LogicException
 {

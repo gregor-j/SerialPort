@@ -77,7 +77,7 @@ final class TcpSocketStatus implements Response
     }
 
     /**
-     * true if the stream timed out while waiting for data on the last call to fread() or fgets().
+     * true if the connection timed out while waiting for data on the last call to fread() or fgets().
      * @return bool
      */
     public function timedOut(): bool
@@ -86,7 +86,7 @@ final class TcpSocketStatus implements Response
     }
 
     /**
-     * true if the stream is in blocking IO mode.
+     * true if the socket is in blocking IO mode.
      * See stream_set_blocking():
      * @link https://www.php.net/manual/en/function.stream-set-blocking.php
      * @return bool
@@ -97,7 +97,7 @@ final class TcpSocketStatus implements Response
     }
 
     /**
-     * true if the stream has reached end-of-file. Note that for socket streams this member can be true even when
+     * true if the connection has reached end-of-file (EOF). Note that for sockets this member can be true even when
      * unread_bytes is non-zero. To determine if there is more data to be read, use feof() instead of reading this item.
      * @return bool
      */

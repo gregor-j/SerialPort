@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Exceptions;
 
 /**
  * Class WriteException
- * Write stream exception is thrown in case an error occurs during writing to the stream.
+ * The write exception is thrown in case writing failed.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */

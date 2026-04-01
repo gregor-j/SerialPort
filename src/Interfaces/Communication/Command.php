@@ -23,7 +23,7 @@ use GregorJ\SerialPort\Interfaces\Communication;
 interface Command
 {
     /**
-     * Invoke this Command on the given stream.
+     * Invoke this Command on the given communication instance.
      * @param Communication $communication
      * @return Response|null
      * @throws InvalidValueException
