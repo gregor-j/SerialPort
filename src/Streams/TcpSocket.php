@@ -19,6 +19,7 @@ use function fsockopen;
 use function fwrite;
 use function is_array;
 use function is_resource;
+use function max;
 use function stream_get_meta_data;
 use function stream_set_timeout;
 use function strlen;
@@ -128,20 +129,42 @@ final class TcpSocket implements Stream
             throw new InvalidValueException('Cannot write empty string.');
         }
         $length = strlen($string);
-        $bytes = fwrite($this->socket, $string, $length);
+        $offset = 0;
+        $totalBytes = 0;
+
         /**
-         * This should never happen, but we prepare for it anyway.
+         * partial write loop: fwrite() may not write all requested bytes on a single call.
+         * This is normal TCP behavior, especially with larger strings or network congestion.
+         * Continue writing until all bytes are sent, tracking offset and total bytes written.
          */
-        // @codeCoverageIgnoreStart
-        if ($bytes === false) {
-            $lastError = error_get_last();
-            if (!is_array($lastError)) {
-                throw new WriteException('Unknown error.');
+        while ($offset < $length) {
+            /**
+             * Write the remaining portion of the string, starting from the current offset.
+             * max() ensures we always request at least 1 byte to prevent zero-length writes.
+             */
+            $bytes = fwrite($this->socket, substr($string, $offset), max($length - $offset, 1));
+
+            /**
+             * This should never happen, but we prepare for it anyway.
+             */
+            // @codeCoverageIgnoreStart
+            if ($bytes === false) {
+                $lastError = error_get_last();
+                if (!is_array($lastError)) {
+                    throw new WriteException('Unknown error.');
+                }
+                throw new WriteException($lastError['message'], $lastError['type']);
             }
-            throw new WriteException($lastError['message'], $lastError['type']);
+            // @codeCoverageIgnoreEnd
+
+            // Move offset forward by the number of bytes actually written.
+            $offset += $bytes;
+            // Accumulate total bytes written across all iterations.
+            $totalBytes += $bytes;
         }
-        // @codeCoverageIgnoreEnd
-        return $bytes;
+
+        // Return the total number of bytes written to the stream.
+        return $totalBytes;
     }
 
     /**
