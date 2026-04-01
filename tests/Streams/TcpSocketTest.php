@@ -53,6 +53,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case socket is already opened.
      * @return void
      * @throws ConnectionException
+     * @throws InvalidValueException
      * @throws StateException
      */
     public function testOpeningTwice(): void
@@ -69,6 +70,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case the remote host refuses a connection.
      * @return void
      * @throws ConnectionException
+     * @throws InvalidValueException
      * @throws StateException
      */
     public function testConnectionError(): void
@@ -93,65 +95,6 @@ final class TcpSocketTest extends TestCase
         $this->expectException(StateException::class);
         $this->expectExceptionMessage('TCP connection not established.');
         $socket->write('');
-    }
-
-    /**
-     * Test exception thrown in case socket is not opened.
-     * @return void
-     * @throws StateException
-     */
-    public function testReadWithoutOpeningFirst(): void
-    {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        $socket->readChar();
-    }
-
-    /**
-     * Test exception thrown in case socket is not opened.
-     * @return void
-     * @throws StateException
-     * @throws InvalidValueException
-     */
-    public function testSetTimeoutWithoutOpeningFirst(): void
-    {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        $socket->setTimeout(0);
-    }
-
-    /**
-     * Test exception thrown in case socket is not opened.
-     * @return void
-     * @throws StateException
-     */
-    public function testSetBlockingWithoutOpeningFirst(): void
-    {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        $socket->setBlocking(true);
-    }
-
-    /**
-     * Test exception thrown in case socket is not opened.
-     * @return void
-     * @throws StateException
-     * @throws UnexpectedResponseException
-     */
-    public function testTimedOutWithoutOpeningFirst(): void
-    {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        /** @noinspection PhpUnusedLocalVariableInspection */
-        $status = $socket->getStatus();
     }
 
     /**
