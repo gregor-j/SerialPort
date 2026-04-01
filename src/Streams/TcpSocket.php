@@ -98,6 +98,20 @@ final class TcpSocket implements Stream
     }
 
     /**
+     * Return the open socket resource or throw if the stream is closed.
+     *
+     * @return resource
+     * @throws StateException
+     */
+    private function getSocket()
+    {
+        if (!is_resource($this->socket)) {
+            throw new StateException('Stream not opened.');
+        }
+        return $this->socket;
+    }
+
+    /**
      * @inheritDoc
      */
     public function open(): void
@@ -118,7 +132,7 @@ final class TcpSocket implements Stream
     public function close(): void
     {
         if ($this->isOpen()) {
-            fclose($this->socket);
+            fclose($this->getSocket());
             $this->socket = null;
         }
     }
@@ -128,9 +142,7 @@ final class TcpSocket implements Stream
      */
     public function write(string $string): int
     {
-        if (!$this->isOpen()) {
-            throw new StateException('Stream not opened.');
-        }
+        $socket = $this->getSocket();
         if ($string === '') {
             throw new InvalidValueException('Cannot write empty string.');
         }
@@ -148,7 +160,7 @@ final class TcpSocket implements Stream
              * Write the remaining portion of the string, starting from the current offset.
              * max() ensures we always request at least 1 byte to prevent zero-length writes.
              */
-            $bytes = fwrite($this->socket, substr($string, $offset), max($length - $offset, 1));
+            $bytes = fwrite($socket, substr($string, $offset), max($length - $offset, 1));
 
             /**
              * This should never happen, but we prepare for it anyway.
@@ -178,10 +190,7 @@ final class TcpSocket implements Stream
      */
     public function readChar(): ?string
     {
-        if (!$this->isOpen()) {
-            throw new StateException('Stream not opened.');
-        }
-        $char = fgetc($this->socket);
+        $char = fgetc($this->getSocket());
         if ($char === false) {
             return null;
         }
@@ -193,15 +202,12 @@ final class TcpSocket implements Stream
      */
     public function setTimeout(float $seconds): bool
     {
-        if (!$this->isOpen()) {
-            throw new StateException('Stream not opened.');
-        }
         if ($seconds < 0.0) {
             throw new InvalidValueException('Timeout has to be positive.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
-        return stream_set_timeout($this->socket, (int)$timeoutSeconds, (int)$timeoutMicroseconds);
+        return stream_set_timeout($this->getSocket(), (int)$timeoutSeconds, (int)$timeoutMicroseconds);
     }
 
     /**
@@ -209,10 +215,7 @@ final class TcpSocket implements Stream
      */
     public function setBlocking(bool $blocking): bool
     {
-        if (!$this->isOpen()) {
-            throw new StateException('Stream not opened.');
-        }
-        return stream_set_blocking($this->socket, $blocking);
+        return stream_set_blocking($this->getSocket(), $blocking);
     }
 
     /**
@@ -228,9 +231,6 @@ final class TcpSocket implements Stream
      */
     public function getStatus(): TcpSocketStatus
     {
-        if (!$this->isOpen()) {
-            throw new StateException('Stream not opened.');
-        }
-        return new TcpSocketStatus(stream_get_meta_data($this->socket));
+        return new TcpSocketStatus(stream_get_meta_data($this->getSocket()));
     }
 }
