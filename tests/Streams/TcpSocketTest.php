@@ -11,7 +11,7 @@ use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
-use Tests\GregorJ\SerialPort\LocalFifo;
+use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
  * Class TcpSocketTest
@@ -32,8 +32,8 @@ final class TcpSocketTest extends TestCase
      */
     public function testReadingAndWriting(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);
@@ -58,8 +58,8 @@ final class TcpSocketTest extends TestCase
      */
     public function testOpeningTwice(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
         $this->expectException(StateException::class);
         $this->expectExceptionMessage('TCP connection already established.');
@@ -90,8 +90,8 @@ final class TcpSocketTest extends TestCase
      */
     public function testWritingWithoutOpeningFirst(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $this->expectException(StateException::class);
         $this->expectExceptionMessage('TCP connection not established.');
         $socket->write('');
@@ -105,8 +105,8 @@ final class TcpSocketTest extends TestCase
      */
     public function testSetInvalidTimeout(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage('Timeout has to be positive.');
@@ -123,8 +123,8 @@ final class TcpSocketTest extends TestCase
      */
     public function testWritingEmptyString(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
@@ -132,17 +132,17 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * Test exception thrown in case fifo went away.
+     * Test exception thrown in case the server is gone before writing.
      * @return void
      * @throws StateException
      * @throws WriteException
      * @throws InvalidValueException
      */
-    public function testFifoWentAway(): void
+    public function testServerWentAway(): void
     {
-        $fifo = new LocalFifo();
-        $socket = new TcpSocket('127.0.0.1', $fifo->getTcpPort());
-        $fifo = null;
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $server = null;
         sleep(1);
         $this->expectException(StateException::class);
         $this->expectExceptionMessage('TCP connection not established.');
