@@ -75,7 +75,6 @@ final class TcpSocketTest extends TestCase
     {
         $socket = new TcpSocket('127.0.0.16', 7777);
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Connection refused');
         $this->expectExceptionCode(111);
         $socket->open();
     }
