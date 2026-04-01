@@ -160,4 +160,48 @@ final class TcpSocketTest extends TestCase
         $this->expectExceptionMessage('Timeout has to be positive.');
         new TcpSocket('127.0.0.1', 7777, -0.1);
     }
+
+    /**
+     * getStatus() must return a TcpSocketStatus with correct field values when open.
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidValueException
+     * @throws StateException
+     * @throws UnexpectedResponseException
+     */
+    public function testGetStatusWhenOpen(): void
+    {
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $socket->setBlocking(true);
+        $status = $socket->getStatus();
+        // A freshly connected, blocking socket has not timed out.
+        $this->assertFalse($status->timedOut());
+        // setBlocking(true) means the socket is in blocking mode.
+        $this->assertTrue($status->blocked());
+        // Stream type for a TCP socket created via fsockopen().
+        $this->assertSame('tcp_socket/ssl', $status->streamType());
+        // A freshly connected socket has not reached EOF.
+        $this->assertFalse($status->eof());
+        // TCP sockets are not seekable.
+        $this->assertFalse($status->seekable());
+
+        $socket->close();
+    }
+
+    /**
+     * getStatus() must throw StateException when the socket is not open.
+     * @return void
+     * @throws StateException
+     * @throws UnexpectedResponseException
+     * @throws InvalidValueException
+     */
+    public function testGetStatusWhenClosed(): void
+    {
+        $socket = new TcpSocket('127.0.0.1', 7777);
+        $this->expectException(StateException::class);
+        $this->expectExceptionMessage('TCP connection not established.');
+        $socket->getStatus();
+    }
 }
