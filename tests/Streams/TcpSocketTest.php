@@ -206,4 +206,15 @@ final class TcpSocketTest extends TestCase
         /** @noinspection PhpUnusedLocalVariableInspection */
         $bytes = $socket->write('lalala');
     }
+
+    /**
+     * Constructor must reject negative timeout values.
+     * @return void
+     */
+    public function testConstructorWithInvalidTimeout(): void
+    {
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Timeout has to be positive.');
+        new TcpSocket('127.0.0.1', 7777, -0.1);
+    }
 }
