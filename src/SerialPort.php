@@ -14,8 +14,8 @@ use GregorJ\SerialPort\Interfaces\Stream;
 
 use function is_string;
 use function sprintf;
-use function str_contains;
 use function strlen;
+use function substr;
 
 /**
  * Invoke serial port commands on a configured communication and return their response.
@@ -89,29 +89,36 @@ final class SerialPort implements Communication
     {
         $this->stream->setTimeout($this->timeout);
         $response = '';
+        $terminatorLength = strlen($terminator);
         do {
             $char = $this->stream->readChar();
             if (is_string($char) && $char !== '') {
                 $response .= $char;
             }
-        } while (!$this->contains($response, $terminator) && !$this->stream->timedOut());
-        if ($terminator !== '' && !$this->contains($response, $terminator) && $this->stream->timedOut()) {
+        } while (!$this->endsWith($response, $terminator, $terminatorLength) && !$this->stream->timedOut());
+
+        if ($terminator !== '' && !$this->endsWith($response, $terminator, $terminatorLength) && $this->stream->timedOut()) {
             throw new TimeoutException('Timed out while reading.');
         }
         return $response;
     }
 
     /**
-     * Check if haystack string contains the needle string.
-     * @param string $haystack
-     * @param string $needle
+     * Check if the response string ends with the terminator.
+     * @param string $response The response string.
+     * @param string $terminator The terminator to search for.
+     * @param int $terminatorLength The length of the terminator.
      * @return bool
      */
-    private function contains(string $haystack, string $needle): bool
+    private function endsWith(string $response, string $terminator, int $terminatorLength): bool
     {
-        if ($needle === '') {
+        if ($terminatorLength === 0) {
             return false;
         }
-        return str_contains($haystack, $needle);
+        // Only check the last terminatorLength bytes of the response.
+        // Since $tail has exactly the same length as $terminator, a direct equality
+        // check suffices — str_contains would be redundant here.
+        $tail = substr($response, -$terminatorLength);
+        return $tail === $terminator;
     }
 }
