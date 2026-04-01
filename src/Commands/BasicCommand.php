@@ -7,7 +7,6 @@ namespace GregorJ\SerialPort\Commands;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Responses\StringResponse;
-use kbATeam\ByteDebug\ToString;
 
 /**
  * Invoke a basic string command on a communication and return its response.
@@ -52,6 +51,6 @@ final class BasicCommand implements Command
      */
     public function __toString(): string
     {
-        return ToString::fromString($this->command . $this->commandTerminator);
+        return $this->command;
     }
 }

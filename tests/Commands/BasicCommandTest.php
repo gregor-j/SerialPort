@@ -41,7 +41,7 @@ class BasicCommandTest extends TestCase
             ->with("\r")
             ->willReturn("WORLD\r");
         $command = new BasicCommand('HELLO', "\n", "\r", 1.0);
-        $this->assertSame('HELLO\n', (string)$command);
+        $this->assertSame('HELLO', (string)$command);
         $response = $command->invoke($com);
         $this->assertSame("WORLD\r", $response->getRawResponse());
         static::assertSame('WORLD', (string)$response);
