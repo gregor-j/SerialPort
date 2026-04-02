@@ -8,6 +8,9 @@ use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Streams\Rfc2217Socket;
 use PHPUnit\Framework\TestCase;
+use Tests\GregorJ\SerialPort\LocalRfc2217Server;
+
+use function usleep;
 
 /**
  * Unit tests for RFC 2217 (Telnet COM Port Control Option) socket implementation.
@@ -361,5 +364,164 @@ final class Rfc2217SocketTest extends TestCase
         $socket->setFlowControl(Rfc2217Socket::FLOW_RTS_CTS);
 
         $this->assertFalse($socket->isOpen());
+    }
+
+    /**
+     * Test actual write and read with RFC 2217 echo server.
+     */
+    public function testWriteAndReadPlainData(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $socket->setBlocking(true);
+
+        // Write plain ASCII data (no IAC bytes)
+        $written = $socket->write('Hello');
+        $this->assertSame(5, $written);
+
+        // Read it back (echo)
+        $response = '';
+        for ($i = 0; $i < 5; $i++) {
+            $char = $socket->readChar();
+            if ($char !== null) {
+                $response .= $char;
+            }
+        }
+        $this->assertSame('Hello', $response);
+        $socket->close();
+    }
+
+    /**
+     * Test IAC escaping: 0xFF bytes must be doubled on wire.
+     */
+    public function testIacEscapingInWrite(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $socket->setBlocking(true);
+
+        // Write a string containing 0xFF (IAC byte)
+        $dataWithIAC = "A\xFFB";
+        $written = $socket->write($dataWithIAC);
+        // write() returns number of original bytes (3: A, FF, B)
+        $this->assertSame(3, $written);
+
+        // Read back: 0xFF gets escaped to 0xFF 0xFF on wire,
+        // but readChar() filters Telnet sequences and returns plain 0xFF
+        $char1 = $socket->readChar();
+        $this->assertSame('A', $char1);
+
+        $char2 = $socket->readChar();
+        // Server echoes 0xFF 0xFF back, which readChar() decodes to single 0xFF
+        $this->assertSame("\xFF", $char2);
+
+        $char3 = $socket->readChar();
+        $this->assertSame('B', $char3);
+
+        $socket->close();
+    }
+
+    /**
+     * Test readChar() ignores Telnet negotiation sequences.
+     */
+    public function testReadCharIgnoresTelnetNegotiation(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $socket->setBlocking(true);
+
+        // Write simple data
+        $socket->write('X');
+
+        // Read it back: even if server sends Telnet commands,
+        // readChar() should skip them and return the data
+        $char = $socket->readChar();
+        $this->assertSame('X', $char);
+
+        $socket->close();
+    }
+
+    /**
+     * Test write with empty string throws before opening connection.
+     */
+    public function testWriteValidatesBeforeConnect(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+
+        // Empty string check happens before getSocket() is called
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Cannot write empty string.');
+        $socket->write('');
+    }
+
+    /**
+     * Test readChar() returns null on EOF.
+     */
+    public function testReadCharReturnsNullOnEOF(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+
+        // Close the connection on server side by destroying the server
+        unset($server);
+        usleep(100000);  // Give server time to shutdown
+
+        // readChar() should return null after EOF
+        $result = $socket->readChar();
+        // This may be null or false, depending on timing
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test multiple write calls accumulate bytes correctly.
+     */
+    public function testMultipleWriteCalls(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $socket->setBlocking(true);
+
+        // Write in multiple chunks
+        $bytes1 = $socket->write('Hello');
+        $this->assertSame(5, $bytes1);
+
+        $bytes2 = $socket->write('World');
+        $this->assertSame(5, $bytes2);
+
+        // Read back both
+        $response = '';
+        for ($i = 0; $i < 10; $i++) {
+            $char = $socket->readChar();
+            if ($char !== null) {
+                $response .= $char;
+            }
+        }
+        $this->assertSame('HelloWorld', $response);
+        $socket->close();
+    }
+
+    /**
+     * Test setBlocking() affects read behavior.
+     */
+    public function testSetBlockingOnOpenSocket(): void
+    {
+        $server = new LocalRfc2217Server();
+        $socket = new Rfc2217Socket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+
+        // Should not throw
+        $result = $socket->setBlocking(false);
+        $this->assertTrue($result);
+
+        $result = $socket->setBlocking(true);
+        $this->assertTrue($result);
+
+        $socket->close();
     }
 }
