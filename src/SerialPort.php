@@ -6,7 +6,6 @@ namespace GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication;
@@ -32,7 +31,6 @@ final class SerialPort implements Communication
      * Create a serial port using a stream class.
      * @param Stream $stream
      * @throws ConnectionException
-     * @throws StateException
      */
     public function __construct(Stream $stream)
     {
@@ -98,7 +96,7 @@ final class SerialPort implements Communication
         } while (!$this->endsWith($response, $terminator, $terminatorLength) && !$this->stream->timedOut());
 
         if ($terminator !== '' && !$this->endsWith($response, $terminator, $terminatorLength) && $this->stream->timedOut()) {
-            throw new TimeoutException('Reponse timed out on serial port.', 0, null, $response);
+            throw new TimeoutException('Response timed out on serial port.', 0, null, $response);
         }
         return $response;
     }

@@ -6,7 +6,6 @@ namespace GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
@@ -101,12 +100,19 @@ final class TcpSocket implements Stream
      * Return the open socket resource or throw if the socket is closed.
      *
      * @return resource
-     * @throws StateException
+     * @throws ConnectionException
      */
     private function getSocket()
     {
         if (!is_resource($this->socket)) {
-            throw new StateException('TCP connection not established.');
+            $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
+            if (!is_resource($socket)) {
+                throw new ConnectionException(
+                    sprintf('TCP connection to %s:%u failed: %s', $this->host, $this->port, $errstr),
+                    $errno
+                );
+            }
+            $this->socket = $socket;
         }
         return $this->socket;
     }
@@ -116,17 +122,9 @@ final class TcpSocket implements Stream
      */
     public function open(): void
     {
-        if ($this->isOpen()) {
-            throw new StateException('TCP connection already established.');
+        if (!$this->isOpen()) {
+            $this->getSocket();
         }
-        $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
-        if (!is_resource($socket)) {
-            throw new ConnectionException(
-                sprintf('TCP connection to %s:%u failed: %s', $this->host, $this->port, $errstr),
-                $errno
-            );
-        }
-        $this->socket = $socket;
     }
 
     /**
@@ -134,8 +132,8 @@ final class TcpSocket implements Stream
      */
     public function close(): void
     {
-        if ($this->isOpen()) {
-            fclose($this->getSocket());
+        if (is_resource($this->socket)) {
+            fclose($this->socket);
             $this->socket = null;
         }
     }
