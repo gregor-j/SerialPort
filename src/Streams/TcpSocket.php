@@ -149,6 +149,9 @@ final class TcpSocket implements Stream
         if ($string === '') {
             throw new InvalidValueException('Cannot write empty string.');
         }
+        //clear any last errors that might exist before starting to write
+        error_clear_last();
+        //prepare for partial write loop
         $length = strlen($string);
         $offset = 0;
         $totalBytes = 0;
@@ -166,17 +169,22 @@ final class TcpSocket implements Stream
             $bytes = fwrite($socket, substr($string, $offset), max($length - $offset, 1));
 
             /**
-             * This should never happen, but we prepare for it anyway.
+             * Edge case: fwrite() returns false
+             * This can happen if the connection is lost or an error occurs during writing on OS level.
              */
-            // @codeCoverageIgnoreStart
             if ($bytes === false) {
                 $lastError = error_get_last();
-                if (!is_array($lastError)) {
-                    throw new WriteException('Unknown error.');
-                }
-                throw new WriteException($lastError['message'], $lastError['type']);
+                throw new WriteException(
+                    sprintf(
+                        'Failed to write "%s" to TCP connection %s:%s: %s',
+                        $string,
+                        $this->host,
+                        $this->port,
+                        is_array($lastError) ? $lastError['message'] : 'Unknown error.'
+                    ),
+                    is_array($lastError) ? $lastError['type'] : 0
+                );
             }
-            // @codeCoverageIgnoreEnd
 
             // Move offset forward by the number of bytes actually written.
             $offset += $bytes;
