@@ -60,7 +60,7 @@ final class TcpSocketStatusTest extends TestCase
     {
         $status = new TcpSocketStatus(['timed_out' => false, 'blocked' => false, 'eof' => false, 'unread_bytes' => 0, 'stream_type' => 'lalala', 'mode' => 'hahaha', 'seekable' => false]);
         $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('Metadata "lalala" does not exist.');
+        $this->expectExceptionMessage('TcpSocketStatus metadata "lalala" not found.');
         $status->get('lalala');
     }
 

@@ -66,17 +66,17 @@ final class TcpSocket implements Stream
      * Create a TCP socket.
      * @param string     $host The hostname.
      * @param int        $port The port number.
-     * @param float|null $timeout The optional connection timeout, in seconds.
+     * @param float|null $timeoutSeconds The optional connection timeout, in seconds.
      * @throws InvalidValueException
      */
-    public function __construct(string $host, int $port, float $timeout = null)
+    public function __construct(string $host, int $port, float $timeoutSeconds = null)
     {
         // set default timeout in case no timeout is provided
-        $timeout = $timeout ?? self::DEFAULT_CONNECTION_TIMEOUT;
-        if ($timeout < 0.0) {
-            throw new InvalidValueException('Timeout has to be positive.');
+        $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
+        if ($timeoutSeconds < 0.0) {
+            throw new InvalidValueException('Connection timeout for TcpSocket has to be positive.');
         }
-        $this->connectionTimeout = $timeout;
+        $this->connectionTimeout = $timeoutSeconds;
         $this->host = $host;
         $this->port = $port;
     }
@@ -121,7 +121,10 @@ final class TcpSocket implements Stream
         }
         $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!is_resource($socket)) {
-            throw new ConnectionException($errstr, $errno);
+            throw new ConnectionException(
+                sprintf('TCP connection to %s:%u failed: %s', $this->host, $this->port, $errstr),
+                $errno
+            );
         }
         $this->socket = $socket;
     }
@@ -203,7 +206,7 @@ final class TcpSocket implements Stream
     public function setTimeout(float $seconds): bool
     {
         if ($seconds < 0.0) {
-            throw new InvalidValueException('Timeout has to be positive.');
+            throw new InvalidValueException('Response timeout for TcpSocket has to be positive.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;

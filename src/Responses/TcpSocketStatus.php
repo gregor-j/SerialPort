@@ -63,7 +63,7 @@ final class TcpSocketStatus implements Response
     public function get(string $name): mixed
     {
         if (!$this->has($name)) {
-            throw new NotFoundException(sprintf('Metadata "%s" does not exist.', $name));
+            throw new NotFoundException(sprintf('TcpSocketStatus metadata "%s" not found.', $name));
         }
         return $this->metadata[$name];
     }

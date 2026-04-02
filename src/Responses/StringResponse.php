@@ -46,7 +46,7 @@ final class StringResponse implements Response
     public function get(string $name): string
     {
         if (!$this->has($name)) {
-            throw new NotFoundException(sprintf('Response "%s" not found.', $name));
+            throw new NotFoundException(sprintf('StringResponse "%s" not found.', $name));
         }
         return $this->response[$name];
     }
