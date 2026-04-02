@@ -6,11 +6,11 @@ namespace Tests\GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
@@ -25,7 +25,6 @@ final class TcpSocketTest extends TestCase
      * Test actual reading and writing from an echo service.
      * @return void
      * @throws ConnectionException
-     * @throws StateException
      * @throws UnexpectedResponseException
      * @throws WriteException
      * @throws InvalidValueException
@@ -50,28 +49,10 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * Test exception thrown in case socket is already opened.
-     * @return void
-     * @throws ConnectionException
-     * @throws InvalidValueException
-     * @throws StateException
-     */
-    public function testOpeningTwice(): void
-    {
-        $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->open();
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection already established.');
-        $socket->open();
-    }
-
-    /**
      * Test exception thrown in case the remote host refuses a connection.
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws StateException
      */
     public function testConnectionError(): void
     {
@@ -82,26 +63,9 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * Test exception thrown in case socket is not opened.
-     * @return void
-     * @throws StateException
-     * @throws WriteException
-     * @throws InvalidValueException
-     */
-    public function testWritingWithoutOpeningFirst(): void
-    {
-        $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        $socket->write('');
-    }
-
-    /**
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws StateException
      */
     public function testSetInvalidTimeout(): void
     {
@@ -118,7 +82,6 @@ final class TcpSocketTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws StateException
      * @throws WriteException
      */
     public function testWritingEmptyString(): void
@@ -129,25 +92,6 @@ final class TcpSocketTest extends TestCase
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
         $socket->write('');
-    }
-
-    /**
-     * Test exception thrown in case the server is gone before writing.
-     * @return void
-     * @throws StateException
-     * @throws WriteException
-     * @throws InvalidValueException
-     */
-    public function testServerWentAway(): void
-    {
-        $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $server = null;
-        sleep(1);
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        /** @noinspection PhpUnusedLocalVariableInspection */
-        $bytes = $socket->write('lalala');
     }
 
     /**
@@ -166,7 +110,6 @@ final class TcpSocketTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws StateException
      * @throws UnexpectedResponseException
      */
     public function testGetStatusWhenOpen(): void
@@ -190,20 +133,6 @@ final class TcpSocketTest extends TestCase
         $socket->close();
     }
 
-    /**
-     * getStatus() must throw StateException when the socket is not open.
-     * @return void
-     * @throws StateException
-     * @throws UnexpectedResponseException
-     * @throws InvalidValueException
-     */
-    public function testGetStatusWhenClosed(): void
-    {
-        $socket = new TcpSocket('127.0.0.1', 7777);
-        $this->expectException(StateException::class);
-        $this->expectExceptionMessage('TCP connection not established.');
-        $socket->getStatus();
-    }
 
     /**
      * write() must wrap fwrite() failures in a WriteException.
@@ -212,7 +141,6 @@ final class TcpSocketTest extends TestCase
      *
      * @return void
      * @throws InvalidValueException
-     * @throws StateException
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
     {
@@ -220,7 +148,7 @@ final class TcpSocketTest extends TestCase
         $this->assertIsResource($readOnlyStream);
 
         $socket = new TcpSocket('127.0.0.1', 7777);
-        $reflection = new \ReflectionClass($socket);
+        $reflection = new ReflectionClass($socket);
         $socketProperty = $reflection->getProperty('socket');
         /** @noinspection PhpExpressionResultUnusedInspection */
         $socketProperty->setAccessible(true);

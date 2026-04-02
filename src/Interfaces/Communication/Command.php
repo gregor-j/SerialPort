@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Interfaces\Communication;
 
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -28,7 +28,7 @@ interface Command
      * @return Response|null
      * @throws InvalidValueException
      * @throws ReadException
-     * @throws StateException
+     * @throws ConnectionException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException

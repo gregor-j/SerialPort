@@ -5,7 +5,6 @@ namespace Tests\GregorJ\SerialPort\Commands;
 use GregorJ\SerialPort\Commands\BasicCommand;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -22,7 +21,6 @@ class BasicCommandTest extends TestCase
      * @return void
      * @throws InvalidValueException
      * @throws ReadException
-     * @throws StateException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException

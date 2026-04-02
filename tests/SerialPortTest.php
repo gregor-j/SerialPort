@@ -7,7 +7,6 @@ namespace Tests\GregorJ\SerialPort;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -28,7 +27,6 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws StateException
      */
     public function testInvalidTimeout()
     {
@@ -45,7 +43,6 @@ final class SerialPortTest extends TestCase
      * Test connection failed exception.
      * @return void
      * @throws ConnectionException
-     * @throws StateException
      */
     public function testConnectionFailed(): void
     {
@@ -62,7 +59,6 @@ final class SerialPortTest extends TestCase
      * Test causing
      * @return void
      * @throws ConnectionException
-     * @throws StateException
      * @throws WriteException
      * @throws InvalidValueException
      */
@@ -91,7 +87,6 @@ final class SerialPortTest extends TestCase
      * Test causing a InvalidValueException because of an empty command.
      * @return void
      * @throws ConnectionException
-     * @throws StateException
      * @throws WriteException
      * @throws InvalidValueException
      */
@@ -120,7 +115,6 @@ final class SerialPortTest extends TestCase
      * @throws ConnectionException
      * @throws InvalidValueException
      * @throws ReadException
-     * @throws StateException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -155,7 +149,7 @@ final class SerialPortTest extends TestCase
         $serialPort->setTimeout(5.4);
         $serialPort->write('testTestTest', "\n");
         $this->expectException(TimeoutException::class);
-        $this->expectExceptionMessage('Reponse timed out on serial port.');
+        $this->expectExceptionMessage('Response timed out on serial port.');
         $serialPort->read("\n");
     }
 
@@ -165,7 +159,6 @@ final class SerialPortTest extends TestCase
      * @throws ConnectionException
      * @throws InvalidValueException
      * @throws ReadException
-     * @throws StateException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -209,7 +202,6 @@ final class SerialPortTest extends TestCase
      * @throws ConnectionException
      * @throws InvalidValueException
      * @throws ReadException
-     * @throws StateException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException

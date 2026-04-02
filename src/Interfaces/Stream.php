@@ -6,7 +6,6 @@ namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\StateException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication\Response;
@@ -32,7 +31,6 @@ interface Stream
     /**
      * Opens a stream
      * @throws ConnectionException
-     * @throws StateException
      */
     public function open(): void;
 
@@ -46,7 +44,7 @@ interface Stream
      * @param string $string The string that is to be written.
      * @return int returns the number of bytes written
      * @throws InvalidValueException
-     * @throws StateException
+     * @throws ConnectionException
      * @throws WriteException
      */
     public function write(string $string): int;
@@ -55,7 +53,7 @@ interface Stream
      * Read a single character from the stream.
      * @return string|null Returns a string containing a single character read
      *                     from the stream. Returns NULL on EOF.
-     * @throws StateException
+     * @throws ConnectionException
      */
     public function readChar(): ?string;
 
@@ -64,7 +62,7 @@ interface Stream
      * @param float $seconds The seconds part of the timeout to be set.
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws InvalidValueException
-     * @throws StateException
+     * @throws ConnectionException
      */
     public function setTimeout(float $seconds): bool;
 
@@ -75,14 +73,14 @@ interface Stream
      *                       the stream. In non-blocking mode an fgets call will always return right away while in
      *                       blocking mode it will wait for data to become available on the stream.
      * @return bool true on success or false on failure.
-     * @throws StateException
+     * @throws ConnectionException
      */
     public function setBlocking(bool $blocking): bool;
 
     /**
      * Check whether the read or write command timed out.
      * @return bool
-     * @throws StateException
+     * @throws ConnectionException
      * @throws UnexpectedResponseException
      */
     public function timedOut(): bool;
@@ -91,7 +89,7 @@ interface Stream
      * Retrieves status response from the stream with additional information.
      * Use has() and get() methods to query status details.
      * @return Response
-     * @throws StateException
+     * @throws ConnectionException
      * @throws UnexpectedResponseException
      */
     public function getStatus(): Response;
