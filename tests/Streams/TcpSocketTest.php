@@ -204,4 +204,35 @@ final class TcpSocketTest extends TestCase
         $this->expectExceptionMessage('TCP connection not established.');
         $socket->getStatus();
     }
+
+    /**
+     * write() must wrap fwrite() failures in a WriteException.
+     *
+     * Uses a read-only stream handle to deterministically force fwrite() to return false.
+     *
+     * @return void
+     * @throws InvalidValueException
+     * @throws StateException
+     */
+    public function testWriteThrowsWhenFwriteReturnsFalse(): void
+    {
+        $readOnlyStream = fopen('php://temp', 'rb');
+        $this->assertIsResource($readOnlyStream);
+
+        $socket = new TcpSocket('127.0.0.1', 7777);
+        $reflection = new \ReflectionClass($socket);
+        $socketProperty = $reflection->getProperty('socket');
+        /** @noinspection PhpExpressionResultUnusedInspection */
+        $socketProperty->setAccessible(true);
+        $socketProperty->setValue($socket, $readOnlyStream);
+
+        try {
+            $socket->write('x');
+            $this->fail('Expected WriteException was not thrown.');
+        } catch (WriteException $exception) {
+            $this->assertStringStartsWith('Failed to write "x" to TCP connection 127.0.0.1:7777:', $exception->getMessage());
+        } finally {
+            fclose($readOnlyStream);
+        }
+    }
 }
