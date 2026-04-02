@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Interfaces;
 
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
-use GregorJ\SerialPort\Interfaces\Communication\Response;
 
 /**
  * A stream interface to write to and read from.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Responses;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
-use GregorJ\SerialPort\Interfaces\Communication\Response;
+use GregorJ\SerialPort\Interfaces\Response;
 
 use function array_key_exists;
 use function explode;

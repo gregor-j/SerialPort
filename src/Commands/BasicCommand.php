@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Commands;
 
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Interfaces\Command;
 use GregorJ\SerialPort\Interfaces\Communication;
-use GregorJ\SerialPort\Interfaces\Communication\Command;
 use GregorJ\SerialPort\Responses\StringResponse;
 
 /**
