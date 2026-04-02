@@ -10,6 +10,7 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 
+use function error_clear_last;
 use function error_get_last;
 use function fclose;
 use function fgetc;
@@ -19,9 +20,13 @@ use function fwrite;
 use function is_array;
 use function is_resource;
 use function max;
+use function microtime;
+use function sprintf;
 use function stream_get_meta_data;
+use function stream_set_blocking;
 use function stream_set_timeout;
 use function strlen;
+use function substr;
 
 /**
  * Class TcpSocket
