@@ -42,12 +42,13 @@ interface Stream
     /**
      * Writes the contents of the string to the stream.
      * @param string $string The string that is to be written.
+     * @param null|float $timeoutSeconds The maximum time to wait for the write operation to complete.
      * @return int returns the number of bytes written
      * @throws InvalidValueException
      * @throws ConnectionException
      * @throws WriteException
      */
-    public function write(string $string): int;
+    public function write(string $string, float $timeoutSeconds = null): int;
 
     /**
      * Read a single character from the stream.

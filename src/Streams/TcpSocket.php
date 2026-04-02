@@ -10,6 +10,7 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 
+use function error_clear_last;
 use function error_get_last;
 use function fclose;
 use function fgetc;
@@ -19,9 +20,13 @@ use function fwrite;
 use function is_array;
 use function is_resource;
 use function max;
+use function microtime;
+use function sprintf;
 use function stream_get_meta_data;
+use function stream_set_blocking;
 use function stream_set_timeout;
 use function strlen;
+use function substr;
 
 /**
  * Class TcpSocket
@@ -40,6 +45,11 @@ final class TcpSocket implements Stream
      * Default connection timeout in seconds.
      */
     public const DEFAULT_CONNECTION_TIMEOUT = 2.0;
+
+    /**
+     * Default write timeout in seconds.
+     */
+    public const DEFAULT_WRITE_TIMEOUT = 2.0;
 
     /**
      * @var string Hostname/IP
@@ -141,11 +151,15 @@ final class TcpSocket implements Stream
     /**
      * @inheritDoc
      */
-    public function write(string $string): int
+    public function write(string $string, float $timeoutSeconds = null): int
     {
         $socket = $this->getSocket();
         if ($string === '') {
             throw new InvalidValueException('Cannot write empty string.');
+        }
+        $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_WRITE_TIMEOUT;
+        if ($timeoutSeconds < 0) {
+            throw new InvalidValueException('Write timeout for TcpSocket must be positive.');
         }
         //clear any last errors that might exist before starting to write
         error_clear_last();
@@ -153,6 +167,7 @@ final class TcpSocket implements Stream
         $length = strlen($string);
         $offset = 0;
         $totalBytes = 0;
+        $zeroWriteStart = null;
 
         /**
          * partial write loop: fwrite() may not write all requested bytes on a single call.
@@ -165,6 +180,28 @@ final class TcpSocket implements Stream
              * max() ensures we always request at least 1 byte to prevent zero-length writes.
              */
             $bytes = fwrite($socket, substr($string, $offset), max($length - $offset, 1));
+
+            /**
+             * In case fwrite() returns (int)0 permanently, wait for the timeout then throw an exception.
+             */
+            if ($bytes === 0 && $zeroWriteStart !== null && (microtime(true) - $zeroWriteStart) > $timeoutSeconds) {
+                throw new WriteException(
+                    sprintf(
+                        'Write operation timed out after %ds while writing %u bytes of "%s" to TCP connection %s:%s.',
+                        $timeoutSeconds,
+                        $totalBytes,
+                        $string,
+                        $this->host,
+                        $this->port
+                    )
+                );
+            } elseif ($bytes === 0 && $zeroWriteStart === null) {
+                // Start or continue tracking zero-byte writes for timeout handling.
+                $zeroWriteStart = microtime(true);
+            } elseif ($bytes > 0) {
+                // Reset zero-byte write tracking on successful write.
+                $zeroWriteStart = null;
+            }
 
             /**
              * Edge case: fwrite() returns false
