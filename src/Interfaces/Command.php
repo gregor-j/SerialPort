@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GregorJ\SerialPort\Interfaces\Communication;
+namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
@@ -10,7 +10,6 @@ use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
-use GregorJ\SerialPort\Interfaces\Communication;
 
 /**
  * A Command is a string sent to a serial port. Depending on the Command,

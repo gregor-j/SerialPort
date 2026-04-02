@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GregorJ\SerialPort\Interfaces\Communication;
+namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 
