@@ -37,7 +37,7 @@ final class SerialPortTest extends TestCase
             ->method('open');
         $serialPort = new SerialPort($stream);
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('Timeout has to be positive.');
+        $this->expectExceptionMessage('Response timeout for SerialPort has to be positive.');
         $serialPort->setTimeout(-2.5);
     }
 
@@ -155,7 +155,7 @@ final class SerialPortTest extends TestCase
         $serialPort->setTimeout(5.4);
         $serialPort->write('testTestTest', "\n");
         $this->expectException(TimeoutException::class);
-        $this->expectExceptionMessage('Timed out while reading.');
+        $this->expectExceptionMessage('Reponse timed out on serial port.');
         $serialPort->read("\n");
     }
 

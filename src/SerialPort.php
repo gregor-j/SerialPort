@@ -77,7 +77,7 @@ final class SerialPort implements Communication
     public function setTimeout(float $seconds): void
     {
         if ($seconds < 0.0) {
-            throw new InvalidValueException('Timeout has to be positive.');
+            throw new InvalidValueException('Response timeout for SerialPort has to be positive.');
         }
         $this->timeout = $seconds;
     }
@@ -98,7 +98,7 @@ final class SerialPort implements Communication
         } while (!$this->endsWith($response, $terminator, $terminatorLength) && !$this->stream->timedOut());
 
         if ($terminator !== '' && !$this->endsWith($response, $terminator, $terminatorLength) && $this->stream->timedOut()) {
-            throw new TimeoutException('Timed out while reading.');
+            throw new TimeoutException('Reponse timed out on serial port.', 0, null, $response);
         }
         return $response;
     }

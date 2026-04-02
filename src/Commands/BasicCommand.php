@@ -38,7 +38,7 @@ final class BasicCommand implements Command
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
-            throw new InvalidValueException('Timeout has to be positive.');
+            throw new InvalidValueException('The response timeout for BasicCommand has to be positive.');
         }
         $this->timeout = $timeoutSeconds;
     }

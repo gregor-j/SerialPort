@@ -53,7 +53,7 @@ class BasicCommandTest extends TestCase
     public function testConstructorWithNegativeTimeout(): void
     {
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('Timeout has to be positive.');
+        $this->expectExceptionMessage('The response timeout for BasicCommand has to be positive.');
 
         new BasicCommand('HELLO', "\n", "\r", -1.0);
     }

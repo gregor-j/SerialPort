@@ -109,7 +109,7 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('Timeout has to be positive.');
+        $this->expectExceptionMessage('Response timeout for TcpSocket has to be positive.');
         $socket->setTimeout(-0.5);
     }
 
@@ -157,7 +157,7 @@ final class TcpSocketTest extends TestCase
     public function testConstructorWithInvalidTimeout(): void
     {
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('Timeout has to be positive.');
+        $this->expectExceptionMessage('Connection timeout for TcpSocket has to be positive.');
         new TcpSocket('127.0.0.1', 7777, -0.1);
     }
 
