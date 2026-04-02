@@ -179,4 +179,56 @@ final class TcpSocketTest extends TestCase
             fclose($readOnlyStream);
         }
     }
+
+    /**
+     * write() must throw WriteException when write operation times out.
+     *
+     * This test verifies the timeout mechanism by creating a blocking scenario
+     * where fwrite() cannot immediately write all data. We use a combination of
+     * non-blocking mode and a small buffer size to force repeated zero-byte writes.
+     *
+     * @return void
+     * @throws InvalidValueException
+     * @throws ConnectionException
+     */
+    public function testWriteThrowsOnWriteTimeout(): void
+    {
+        // Create a connected socket pair using stream_socket_pair
+        $sockets = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        if ($sockets === false) {
+            $this->markTestSkipped('stream_socket_pair not available on this system');
+        }
+
+        list($readEnd, $writeEnd) = $sockets;
+
+        // Set write end to non-blocking so fwrite can return 0
+        stream_set_blocking($writeEnd, false);
+
+        // Fill up the buffer by reading from the other end slowly
+        // This forces fwrite() on writeEnd to return 0 when buffer is full
+        stream_set_blocking($readEnd, false);
+
+        $socket = new TcpSocket('127.0.0.1', 7777);
+        $reflection = new ReflectionClass($socket);
+        $socketProperty = $reflection->getProperty('socket');
+        /** @noinspection PhpExpressionResultUnusedInspection */
+        $socketProperty->setAccessible(true);
+        $socketProperty->setValue($socket, $writeEnd);
+
+        try {
+            // Write a very large amount of data that will fill the buffer and cause fwrite to return 0.
+            // With a 50ms timeout and non-blocking writes, this should trigger the timeout.
+            $largeData = str_repeat('X', 4194304);  // 4MB
+            $socket->write($largeData, 0.05);
+
+            // If we get here, the buffer accepted all data (unlikely on a small test system).
+            $this->markTestSkipped('Write buffer was large enough to accept all data without timeout');
+        } catch (WriteException $exception) {
+            // Verify the timeout message is present.
+            $this->assertStringContainsString('Write operation timed out', $exception->getMessage());
+        } finally {
+            fclose($readEnd);
+            fclose($writeEnd);
+        }
+    }
 }
