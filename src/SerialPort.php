@@ -63,7 +63,7 @@ final class SerialPort implements Communication
         $this->stream->setTimeout($this->timeout);
         $sendString = $string . $terminator;
         $expectLength = strlen($sendString);
-        $bytes = $this->stream->write($sendString);
+        $bytes = $this->stream->write($sendString, $this->timeout);
         if ($bytes !== $expectLength) {
             throw new WriteException(sprintf('Expected to write %u bytes, but %u bytes were written.', $expectLength, $bytes));
         }
