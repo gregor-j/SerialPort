@@ -6,6 +6,7 @@ namespace GregorJ\SerialPort\Responses;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Response;
+use kbATeam\ByteDebug\ToString;
 
 use function array_key_exists;
 use function explode;
@@ -46,7 +47,7 @@ final class StringResponse implements Response
     public function get(string $name): string
     {
         if (!$this->has($name)) {
-            throw new NotFoundException(sprintf('StringResponse "%s" not found.', $name));
+            throw new NotFoundException(sprintf('StringResponse "%s" not found.', ToString::fromString($name)));
         }
         return $this->response[$name];
     }
@@ -64,7 +65,8 @@ final class StringResponse implements Response
      */
     public function __toString(): string
     {
-        return $this->response[self::RESPONSE] ?? '';
+        $response = $this->response[self::RESPONSE] ?? '';
+        return ToString::fromString($response);
     }
 
     /**

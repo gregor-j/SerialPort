@@ -7,6 +7,7 @@ namespace GregorJ\SerialPort\Responses;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Interfaces\Response;
+use kbATeam\ByteDebug\ToString;
 
 use function array_key_exists;
 use function sprintf;
@@ -63,7 +64,7 @@ final class TcpSocketStatus implements Response
     public function get(string $name): mixed
     {
         if (!$this->has($name)) {
-            throw new NotFoundException(sprintf('TcpSocketStatus metadata "%s" not found.', $name));
+            throw new NotFoundException(sprintf('TcpSocketStatus metadata "%s" not found.', ToString::fromString($name)));
         }
         return $this->metadata[$name];
     }
@@ -155,7 +156,7 @@ final class TcpSocketStatus implements Response
     public function __toString(): string
     {
         return sprintf(
-            '[timed out: %s] [blocked: %s] [EOF: %s] [unread_bytes: %u] [stream type: "%s"] [mode: %s] [seekable: %s]',
+            '[timed out: %s] [blocked: %s] [EOF: %s] [unread_bytes: %u] [stream type: %s] [mode: %s] [seekable: %s]',
             $this->timedOut() ? 'true' : 'false',
             $this->blocked() ? 'true' : 'false',
             $this->eof() ? 'true' : 'false',

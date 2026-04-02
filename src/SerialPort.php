@@ -114,8 +114,6 @@ final class SerialPort implements Communication
             return false;
         }
         // Only check the last terminatorLength bytes of the response.
-        // Since $tail has exactly the same length as $terminator, a direct equality
-        // check suffices — str_contains would be redundant here.
         $tail = substr($response, -$terminatorLength);
         return $tail === $terminator;
     }
