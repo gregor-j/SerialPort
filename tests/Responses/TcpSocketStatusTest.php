@@ -47,7 +47,7 @@ final class TcpSocketStatusTest extends TestCase
         $this->assertSame('hahaha', $status->mode());
         $this->assertSame(false, $status->seekable());
         //assert __toString() method
-        $this->assertSame('[timed out: false] [blocked: false] [EOF: false] [unread_bytes: 0] [stream type: "lalala"] [mode: hahaha] [seekable: false]', (string)$status);
+        $this->assertSame('[timed out: false] [blocked: false] [EOF: false] [unread_bytes: 0] [stream type: lalala] [mode: hahaha] [seekable: false]', (string)$status);
     }
 
     /**

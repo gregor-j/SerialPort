@@ -8,6 +8,7 @@ use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Interfaces\Command;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Responses\StringResponse;
+use kbATeam\ByteDebug\ToString;
 
 /**
  * Invoke a basic string command on a communication and return its response.
@@ -58,6 +59,6 @@ final class BasicCommand implements Command
      */
     public function __toString(): string
     {
-        return $this->command;
+        return ToString::fromString($this->command . $this->commandTerminator);
     }
 }

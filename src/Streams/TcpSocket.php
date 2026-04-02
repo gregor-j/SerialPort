@@ -9,6 +9,7 @@ use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
+use kbATeam\ByteDebug\ToString;
 
 use function error_clear_last;
 use function error_get_last;
@@ -190,7 +191,7 @@ final class TcpSocket implements Stream
                         'Write operation timed out after %ds while writing %u bytes of "%s" to TCP connection %s:%s.',
                         $timeoutSeconds,
                         $totalBytes,
-                        $string,
+                        ToString::fromString($string),
                         $this->host,
                         $this->port
                     )
@@ -212,7 +213,7 @@ final class TcpSocket implements Stream
                 throw new WriteException(
                     sprintf(
                         'Failed to write "%s" to TCP connection %s:%s: %s',
-                        $string,
+                        ToString::fromString($string),
                         $this->host,
                         $this->port,
                         is_array($lastError) ? $lastError['message'] : 'Unknown error.'
