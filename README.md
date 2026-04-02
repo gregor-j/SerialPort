@@ -10,11 +10,9 @@ You need to create classes implementing `Command`, `Response` and `Value`. The i
 
 Use [pySerial] to map a serial device to a TCP port.
 
-Use `TcpSocket` to create a connection to a `SerialPort` use `SerialPort->invoke()` to invoke a `Command` and get either `null` or a `Response` containing at least one `Value`.
+Create a `TcpSocket` and pass it to a new `SerialPort` instance. Then implement a `Command` subclass and invoke it via `$command->invoke($serialPort)` to get either `null` or a `Response`.
 
-A `Command` instance is a string sent to a `SerialPort` instance. The `SerialPort` instance invokes the `Command` using its `Stream` instance.
-
-Your implementation of `Command` needs to define how to read the string returned by the device and either return a `Response` containing at least one `Value`, or `null`.
+A `Command` instance represents a string to send to a device via the `SerialPort`. Your implementation of `Command` needs to define the command string, its terminators, and how to read and parse the device's response into a `Response` object.
 
 [pySerial]: https://pyserial.readthedocs.io/en/latest/examples.html
 [license-mit]: https://img.shields.io/badge/license-MIT-blue.svg
