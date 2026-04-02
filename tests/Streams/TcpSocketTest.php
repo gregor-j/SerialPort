@@ -78,6 +78,22 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidValueException
+     * @throws WriteException
+     */
+    public function testSetInvalidWriteTimeout(): void
+    {
+        $server = new LocalTcpServer();
+        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket->open();
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage('Write timeout for TcpSocket must be positive.');
+        $socket->write('x', -0.5);
+    }
+
+    /**
      * Test InvalidValueException when trying to write an empty string.
      * @return void
      * @throws ConnectionException
