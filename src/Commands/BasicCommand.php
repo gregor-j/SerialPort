@@ -8,7 +8,7 @@ use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Interfaces\Command;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Responses\StringResponse;
-use kbATeam\ByteDebug\ToString;
+use GregorJ\ToString\ToString;
 
 /**
  * Invoke a basic string command on a communication and return its response.
