@@ -33,6 +33,7 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $this->assertSame('tcp://127.0.0.1:' . $server->getTcpPort(), (string)$socket);
         $socket->open();
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);

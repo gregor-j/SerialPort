@@ -117,4 +117,13 @@ final class SerialPort implements Communication
         $tail = substr($response, -$terminatorLength);
         return $tail === $terminator;
     }
+
+    /**
+     * String representation of the serial port config for logging.
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return (string)$this->stream;
+    }
 }
