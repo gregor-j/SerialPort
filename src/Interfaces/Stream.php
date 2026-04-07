@@ -22,6 +22,12 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 interface Stream
 {
     /**
+     * String representation of the Stream class type and config for logging.
+     * @return string
+     */
+    public function __toString(): string;
+
+    /**
      * Has the stream already been opened?
      * @return bool
      */

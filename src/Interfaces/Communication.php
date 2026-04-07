@@ -19,6 +19,12 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 interface Communication
 {
     /**
+     * String representation of the Communication class type and config for logging.
+     * @return string
+     */
+    public function __toString(): string;
+
+    /**
      * Write the string and append an optional termination character to that string.
      * @param string $string
      * @param string $terminator optional termination string to append

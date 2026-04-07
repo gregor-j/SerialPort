@@ -23,6 +23,21 @@ use PHPUnit\Framework\TestCase;
 final class SerialPortTest extends TestCase
 {
     /**
+     * Test __toString() method of SerialPort.
+     * @return void
+     * @throws ConnectionException
+     */
+    public function testToString(): void
+    {
+        $stream = $this->getMockBuilder(Stream::class)->getMock();
+        $stream->expects(static::once())
+            ->method('__toString')
+            ->willReturn('abc://de:f');
+        $serialPort = new SerialPort($stream);
+        $this->assertSame('abc://de:f', (string)$serialPort);
+    }
+
+    /**
      * Test setting an invalid timeout.
      * @return void
      * @throws ConnectionException

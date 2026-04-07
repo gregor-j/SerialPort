@@ -281,4 +281,13 @@ final class TcpSocket implements Stream
     {
         return new TcpSocketStatus(stream_get_meta_data($this->getSocket()));
     }
+
+    /**
+     * String representation of the TCP socket connection details.
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return sprintf('tcp://%s:%s', $this->host, $this->port);
+    }
 }
