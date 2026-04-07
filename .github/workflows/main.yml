@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: "GIT checkout"
         # noinspection UndefinedAction
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
       - name: "Validate composer.json"
         run: "composer validate --strict"
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: "GIT checkout"
         # noinspection UndefinedAction
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
 
       - name: "Setup PHP"
         uses: "shivammathur/setup-php@v2"
