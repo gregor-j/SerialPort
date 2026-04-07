@@ -9,7 +9,7 @@ use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
-use kbATeam\ByteDebug\ToString;
+use GregorJ\ToString\ToString;
 
 use function error_clear_last;
 use function error_get_last;

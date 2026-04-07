@@ -6,7 +6,7 @@ namespace GregorJ\SerialPort\Responses;
 
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Response;
-use kbATeam\ByteDebug\ToString;
+use GregorJ\ToString\ToString;
 
 use function array_key_exists;
 use function explode;
