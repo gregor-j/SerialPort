@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\GregorJ\SerialPort\Commands;
 
 use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
 use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
@@ -26,17 +27,18 @@ class BasicCommandTest extends TestCase
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
+     * @throws ConnectionException
      */
     public function testBasicCommand(): void
     {
         $com = $this->getMockBuilder(Communication::class)->getMock();
-        $com->expects(static::once())
+        $com->expects($this->once())
             ->method('setTimeout')
             ->with(1.0);
-        $com->expects(static::once())
+        $com->expects($this->once())
             ->method('write')
             ->with('HELLO', "\n");
-        $com->expects(static::once())
+        $com->expects($this->once())
             ->method('read')
             ->with("\r")
             ->willReturn("WORLD\r");
@@ -44,7 +46,7 @@ class BasicCommandTest extends TestCase
         $this->assertSame('HELLO\n', (string)$command);
         $response = $command->invoke($com);
         $this->assertSame("WORLD\r", $response->getRawResponse());
-        static::assertSame('WORLD', (string)$response);
+        $this->assertSame('WORLD', (string)$response);
     }
 
     /**
