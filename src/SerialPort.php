@@ -10,6 +10,7 @@ use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\Stream;
+use GregorJ\ToString\ToString;
 
 use function is_string;
 use function sprintf;
@@ -28,6 +29,12 @@ final class SerialPort implements Communication
     private float $timeout;
 
     /**
+     * @var string[]
+     */
+    private array $log = [];
+
+
+    /**
      * Create a serial port using a stream class.
      * @param Stream $stream
      * @throws ConnectionException
@@ -35,10 +42,12 @@ final class SerialPort implements Communication
     public function __construct(Stream $stream)
     {
         $this->stream = $stream;
-        $this->timeout = self::DEFAULT_TIMEOUT;
         if (!$this->stream->isOpen()) {
+            $this->log[] = sprintf('open %s', $this->stream);
             $this->stream->open();
         }
+        $this->timeout = self::DEFAULT_TIMEOUT;
+        $this->log[] = sprintf('set timeout to %f seconds', $this->timeout);
         $this->stream->setBlocking(true);
     }
 
@@ -63,6 +72,7 @@ final class SerialPort implements Communication
         $this->stream->setTimeout($this->timeout);
         $sendString = $string . $terminator;
         $expectLength = strlen($sendString);
+        $this->log[] = sprintf('write "%s"', ToString::fromString($sendString));
         $bytes = $this->stream->write($sendString, $this->timeout);
         if ($bytes !== $expectLength) {
             throw new WriteException(sprintf('Expected to write %u bytes, but %u bytes were written.', $expectLength, $bytes));
@@ -77,6 +87,7 @@ final class SerialPort implements Communication
         if ($seconds < 0.0) {
             throw new InvalidValueException('Response timeout for SerialPort has to be positive.');
         }
+        $this->log[] = sprintf('set timeout to %f seconds', $seconds);
         $this->timeout = $seconds;
     }
 
@@ -96,8 +107,10 @@ final class SerialPort implements Communication
         } while (!$this->endsWith($response, $terminator, $terminatorLength) && !$this->stream->timedOut());
 
         if ($terminator !== '' && !$this->endsWith($response, $terminator, $terminatorLength) && $this->stream->timedOut()) {
+            $this->log[] = sprintf('read timed out. partial response "%s"', ToString::fromString($response));
             throw new TimeoutException('Response timed out on serial port.', 0, null, $response);
         }
+        $this->log[] = sprintf('read "%s"', ToString::fromString($response));
         return $response;
     }
 
@@ -125,5 +138,13 @@ final class SerialPort implements Communication
     public function __toString(): string
     {
         return (string)$this->stream;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLog(): array
+    {
+        return $this->log;
     }
 }

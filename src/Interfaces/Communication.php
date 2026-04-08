@@ -55,4 +55,10 @@ interface Communication
      * @throws UnexpectedResponseException
      */
     public function read(string $terminator = ''): string;
+
+    /**
+     * Get the communication log of all write(), read() and setTimeout() calls of this class instance.
+     * @return string[]
+     */
+    public function getLog(): array;
 }
