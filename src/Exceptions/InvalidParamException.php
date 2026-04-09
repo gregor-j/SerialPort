@@ -7,11 +7,11 @@ namespace GregorJ\SerialPort\Exceptions;
 use Exception;
 
 /**
- * Class InvalidValueException
+ * Class InvalidParamException
  * In case a provided value doesn't meet the expected constraints.
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-final class InvalidValueException extends Exception
+final class InvalidParamException extends Exception
 {
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -24,7 +24,7 @@ interface Command
      * Invoke this Command on the given communication instance.
      * @param Communication $communication
      * @return Response|null
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws ConnectionException
      * @throws TimeoutException
      * @throws UnexpectedResponseException

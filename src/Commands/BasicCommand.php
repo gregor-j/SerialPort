@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Commands;
 
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Interfaces\Command;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Responses\StringResponse;
@@ -29,7 +29,7 @@ final class BasicCommand implements Command
      * @param string $commandTerminator
      * @param string $readTerminator
      * @param float|null $timeoutSeconds
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function __construct(string $command, string $commandTerminator = '', string $readTerminator = '', float $timeoutSeconds = null)
     {
@@ -39,7 +39,7 @@ final class BasicCommand implements Command
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
-            throw new InvalidValueException('The response timeout for BasicCommand has to be positive.');
+            throw new InvalidParamException('The response timeout for BasicCommand has to be positive.');
         }
         $this->timeout = $timeoutSeconds;
     }
