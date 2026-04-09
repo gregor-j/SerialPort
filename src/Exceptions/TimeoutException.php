@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Exceptions;
 
+use Exception;
 use Throwable;
 
 /**
@@ -12,7 +13,7 @@ use Throwable;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-final class TimeoutException extends RuntimeException
+final class TimeoutException extends Exception
 {
     private string $partialResponse;
 

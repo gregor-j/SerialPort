@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Exceptions;
 
+use Exception;
 use Throwable;
 
 /**
@@ -13,7 +14,7 @@ use Throwable;
  * @package GregorJ\SerialPort\Exceptions
  * @author  Gregor J.
  */
-final class UnexpectedResponseException extends LogicException
+final class UnexpectedResponseException extends Exception
 {
     private mixed $rawResponse;
 
