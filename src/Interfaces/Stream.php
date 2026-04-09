@@ -14,10 +14,6 @@ use GregorJ\SerialPort\Exceptions\WriteException;
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
- *
- * @package GregorJ\SerialPort\Interfaces
- * @author  Gregor J.
- * @author  Peter Gribanov
  */
 interface Stream
 {

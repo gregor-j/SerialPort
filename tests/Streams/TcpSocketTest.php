@@ -14,10 +14,7 @@ use ReflectionClass;
 use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
- * Class TcpSocketTest
  * Unit tests for the TcpSocket class.
- * @package Tests\GregorJ\SerialPort\Streams
- * @author  Gregor J.
  */
 final class TcpSocketTest extends TestCase
 {

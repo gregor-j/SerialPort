@@ -11,9 +11,8 @@ use GregorJ\SerialPort\Responses\StringResponse;
 use GregorJ\ToString\ToString;
 
 /**
- * Invoke a basic string command on a communication and return its response.
- * @package GregorJ\SerialPort
- * @author  Gregor J.
+ * Invoke a basic string command on a Communication and return its
+ * StringResponse.
  */
 final class BasicCommand implements Command
 {

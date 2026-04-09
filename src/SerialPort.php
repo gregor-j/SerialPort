@@ -19,8 +19,6 @@ use function substr;
 
 /**
  * Invoke serial port commands on a configured communication and return their response.
- * @package GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class SerialPort implements Communication
 {

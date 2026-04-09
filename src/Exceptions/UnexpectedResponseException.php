@@ -8,11 +8,8 @@ use Exception;
 use Throwable;
 
 /**
- * Class UnexpectedResponseException
- * The unexpected response exception is thrown in case the response didn't match the expectation of the class
- * implementing the Response interface.
- * @package GregorJ\SerialPort\Exceptions
- * @author  Gregor J.
+ * The UnexpectedResponseException is thrown in case the response didn't match
+ * the expectation of the class implementing the Response interface.
  */
 final class UnexpectedResponseException extends Exception
 {

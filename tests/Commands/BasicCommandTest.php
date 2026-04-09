@@ -14,7 +14,7 @@ use GregorJ\SerialPort\Interfaces\Communication;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test the BasicCommand class.
+ * Unit tests for the BasicCommand class.
  */
 class BasicCommandTest extends TestCase
 {

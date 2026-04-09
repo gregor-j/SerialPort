@@ -14,10 +14,7 @@ use GregorJ\SerialPort\SerialPort;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class SerialPortTest
  * Unit tests for the SerialPort class.
- * @package Tests\GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class SerialPortTest extends TestCase
 {

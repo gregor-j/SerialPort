@@ -9,7 +9,7 @@ use GregorJ\SerialPort\Responses\StringResponse;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test the basic string response class.
+ * Unit tests for the StringResponse class.
  */
 final class StringResponseTest extends TestCase
 {

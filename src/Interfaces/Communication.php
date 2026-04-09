@@ -11,9 +11,7 @@ use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 
 /**
- * A communication interface to send commands and get responses.
- * @package GregorJ\SerialPort\Interfaces
- * @author  Gregor J.
+ * A communication interface to send Commands and get Responses.
  */
 interface Communication
 {

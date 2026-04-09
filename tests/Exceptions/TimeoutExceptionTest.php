@@ -5,6 +5,9 @@ namespace Tests\GregorJ\SerialPort\Exceptions;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Unit tests for the TimeoutException class.
+ */
 class TimeoutExceptionTest extends TestCase
 {
     /**
