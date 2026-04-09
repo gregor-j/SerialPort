@@ -6,7 +6,6 @@ namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -129,7 +128,6 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws ReadException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -173,7 +171,6 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws ReadException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -216,7 +213,6 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws ReadException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -259,7 +255,6 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidValueException
-     * @throws ReadException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException

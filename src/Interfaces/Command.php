@@ -6,7 +6,6 @@ namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\ReadException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -26,7 +25,6 @@ interface Command
      * @param Communication $communication
      * @return Response|null
      * @throws InvalidValueException
-     * @throws ReadException
      * @throws ConnectionException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
