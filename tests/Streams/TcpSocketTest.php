@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Streams\TcpSocket;
@@ -14,10 +14,7 @@ use ReflectionClass;
 use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
- * Class TcpSocketTest
  * Unit tests for the TcpSocket class.
- * @package Tests\GregorJ\SerialPort\Streams
- * @author  Gregor J.
  */
 final class TcpSocketTest extends TestCase
 {
@@ -27,7 +24,7 @@ final class TcpSocketTest extends TestCase
      * @throws ConnectionException
      * @throws UnexpectedResponseException
      * @throws WriteException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testReadingAndWriting(): void
     {
@@ -53,7 +50,7 @@ final class TcpSocketTest extends TestCase
      * Test exception thrown in case the remote host refuses a connection.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testConnectionError(): void
     {
@@ -66,14 +63,14 @@ final class TcpSocketTest extends TestCase
     /**
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testSetInvalidTimeout(): void
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Response timeout for TcpSocket has to be positive.');
         $socket->setTimeout(-0.5);
     }
@@ -81,7 +78,7 @@ final class TcpSocketTest extends TestCase
     /**
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws WriteException
      */
     public function testSetInvalidWriteTimeout(): void
@@ -89,16 +86,16 @@ final class TcpSocketTest extends TestCase
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Write timeout for TcpSocket must be positive.');
         $socket->write('x', -0.5);
     }
 
     /**
-     * Test InvalidValueException when trying to write an empty string.
+     * Test InvalidParamException when trying to write an empty string.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws WriteException
      */
     public function testWritingEmptyString(): void
@@ -106,7 +103,7 @@ final class TcpSocketTest extends TestCase
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $socket->open();
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
         $socket->write('');
     }
@@ -117,7 +114,7 @@ final class TcpSocketTest extends TestCase
      */
     public function testConstructorWithInvalidTimeout(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Connection timeout for TcpSocket has to be positive.');
         new TcpSocket('127.0.0.1', 7777, -0.1);
     }
@@ -126,7 +123,7 @@ final class TcpSocketTest extends TestCase
      * getStatus() must return a TcpSocketStatus with correct field values when open.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws UnexpectedResponseException
      */
     public function testGetStatusWhenOpen(): void
@@ -157,7 +154,7 @@ final class TcpSocketTest extends TestCase
      * Uses a read-only stream handle to deterministically force fwrite() to return false.
      *
      * @return void
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
     {
@@ -189,7 +186,7 @@ final class TcpSocketTest extends TestCase
      * non-blocking mode and a small buffer size to force repeated zero-byte writes.
      *
      * @return void
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws ConnectionException
      */
     public function testWriteThrowsOnWriteTimeout(): void

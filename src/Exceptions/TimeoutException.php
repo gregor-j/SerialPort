@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Exceptions;
 
+use Exception;
 use Throwable;
 
 /**
- * Class TimeoutException
- * The timeout exception is thrown in case the timeout was reached in communication.
- * @package GregorJ\SerialPort\Exceptions
- * @author  Gregor J.
+ * The TimeoutException is thrown in case the timeout was reached without
+ * reaching the goal.
  */
-final class TimeoutException extends RuntimeException
+final class TimeoutException extends Exception
 {
     private string $partialResponse;
 

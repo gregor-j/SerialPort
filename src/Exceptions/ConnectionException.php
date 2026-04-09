@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Exceptions;
 
+use Exception;
+
 /**
- * Class ConnectionException
- * The connection exception is thrown in case a connection cannot be opened.
- * @package GregorJ\SerialPort\Exceptions
- * @author  Gregor J.
+ * The ConnectionException is thrown in case a connection cannot be established.
  */
-final class ConnectionException extends RuntimeException
+final class ConnectionException extends Exception
 {
 }

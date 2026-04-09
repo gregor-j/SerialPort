@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Interfaces;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 
@@ -14,10 +14,6 @@ use GregorJ\SerialPort\Exceptions\WriteException;
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
- *
- * @package GregorJ\SerialPort\Interfaces
- * @author  Gregor J.
- * @author  Peter Gribanov
  */
 interface Stream
 {
@@ -49,7 +45,7 @@ interface Stream
      * @param string $string The string that is to be written.
      * @param null|float $timeoutSeconds The maximum time to wait for the write operation to complete.
      * @return int returns the number of bytes written
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws ConnectionException
      * @throws WriteException
      */
@@ -67,7 +63,7 @@ interface Stream
      * Set timeout period on the stream.
      * @param float $seconds The seconds part of the timeout to be set.
      * @return bool Returns TRUE on success or FALSE on failure.
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      * @throws ConnectionException
      */
     public function setTimeout(float $seconds): bool;

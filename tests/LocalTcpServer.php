@@ -26,22 +26,9 @@ use const SIGTERM;
 use const WNOHANG;
 
 /**
- * Class LocalTcpServer
- *
  * A PHP-native TCP echo server for use in tests.
- *
- * Advantages over the nc/FIFO-based LocalFifo:
- *  - No external tools required (no nc, cat, mkfifo)
- *  - No temporary files on disk
- *  - Port is guaranteed free: the server socket is created before forking,
- *    so no other process can steal it between bind and accept
- *  - Portable to any system where PHP runs with ext-pcntl and ext-posix
- *
  * The server runs in a forked child process and echoes back everything it
  * receives on each accepted connection. It exits cleanly when sent SIGTERM.
- *
- * @package Tests\GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class LocalTcpServer
 {

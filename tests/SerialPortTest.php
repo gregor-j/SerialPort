@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
-use GregorJ\SerialPort\Exceptions\ReadException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -15,10 +14,7 @@ use GregorJ\SerialPort\SerialPort;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class SerialPortTest
  * Unit tests for the SerialPort class.
- * @package Tests\GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class SerialPortTest extends TestCase
 {
@@ -41,7 +37,7 @@ final class SerialPortTest extends TestCase
      * Test setting an invalid timeout.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testInvalidTimeout()
     {
@@ -49,7 +45,7 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->once())
             ->method('open');
         $serialPort = new SerialPort($stream);
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Response timeout for SerialPort has to be positive.');
         $serialPort->setTimeout(-2.5);
     }
@@ -75,7 +71,7 @@ final class SerialPortTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws WriteException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testEmptyCommand(): void
     {
@@ -99,11 +95,11 @@ final class SerialPortTest extends TestCase
     }
 
     /**
-     * Test causing a InvalidValueException because of an empty command.
+     * Test causing a InvalidParamException because of an empty command.
      * @return void
      * @throws ConnectionException
      * @throws WriteException
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function testWriteException(): void
     {
@@ -119,7 +115,7 @@ final class SerialPortTest extends TestCase
             ->method('setBlocking')
             ->with(true);
         $serialPort = new SerialPort($stream);
-        $this->expectException(InvalidValueException::class);
+        $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
         $serialPort->write('', "\n");
     }
@@ -128,8 +124,7 @@ final class SerialPortTest extends TestCase
      * Test the TimeoutException when reading from stream.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
-     * @throws ReadException
+     * @throws InvalidParamException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -172,8 +167,7 @@ final class SerialPortTest extends TestCase
      * Test reading from stream until terminator appears.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
-     * @throws ReadException
+     * @throws InvalidParamException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -215,8 +209,7 @@ final class SerialPortTest extends TestCase
      * Test reading from stream until timeout.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
-     * @throws ReadException
+     * @throws InvalidParamException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException
@@ -258,8 +251,7 @@ final class SerialPortTest extends TestCase
      * Test reading from stream and getting the communication log.
      * @return void
      * @throws ConnectionException
-     * @throws InvalidValueException
-     * @throws ReadException
+     * @throws InvalidParamException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      * @throws WriteException

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication;
@@ -19,8 +19,6 @@ use function substr;
 
 /**
  * Invoke serial port commands on a configured communication and return their response.
- * @package GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class SerialPort implements Communication
 {
@@ -67,7 +65,7 @@ final class SerialPort implements Communication
     public function write(string $string, string $terminator = ''): void
     {
         if ($string === '') {
-            throw new InvalidValueException('Cannot write empty string.');
+            throw new InvalidParamException('Cannot write empty string.');
         }
         $this->stream->setTimeout($this->timeout);
         $sendString = $string . $terminator;
@@ -85,7 +83,7 @@ final class SerialPort implements Communication
     public function setTimeout(float $seconds): void
     {
         if ($seconds < 0.0) {
-            throw new InvalidValueException('Response timeout for SerialPort has to be positive.');
+            throw new InvalidParamException('Response timeout for SerialPort has to be positive.');
         }
         $this->log[] = sprintf('set timeout to %f seconds', $seconds);
         $this->timeout = $seconds;

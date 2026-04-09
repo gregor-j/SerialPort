@@ -9,6 +9,9 @@ use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Unit tests for the TcpSocketStatus class.
+ */
 final class TcpSocketStatusTest extends TestCase
 {
     /**

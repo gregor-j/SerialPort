@@ -7,6 +7,9 @@ namespace Tests\GregorJ\SerialPort\Exceptions;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Unit tests for the UnexpectedResponseException.
+ */
 final class UnexpectedResponseExceptionTest extends TestCase
 {
     /**

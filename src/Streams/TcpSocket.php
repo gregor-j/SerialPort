@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort\Streams;
 
 use GregorJ\SerialPort\Exceptions\ConnectionException;
-use GregorJ\SerialPort\Exceptions\InvalidValueException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
@@ -30,15 +30,10 @@ use function strlen;
 use function substr;
 
 /**
- * Class TcpSocket
  * Create a TCP socket connection.
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
- *
- * @package GregorJ\SerialPort\Streams
- * @author  Gregor J.
- * @author  Peter Gribanov
  */
 final class TcpSocket implements Stream
 {
@@ -77,14 +72,14 @@ final class TcpSocket implements Stream
      * @param string     $host The hostname.
      * @param int        $port The port number.
      * @param float|null $timeoutSeconds The optional connection timeout, in seconds.
-     * @throws InvalidValueException
+     * @throws InvalidParamException
      */
     public function __construct(string $host, int $port, float $timeoutSeconds = null)
     {
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
-            throw new InvalidValueException('Connection timeout for TcpSocket has to be positive.');
+            throw new InvalidParamException('Connection timeout for TcpSocket has to be positive.');
         }
         $this->connectionTimeout = $timeoutSeconds;
         $this->host = $host;
@@ -156,11 +151,11 @@ final class TcpSocket implements Stream
     {
         $socket = $this->getSocket();
         if ($string === '') {
-            throw new InvalidValueException('Cannot write empty string.');
+            throw new InvalidParamException('Cannot write empty string.');
         }
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_WRITE_TIMEOUT;
         if ($timeoutSeconds < 0) {
-            throw new InvalidValueException('Write timeout for TcpSocket must be positive.');
+            throw new InvalidParamException('Write timeout for TcpSocket must be positive.');
         }
         //clear any last errors that might exist before starting to write
         error_clear_last();
@@ -250,7 +245,7 @@ final class TcpSocket implements Stream
     public function setTimeout(float $seconds): bool
     {
         if ($seconds < 0.0) {
-            throw new InvalidValueException('Response timeout for TcpSocket has to be positive.');
+            throw new InvalidParamException('Response timeout for TcpSocket has to be positive.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;

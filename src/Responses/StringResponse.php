@@ -14,8 +14,6 @@ use function str_contains;
 
 /**
  * Plain string response.
- * @package GregorJ\SerialPort
- * @author  Gregor J.
  */
 final class StringResponse implements Response
 {
