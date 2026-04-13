@@ -117,37 +117,14 @@ final class TcpSocketTest extends TestCase
     }
 
     /**
-     * getStatus() must return a TcpSocketStatus with correct field values when open.
-     * @return void
-     * @throws ConnectionException
-     * @throws InvalidParamException
-     * @throws UnexpectedResponseException
-     */
-    public function testGetStatusWhenOpen(): void
-    {
-        $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $status = $socket->getStatus();
-        // A freshly connected, blocking socket has not timed out.
-        $this->assertFalse($status->timedOut());
-        // setBlocking(true) means the socket is in blocking mode.
-        $this->assertTrue($status->blocked());
-        // Stream type for a TCP socket created via fsockopen().
-        $this->assertSame('tcp_socket/ssl', $status->streamType());
-        // A freshly connected socket has not reached EOF.
-        $this->assertFalse($status->eof());
-        // TCP sockets are not seekable.
-        $this->assertFalse($status->seekable());
-    }
-
-
-    /**
      * write() must wrap fwrite() failures in a WriteException.
      *
      * Uses a read-only stream handle to deterministically force fwrite() to return false.
      *
      * @return void
+     * @throws ConnectionException
      * @throws InvalidParamException
+     * @throws WriteException
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
     {

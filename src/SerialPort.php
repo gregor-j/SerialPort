@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\WriteException;
