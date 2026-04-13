@@ -12,7 +12,6 @@ use GregorJ\SerialPort\Interfaces\Error;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\StreamIo;
 use GregorJ\SerialPort\Interfaces\TcpSocketConnector;
-use GregorJ\SerialPort\Responses\TcpSocketStatus;
 use GregorJ\SerialPort\System\SystemClock;
 use GregorJ\SerialPort\System\SystemError;
 use GregorJ\ToString\ToString;
@@ -229,14 +228,6 @@ final class TcpSocket implements Stream
     {
         $metadata = $this->io->getMetadata($this->getSocket());
         return (bool)$metadata['timed_out'];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getStatus(): TcpSocketStatus
-    {
-        return new TcpSocketStatus($this->io->getMetadata($this->getSocket()));
     }
 
     /**

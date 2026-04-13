@@ -58,13 +58,4 @@ interface Stream
      * @throws UnexpectedResponseException
      */
     public function timedOut(): bool;
-
-    /**
-     * Retrieves status response from the stream with additional information.
-     * Use has() and get() methods to query status details.
-     * @return Response
-     * @throws ConnectionException
-     * @throws UnexpectedResponseException
-     */
-    public function getStatus(): Response;
 }
