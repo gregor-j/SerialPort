@@ -24,23 +24,6 @@ interface Stream
     public function __toString(): string;
 
     /**
-     * Has the stream already been opened?
-     * @return bool
-     */
-    public function isOpen(): bool;
-
-    /**
-     * Opens a stream
-     * @throws ConnectionException
-     */
-    public function open(): void;
-
-    /**
-     * Closes a stream
-     */
-    public function close(): void;
-
-    /**
      * Writes the contents of the string to the stream.
      * @param string $string The string that is to be written.
      * @param null|float $timeoutSeconds The maximum time to wait for the write operation to complete.

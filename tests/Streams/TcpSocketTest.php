@@ -34,7 +34,6 @@ final class TcpSocketTest extends TestCase
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
         $this->assertSame('tcp://127.0.0.1:' . $server->getTcpPort(), (string)$socket);
-        $socket->open();
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);
         $socket->setTimeout(0.5);
@@ -46,7 +45,6 @@ final class TcpSocketTest extends TestCase
         $this->assertNull($char);
         $this->assertTrue($socket->timedOut());
         $this->assertSame('1234', $response);
-        $socket->close();
     }
 
     /**
@@ -60,7 +58,7 @@ final class TcpSocketTest extends TestCase
         $socket = new TcpSocket('127.0.0.16', 7777);
         $this->expectException(ConnectionException::class);
         $this->expectExceptionCode(111);
-        $socket->open();
+        $socket->readChar();
     }
 
     /**
@@ -72,7 +70,6 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->open();
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Response timeout for TcpSocket has to be positive.');
         $socket->setTimeout(-0.5);
@@ -88,7 +85,6 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->open();
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Write timeout for TcpSocket must be positive.');
         $socket->write('x', -0.5);
@@ -105,7 +101,6 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->open();
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
         $socket->write('');
@@ -133,7 +128,6 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->open();
         $socket->setBlocking(true);
         $status = $socket->getStatus();
         // A freshly connected, blocking socket has not timed out.
@@ -146,8 +140,6 @@ final class TcpSocketTest extends TestCase
         $this->assertFalse($status->eof());
         // TCP sockets are not seekable.
         $this->assertFalse($status->seekable());
-
-        $socket->close();
     }
 
 

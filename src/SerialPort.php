@@ -40,23 +40,9 @@ final class SerialPort implements Communication
     public function __construct(Stream $stream)
     {
         $this->stream = $stream;
-        if (!$this->stream->isOpen()) {
-            $this->log[] = sprintf('open %s', $this->stream);
-            $this->stream->open();
-        }
         $this->timeout = self::DEFAULT_TIMEOUT;
         $this->log[] = sprintf('set timeout to %f seconds', $this->timeout);
         $this->stream->setBlocking(true);
-    }
-
-    /**
-     * Close stream in case it's open.
-     */
-    public function __destruct()
-    {
-        if ($this->stream->isOpen()) {
-            $this->stream->close();
-        }
     }
 
     /**

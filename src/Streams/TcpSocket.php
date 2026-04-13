@@ -106,15 +106,10 @@ final class TcpSocket implements Stream
      */
     public function __destruct()
     {
-        $this->close();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isOpen(): bool
-    {
-        return is_resource($this->socket);
+        if (is_resource($this->socket)) {
+            $this->io->close($this->socket);
+            $this->socket = null;
+        }
     }
 
     /**
@@ -138,27 +133,6 @@ final class TcpSocket implements Stream
         }
 
         return $this->socket;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function open(): void
-    {
-        if (!$this->isOpen()) {
-            $this->getSocket();
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function close(): void
-    {
-        if (is_resource($this->socket)) {
-            $this->io->close($this->socket);
-            $this->socket = null;
-        }
     }
 
     /**
