@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit tests for the TimeoutException class.
  */
-class TimeoutExceptionTest extends TestCase
+final class TimeoutExceptionTest extends TestCase
 {
     /**
      * Test getting the partial response from the TimeoutException.
