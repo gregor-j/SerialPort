@@ -8,9 +8,12 @@ use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
+use GregorJ\SerialPort\Interfaces\Clock;
+use GregorJ\SerialPort\Interfaces\Error;
+use GregorJ\SerialPort\Interfaces\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\StreamIo;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
@@ -158,24 +161,71 @@ final class TcpSocketTest extends TestCase
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
     {
-        $readOnlyStream = fopen('php://temp', 'rb');
-        $this->assertIsResource($readOnlyStream);
+        $connector = new class () implements TcpSocketConnector {
+            public function connect(string $hostname, int $port, int &$error_code, string &$error_message, float|null $timeout)
+            {
+                return fopen('php://temp', 'w+b');
+            }
+        };
 
-        $socket = new TcpSocket('127.0.0.1', 7777);
-        $reflection = new ReflectionClass($socket);
-        $socketProperty = $reflection->getProperty('socket');
-        /** @noinspection PhpExpressionResultUnusedInspection */
-        $socketProperty->setAccessible(true);
-        $socketProperty->setValue($socket, $readOnlyStream);
+        $io = new class () implements StreamIo {
+            public function close($socket): bool
+            {
+                if (is_resource($socket)) {
+                    fclose($socket);
+                }
+                return true;
+            }
 
-        try {
-            $socket->write('x');
-            $this->fail('Expected WriteException was not thrown.');
-        } catch (WriteException $exception) {
-            $this->assertStringStartsWith('Failed to write "x" to TCP connection 127.0.0.1:7777:', $exception->getMessage());
-        } finally {
-            fclose($readOnlyStream);
-        }
+            public function write($socket, string $string, int|null $length): int|false
+            {
+                return false;
+            }
+
+            public function readChar($socket): string|false
+            {
+                return false;
+            }
+
+            public function setTimeout($socket, int $seconds, int $microseconds): bool
+            {
+                return true;
+            }
+
+            public function setBlocking($socket, bool $enable): bool
+            {
+                return true;
+            }
+
+            public function getMetadata($socket): array
+            {
+                return ['timed_out' => false];
+            }
+        };
+
+        $clock = new class () implements Clock {
+            public function now(): float
+            {
+                return 0.0;
+            }
+        };
+
+        $errors = new class () implements Error {
+            public function clearLastError(): void
+            {
+            }
+
+            public function getLastError(): array
+            {
+                return ['type' => 2, 'message' => 'simulated fwrite failure'];
+            }
+        };
+
+        $socket = new TcpSocket('127.0.0.1', 7777, null, $connector, $io, $clock, $errors);
+
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage('Failed to write "x" to TCP connection 127.0.0.1:7777: simulated fwrite failure');
+        $socket->write('x');
     }
 
     /**
@@ -191,42 +241,76 @@ final class TcpSocketTest extends TestCase
      */
     public function testWriteThrowsOnWriteTimeout(): void
     {
-        // Create a connected socket pair using stream_socket_pair
-        $sockets = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-        if ($sockets === false) {
-            $this->markTestSkipped('stream_socket_pair not available on this system');
-        }
+        $connector = new class () implements TcpSocketConnector {
+            public function connect(string $hostname, int $port, int &$error_code, string &$error_message, float|null $timeout)
+            {
+                return fopen('php://temp', 'w+b');
+            }
+        };
 
-        list($readEnd, $writeEnd) = $sockets;
+        $io = new class () implements StreamIo {
+            public function close($socket): bool
+            {
+                if (is_resource($socket)) {
+                    fclose($socket);
+                }
+                return true;
+            }
 
-        // Set write end to non-blocking so fwrite can return 0
-        stream_set_blocking($writeEnd, false);
+            public function write($socket, string $string, int|null $length): int
+            {
+                return 0;
+            }
 
-        // Fill up the buffer by reading from the other end slowly
-        // This forces fwrite() on writeEnd to return 0 when buffer is full
-        stream_set_blocking($readEnd, false);
+            public function readChar($socket): string|false
+            {
+                return false;
+            }
 
-        $socket = new TcpSocket('127.0.0.1', 7777);
-        $reflection = new ReflectionClass($socket);
-        $socketProperty = $reflection->getProperty('socket');
-        /** @noinspection PhpExpressionResultUnusedInspection */
-        $socketProperty->setAccessible(true);
-        $socketProperty->setValue($socket, $writeEnd);
+            public function setTimeout($socket, int $seconds, int $microseconds): bool
+            {
+                return true;
+            }
 
-        try {
-            // Write a very large amount of data that will fill the buffer and cause fwrite to return 0.
-            // With a 50ms timeout and non-blocking writes, this should trigger the timeout.
-            $largeData = str_repeat('X', 4194304);  // 4MB
-            $socket->write($largeData, 0.05);
+            public function setBlocking($socket, bool $enable): bool
+            {
+                return true;
+            }
 
-            // If we get here, the buffer accepted all data (unlikely on a small test system).
-            $this->markTestSkipped('Write buffer was large enough to accept all data without timeout');
-        } catch (WriteException $exception) {
-            // Verify the timeout message is present.
-            $this->assertStringContainsString('Write operation timed out', $exception->getMessage());
-        } finally {
-            fclose($readEnd);
-            fclose($writeEnd);
-        }
+            public function getMetadata($socket): array
+            {
+                return ['timed_out' => false];
+            }
+        };
+
+        $clock = new class () implements Clock {
+            /** @var float[] */
+            private array $values = [1000.0, 1000.2];
+            private int $index = 0;
+
+            public function now(): float
+            {
+                $value = $this->values[$this->index] ?? 1000.2;
+                $this->index++;
+                return $value;
+            }
+        };
+
+        $errors = new class () implements Error {
+            public function clearLastError(): void
+            {
+            }
+
+            public function getLastError(): ?array
+            {
+                return null;
+            }
+        };
+
+        $socket = new TcpSocket('127.0.0.1', 7777, null, $connector, $io, $clock, $errors);
+
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage('Write operation timed out');
+        $socket->write('payload', 0.05);
     }
 }

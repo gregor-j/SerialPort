@@ -7,25 +7,21 @@ namespace GregorJ\SerialPort\Streams;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\WriteException;
+use GregorJ\SerialPort\Interfaces\Clock;
+use GregorJ\SerialPort\Interfaces\Error;
 use GregorJ\SerialPort\Interfaces\Stream;
+use GregorJ\SerialPort\Interfaces\StreamIo;
+use GregorJ\SerialPort\Interfaces\TcpSocketConnector;
 use GregorJ\SerialPort\Responses\TcpSocketStatus;
+use GregorJ\SerialPort\System\SystemClock;
+use GregorJ\SerialPort\System\SystemError;
 use GregorJ\ToString\ToString;
 
-use function error_clear_last;
-use function error_get_last;
-use function fclose;
-use function fgetc;
 use function floor;
-use function fsockopen;
-use function fwrite;
 use function is_array;
 use function is_resource;
 use function max;
-use function microtime;
 use function sprintf;
-use function stream_get_meta_data;
-use function stream_set_blocking;
-use function stream_set_timeout;
 use function strlen;
 use function substr;
 
@@ -67,15 +63,30 @@ final class TcpSocket implements Stream
      */
     private $socket = null;
 
+    private TcpSocketConnector $connector;
+    private StreamIo $io;
+    private Clock $clock;
+    private Error $errors;
+
     /**
      * Create a TCP socket.
-     * @param string     $host The hostname.
-     * @param int        $port The port number.
-     * @param float|null $timeoutSeconds The optional connection timeout, in seconds.
+     * @param string                     $host The hostname.
+     * @param int                        $port The port number.
+     * @param float|null                 $timeoutSeconds The optional connection timeout, in seconds.
+     * @param TcpSocketConnector|null    $connector Optional connector abstraction.
+     * @param StreamIo|null              $io Optional IO abstraction.
+     * @param Clock|null                 $clock Optional clock abstraction.
      * @throws InvalidParamException
      */
-    public function __construct(string $host, int $port, float $timeoutSeconds = null)
-    {
+    public function __construct(
+        string $host,
+        int $port,
+        float $timeoutSeconds = null,
+        TcpSocketConnector $connector = null,
+        StreamIo $io = null,
+        Clock $clock = null,
+        Error $errors = null
+    ) {
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
@@ -84,6 +95,10 @@ final class TcpSocket implements Stream
         $this->connectionTimeout = $timeoutSeconds;
         $this->host = $host;
         $this->port = $port;
+        $this->connector = $connector ?? new NativeTcpSocketConnector();
+        $this->io = $io ?? new NativeStreamIo();
+        $this->clock = $clock ?? new SystemClock();
+        $this->errors = $errors ?? new SystemError();
     }
 
     /**
@@ -103,23 +118,25 @@ final class TcpSocket implements Stream
     }
 
     /**
-     * Return the open socket resource or throw if the socket is closed.
-     *
+     * Return the open socket resource or create it lazily.
      * @return resource
      * @throws ConnectionException
      */
     private function getSocket()
     {
         if (!is_resource($this->socket)) {
-            $socket = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
-            if (!is_resource($socket)) {
+            $error_code = -1;
+            $error_message = '';
+            $socket = $this->connector->connect($this->host, $this->port, $error_code, $error_message, $this->connectionTimeout);
+            if ($socket === false) {
                 throw new ConnectionException(
-                    sprintf('TCP connection to %s:%u failed: %s', $this->host, $this->port, $errstr),
-                    $errno
+                    sprintf('TCP connection to %s:%u failed: %s', $this->host, $this->port, $error_message),
+                    $error_code
                 );
             }
             $this->socket = $socket;
         }
+
         return $this->socket;
     }
 
@@ -139,7 +156,7 @@ final class TcpSocket implements Stream
     public function close(): void
     {
         if (is_resource($this->socket)) {
-            fclose($this->socket);
+            $this->io->close($this->socket);
             $this->socket = null;
         }
     }
@@ -157,30 +174,17 @@ final class TcpSocket implements Stream
         if ($timeoutSeconds < 0) {
             throw new InvalidParamException('Write timeout for TcpSocket must be positive.');
         }
-        //clear any last errors that might exist before starting to write
-        error_clear_last();
-        //prepare for partial write loop
+
+        $this->errors->clearLastError();
         $length = strlen($string);
         $offset = 0;
         $totalBytes = 0;
         $zeroWriteStart = null;
 
-        /**
-         * partial write loop: fwrite() may not write all requested bytes on a single call.
-         * This is normal TCP behavior, especially with larger strings or network congestion.
-         * Continue writing until all bytes are sent, tracking offset and total bytes written.
-         */
         while ($offset < $length) {
-            /**
-             * Write the remaining portion of the string, starting from the current offset.
-             * max() ensures we always request at least 1 byte to prevent zero-length writes.
-             */
-            $bytes = fwrite($socket, substr($string, $offset), max($length - $offset, 1));
+            $bytes = $this->io->write($socket, substr($string, $offset), max($length - $offset, 1));
 
-            /**
-             * In case fwrite() returns (int)0 permanently, wait for the timeout then throw an exception.
-             */
-            if ($bytes === 0 && $zeroWriteStart !== null && (microtime(true) - $zeroWriteStart) > $timeoutSeconds) {
+            if ($bytes === 0 && $zeroWriteStart !== null && ($this->clock->now() - $zeroWriteStart) > $timeoutSeconds) {
                 throw new WriteException(
                     sprintf(
                         'Write operation timed out after %ds while writing %u bytes of "%s" to TCP connection %s:%s.',
@@ -192,38 +196,29 @@ final class TcpSocket implements Stream
                     )
                 );
             } elseif ($bytes === 0 && $zeroWriteStart === null) {
-                // Start or continue tracking zero-byte writes for timeout handling.
-                $zeroWriteStart = microtime(true);
+                $zeroWriteStart = $this->clock->now();
             } elseif ($bytes > 0) {
-                // Reset zero-byte write tracking on successful write.
                 $zeroWriteStart = null;
             }
 
-            /**
-             * Edge case: fwrite() returns false
-             * This can happen if the connection is lost or an error occurs during writing on OS level.
-             */
             if ($bytes === false) {
-                $lastError = error_get_last();
+                $lastError = $this->errors->getLastError();
                 throw new WriteException(
                     sprintf(
                         'Failed to write "%s" to TCP connection %s:%s: %s',
                         ToString::fromString($string),
                         $this->host,
                         $this->port,
-                        is_array($lastError) ? $lastError['message'] : 'Unknown error.'
+                        is_array($lastError) ? (string)$lastError['message'] : 'Unknown error.'
                     ),
-                    is_array($lastError) ? $lastError['type'] : 0
+                    is_array($lastError) ? (int)$lastError['type'] : 0
                 );
             }
 
-            // Move offset forward by the number of bytes actually written.
             $offset += $bytes;
-            // Accumulate total bytes written across all iterations.
             $totalBytes += $bytes;
         }
 
-        // Return the total number of bytes written to the socket.
         return $totalBytes;
     }
 
@@ -232,7 +227,7 @@ final class TcpSocket implements Stream
      */
     public function readChar(): ?string
     {
-        $char = fgetc($this->getSocket());
+        $char = $this->io->readChar($this->getSocket());
         if ($char === false) {
             return null;
         }
@@ -249,7 +244,7 @@ final class TcpSocket implements Stream
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
-        return stream_set_timeout($this->getSocket(), (int)$timeoutSeconds, (int)$timeoutMicroseconds);
+        return $this->io->setTimeout($this->getSocket(), (int)$timeoutSeconds, (int)$timeoutMicroseconds);
     }
 
     /**
@@ -257,7 +252,7 @@ final class TcpSocket implements Stream
      */
     public function setBlocking(bool $blocking): bool
     {
-        return stream_set_blocking($this->getSocket(), $blocking);
+        return $this->io->setBlocking($this->getSocket(), $blocking);
     }
 
     /**
@@ -265,7 +260,7 @@ final class TcpSocket implements Stream
      */
     public function timedOut(): bool
     {
-        $metadata = stream_get_meta_data($this->getSocket());
+        $metadata = $this->io->getMetadata($this->getSocket());
         return (bool)$metadata['timed_out'];
     }
 
@@ -274,7 +269,7 @@ final class TcpSocket implements Stream
      */
     public function getStatus(): TcpSocketStatus
     {
-        return new TcpSocketStatus(stream_get_meta_data($this->getSocket()));
+        return new TcpSocketStatus($this->io->getMetadata($this->getSocket()));
     }
 
     /**
