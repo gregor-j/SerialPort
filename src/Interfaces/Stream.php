@@ -52,17 +52,6 @@ interface Stream
     public function setTimeout(float $seconds): bool;
 
     /**
-     * Set blocking/non-blocking mode on a stream.
-     * @param bool $blocking If mode is FALSE, the given stream will be switched to non-blocking mode, and if TRUE, it
-     *                       will be switched to blocking mode. This affects calls like fgets and fread that read from
-     *                       the stream. In non-blocking mode an fgets call will always return right away while in
-     *                       blocking mode it will wait for data to become available on the stream.
-     * @return bool true on success or false on failure.
-     * @throws ConnectionException
-     */
-    public function setBlocking(bool $blocking): bool;
-
-    /**
      * Check whether the read or write command timed out.
      * @return bool
      * @throws ConnectionException

@@ -35,14 +35,12 @@ final class SerialPort implements Communication
     /**
      * Create a serial port using a stream class.
      * @param Stream $stream
-     * @throws ConnectionException
      */
     public function __construct(Stream $stream)
     {
         $this->stream = $stream;
         $this->timeout = self::DEFAULT_TIMEOUT;
         $this->log[] = sprintf('set timeout to %f seconds', $this->timeout);
-        $this->stream->setBlocking(true);
     }
 
     /**

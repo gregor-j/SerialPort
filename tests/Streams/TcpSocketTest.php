@@ -37,7 +37,6 @@ final class TcpSocketTest extends TestCase
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);
         $socket->setTimeout(0.5);
-        $socket->setBlocking(true);
         $response = '';
         while ($char = $socket->readChar()) {
             $response .= $char;
@@ -128,7 +127,6 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $socket->setBlocking(true);
         $status = $socket->getStatus();
         // A freshly connected, blocking socket has not timed out.
         $this->assertFalse($status->timedOut());
