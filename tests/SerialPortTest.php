@@ -79,9 +79,6 @@ final class SerialPortTest extends TestCase
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
         $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
-        $stream->expects($this->once())
             ->method('setTimeout')
             ->with(2.0);
         $stream->expects($this->once())
@@ -104,9 +101,6 @@ final class SerialPortTest extends TestCase
     public function testWriteException(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
         $serialPort = new SerialPort($stream);
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
@@ -125,9 +119,6 @@ final class SerialPortTest extends TestCase
     public function testReadTimeoutException(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
         $stream->expects($this->exactly(2))
             ->method('setTimeout')
             ->with(5.4);
@@ -161,9 +152,6 @@ final class SerialPortTest extends TestCase
     public function testReadUntilTerminator(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
         $stream->expects($this->exactly(2))
             ->method('setTimeout')
             ->with(5.4);
@@ -196,9 +184,6 @@ final class SerialPortTest extends TestCase
     public function testReadUntilTimeout(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
         $stream->expects($this->exactly(2))
             ->method('setTimeout')
             ->with(0.5);
@@ -231,9 +216,6 @@ final class SerialPortTest extends TestCase
     public function testGetLog(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $stream->expects($this->once())
-            ->method('setBlocking')
-            ->with(true);
         $stream->expects($this->exactly(2))
             ->method('setTimeout')
             ->with(5.4);

@@ -129,6 +129,7 @@ final class TcpSocket implements Stream
                     $error_code
                 );
             }
+            $this->io->setBlocking($socket, true);
             $this->socket = $socket;
         }
 
@@ -219,14 +220,6 @@ final class TcpSocket implements Stream
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;
         return $this->io->setTimeout($this->getSocket(), (int)$timeoutSeconds, (int)$timeoutMicroseconds);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setBlocking(bool $blocking): bool
-    {
-        return $this->io->setBlocking($this->getSocket(), $blocking);
     }
 
     /**
