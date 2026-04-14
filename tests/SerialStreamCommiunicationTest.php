@@ -13,6 +13,7 @@ use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\SerialStreamCommunication;
 use GregorJ\SerialPort\Streams\TcpSocket;
+use GregorJ\SerialPort\Streams\TcpSocketContainer;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -62,7 +63,7 @@ final class SerialStreamCommiunicationTest extends TestCase
         $connector->expects($this->once())
             ->method('connect')
             ->willThrowException(new ConnectionException('Connection failed!'));
-        $stream = new TcpSocket('a', 1, 1.0, $connector);
+        $stream = new TcpSocket('a', 1, 1.0, new TcpSocketContainer($connector));
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection failed!');
         $serial = new SerialStreamCommunication($stream);

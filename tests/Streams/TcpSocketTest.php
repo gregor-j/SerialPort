@@ -13,7 +13,12 @@ use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use GregorJ\SerialPort\Streams\TcpSocket;
+use GregorJ\SerialPort\Streams\TcpSocketContainer;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use stdClass;
 use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
@@ -25,9 +30,11 @@ final class TcpSocketTest extends TestCase
      * Test actual reading and writing from an echo service.
      * @return void
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      * @throws UnexpectedResponseException
      * @throws WriteException
-     * @throws InvalidParamException
      */
     public function testReadingAndWriting(): void
     {
@@ -51,6 +58,8 @@ final class TcpSocketTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidParamException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function testConnectionError(): void
     {
@@ -63,7 +72,9 @@ final class TcpSocketTest extends TestCase
     /**
      * @return void
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
      * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      */
     public function testSetInvalidTimeout(): void
     {
@@ -77,7 +88,9 @@ final class TcpSocketTest extends TestCase
     /**
      * @return void
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
      * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      * @throws WriteException
      */
     public function testSetInvalidWriteTimeout(): void
@@ -93,7 +106,9 @@ final class TcpSocketTest extends TestCase
      * Test InvalidParamException when trying to write an empty string.
      * @return void
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
      * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      * @throws WriteException
      */
     public function testWritingEmptyString(): void
@@ -107,6 +122,9 @@ final class TcpSocketTest extends TestCase
     /**
      * Constructor must reject negative timeout values.
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      */
     public function testConstructorWithInvalidTimeout(): void
     {
@@ -117,12 +135,12 @@ final class TcpSocketTest extends TestCase
 
     /**
      * write() must wrap fwrite() failures in a WriteException.
-     *
      * Uses a read-only stream handle to deterministically force fwrite() to return false.
-     *
      * @return void
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
      * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      * @throws WriteException
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
@@ -187,7 +205,7 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $socket = new TcpSocket('127.0.0.1', 7777, null, $connector, $io, $clock, $errors);
+        $socket = new TcpSocket('127.0.0.1', 7777, null, new TcpSocketContainer($connector, $io, $clock, $errors));
 
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Failed to write "x" to TCP connection 127.0.0.1:7777: simulated fwrite failure');
@@ -196,14 +214,15 @@ final class TcpSocketTest extends TestCase
 
     /**
      * write() must throw WriteException when write operation times out.
-     *
      * This test verifies the timeout mechanism by creating a blocking scenario
      * where fwrite() cannot immediately write all data. We use a combination of
      * non-blocking mode and a small buffer size to force repeated zero-byte writes.
-     *
      * @return void
-     * @throws InvalidParamException
      * @throws ConnectionException
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     * @throws WriteException
      */
     public function testWriteThrowsOnWriteTimeout(): void
     {
@@ -273,10 +292,62 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $socket = new TcpSocket('127.0.0.1', 7777, null, $connector, $io, $clock, $errors);
+        $socket = new TcpSocket('127.0.0.1', 7777, null, new TcpSocketContainer($connector, $io, $clock, $errors));
 
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Write operation timed out');
         $socket->write('payload', 0.05);
+    }
+
+    /**
+     * Constructor rejects missing dependency in container.
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     */
+    public function testConstructorRejectsMissingDependencyInContainer(): void
+    {
+        $container = new class () implements ContainerInterface {
+            public function get(string $id): mixed
+            {
+                return null;
+            }
+
+            public function has(string $id): bool
+            {
+                return false;
+            }
+        };
+
+        $this->expectException(InvalidParamException::class);
+        $this->expectExceptionMessage('Missing required TcpSocket dependency');
+        new TcpSocket('127.0.0.1', 7777, null, $container);
+    }
+
+    /**
+     * Constructor rejects wrong dependency type in container.
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     */
+    public function testConstructorRejectsWrongDependencyTypeInContainer(): void
+    {
+        $container = new class () implements ContainerInterface {
+            public function get(string $id): stdClass
+            {
+                return new stdClass();
+            }
+
+            public function has(string $id): bool
+            {
+                return true;
+            }
+        };
+
+        $this->expectException(InvalidParamException::class);
+        $this->expectExceptionMessage('must implement');
+        new TcpSocket('127.0.0.1', 7777, null, $container);
     }
 }
