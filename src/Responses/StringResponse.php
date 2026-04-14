@@ -18,7 +18,6 @@ use function str_contains;
 final class StringResponse implements Response
 {
     public const RESPONSE = 'response';
-    public const RAW_RESPONSE = 'raw_response';
 
     /**
      * @var array<string, string>
@@ -31,7 +30,6 @@ final class StringResponse implements Response
      */
     public function __construct(string $response, string $readTerminator = '')
     {
-        $this->response[self::RAW_RESPONSE] = $response;
         if ($readTerminator !== '' && str_contains($response, $readTerminator)) {
             $parts = explode($readTerminator, $response);
             $response = $parts[0];
@@ -65,13 +63,5 @@ final class StringResponse implements Response
     {
         $response = $this->response[self::RESPONSE] ?? '';
         return ToString::fromString($response);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRawResponse(): string
-    {
-        return $this->response[self::RAW_RESPONSE];
     }
 }
