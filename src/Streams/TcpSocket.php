@@ -15,6 +15,7 @@ use GregorJ\SerialPort\Interfaces\System\Error;
 use GregorJ\SerialPort\System\SystemClock;
 use GregorJ\SerialPort\System\SystemError;
 use GregorJ\ToString\ToString;
+
 use function floor;
 use function is_array;
 use function is_resource;
