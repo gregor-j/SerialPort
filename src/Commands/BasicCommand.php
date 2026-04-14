@@ -49,8 +49,8 @@ final class BasicCommand implements Command
     public function invoke(Communication $communication): StringResponse
     {
         $communication->setTimeout($this->timeout);
-        $communication->write($this->command, $this->commandTerminator);
-        return new StringResponse($communication->read($this->readTerminator), $this->readTerminator);
+        $response = $communication->query($this->command, $this->commandTerminator, $this->readTerminator);
+        return new StringResponse($response, $this->readTerminator);
     }
 
     /**

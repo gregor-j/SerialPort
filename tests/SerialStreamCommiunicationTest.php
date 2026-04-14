@@ -54,6 +54,7 @@ final class SerialStreamCommiunicationTest extends TestCase
      * Test connection failed exception.
      * @return void
      * @throws ConnectionException
+     * @throws InvalidParamException
      */
     public function testConnectionFailed(): void
     {
@@ -65,7 +66,7 @@ final class SerialStreamCommiunicationTest extends TestCase
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection failed!');
         $serial = new SerialStreamCommunication($stream);
-        $serial->write('y');
+        $serial->query('y');
     }
 
     /**
@@ -88,7 +89,7 @@ final class SerialStreamCommiunicationTest extends TestCase
         $serialPort = new SerialStreamCommunication($stream);
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Expected to write 13 bytes, but 2000 bytes were written.');
-        $serialPort->write('testTestTest', "\n");
+        $serialPort->query('testTestTest', "\n");
     }
 
     /**
@@ -118,10 +119,9 @@ final class SerialStreamCommiunicationTest extends TestCase
             ->willReturn(false, true, true);
         $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
-        $serialPort->write('testTestTest', "\n");
         $this->expectException(TimeoutException::class);
         $this->expectExceptionMessage('Response timed out on serial port.');
-        $serialPort->read("\n");
+        $serialPort->query('testTestTest', "\n", "\n");
     }
 
     /**
@@ -151,8 +151,7 @@ final class SerialStreamCommiunicationTest extends TestCase
             ->willReturn(false, false);
         $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
-        $serialPort->write('testTestTest', "\n");
-        $response = $serialPort->read("\n");
+        $response = $serialPort->query('testTestTest', "\n", "\n");
         $this->assertEquals("xy\n", $response);
     }
 
@@ -183,8 +182,7 @@ final class SerialStreamCommiunicationTest extends TestCase
             ->willReturn(false, false, true);
         $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(0.5);
-        $serialPort->write('testTestTest', "\n");
-        $response = $serialPort->read();
+        $response = $serialPort->query('testTestTest', "\n");
         $this->assertEquals('xyz', $response);
     }
 
@@ -215,12 +213,11 @@ final class SerialStreamCommiunicationTest extends TestCase
             ->willReturn(false, false);
         $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
-        $serialPort->write('blaBlaBla', "\n");
-        $response = $serialPort->read("\n");
+        $response = $serialPort->query('blaBlaBla', "\n", "\n");
         $this->assertEquals("ab\n", $response);
         $log = $serialPort->getLog();
         $this->assertCount(4, $log);
-        $this->assertSame(sprintf('set timeout to %f seconds', SerialStreamCommunication::DEFAULT_TIMEOUT), $log[0]);
+        $this->assertSame(sprintf('default timeout %f seconds', SerialStreamCommunication::DEFAULT_TIMEOUT), $log[0]);
         $this->assertSame('set timeout to 5.400000 seconds', $log[1]);
         $this->assertSame('write "blaBlaBla\n"', $log[2]);
         $this->assertSame('read "ab\n"', $log[3]);

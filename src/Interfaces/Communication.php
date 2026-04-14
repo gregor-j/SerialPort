@@ -22,15 +22,18 @@ interface Communication
     public function __toString(): string;
 
     /**
-     * Write the string and append an optional termination character to that string.
+     * Write the string and read the response.
      * @param string $string
-     * @param string $terminator optional termination string to append
-     * @return void
+     * @param string $writeTerminator optional termination string to append to the string
+     * @param string $readTerminator optional termination string to wait for in the response
+     * @return string
      * @throws InvalidParamException
      * @throws ConnectionException
      * @throws WriteException
+     * @throws UnexpectedResponseException
+     * @throws TimeoutException
      */
-    public function write(string $string, string $terminator = ''): void;
+    public function query(string $string, string $writeTerminator = '', string $readTerminator = ''): string;
 
     /**
      * Set the time in seconds to wait for a response.
@@ -39,18 +42,6 @@ interface Communication
      * @throws InvalidParamException
      */
     public function setTimeout(float $seconds): void;
-
-    /**
-     * Read the response.
-     * In case a terminator string is given, read until that string appears.
-     * @param string $terminator
-     * @return string
-     * @throws InvalidParamException
-     * @throws ConnectionException
-     * @throws TimeoutException
-     * @throws UnexpectedResponseException
-     */
-    public function read(string $terminator = ''): string;
 
     /**
      * Get the communication log of all write(), read() and setTimeout() calls of this class instance.
