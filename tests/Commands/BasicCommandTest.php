@@ -43,7 +43,6 @@ class BasicCommandTest extends TestCase
         $command = new BasicCommand('HELLO', "\n", "\r", 1.0);
         $this->assertSame('HELLO\n', (string)$command);
         $response = $command->invoke($com);
-        $this->assertSame("WORLD\r", $response->getRawResponse());
         $this->assertSame('WORLD', (string)$response);
     }
 

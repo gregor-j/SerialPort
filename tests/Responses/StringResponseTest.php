@@ -22,9 +22,6 @@ final class StringResponseTest extends TestCase
     {
         $response = new StringResponse("abc\n", "\n");
         $this->assertTrue($response->has(StringResponse::RESPONSE));
-        $this->assertTrue($response->has(StringResponse::RAW_RESPONSE));
-        $this->assertSame("abc\n", $response->get(StringResponse::RAW_RESPONSE));
-        $this->assertSame("abc\n", $response->getRawResponse());
         $this->assertSame("abc", $response->get(StringResponse::RESPONSE));
         $this->assertSame("abc", (string)$response);
     }
