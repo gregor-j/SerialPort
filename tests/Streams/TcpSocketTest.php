@@ -100,9 +100,8 @@ final class TcpSocketTest extends TestCase
     {
         $server = new LocalTcpServer();
         $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
-        $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Cannot write empty string.');
-        $socket->write('');
+        $bytes = $socket->write('');
+        $this->assertSame(0, $bytes);
     }
 
     /**

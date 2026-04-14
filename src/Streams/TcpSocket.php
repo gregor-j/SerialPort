@@ -140,15 +140,14 @@ final class TcpSocket implements Stream
      */
     public function write(string $string, float $timeoutSeconds = null): int
     {
-        $socket = $this->getSocket();
-        if ($string === '') {
-            throw new InvalidParamException('Cannot write empty string.');
-        }
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_WRITE_TIMEOUT;
         if ($timeoutSeconds < 0) {
             throw new InvalidParamException('Write timeout for TcpSocket must be positive.');
         }
-
+        if ($string === '') {
+            return 0;
+        }
+        $socket = $this->getSocket();
         $this->errors->clearLastError();
         $length = strlen($string);
         $offset = 0;

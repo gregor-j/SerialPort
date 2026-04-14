@@ -47,9 +47,6 @@ final class SerialStreamCommunication implements Communication
      */
     public function write(string $string, string $terminator = ''): void
     {
-        if ($string === '') {
-            throw new InvalidParamException('Cannot write empty string.');
-        }
         $this->stream->setTimeout($this->timeout);
         $sendString = $string . $terminator;
         $expectLength = strlen($sendString);
