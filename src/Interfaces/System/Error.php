@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GregorJ\SerialPort\Interfaces;
+namespace GregorJ\SerialPort\Interfaces\System;
 
 /**
  * Abstraction for retrieving and clearing errors.

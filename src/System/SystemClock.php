@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\System;
 
-use GregorJ\SerialPort\Interfaces\Clock;
-
+use GregorJ\SerialPort\Interfaces\System\Clock;
 use function microtime;
 
 /**
