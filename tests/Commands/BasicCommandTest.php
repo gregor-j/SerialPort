@@ -34,11 +34,8 @@ class BasicCommandTest extends TestCase
             ->method('setTimeout')
             ->with(1.0);
         $com->expects($this->once())
-            ->method('write')
-            ->with('HELLO', "\n");
-        $com->expects($this->once())
-            ->method('read')
-            ->with("\r")
+            ->method('query')
+            ->with('HELLO', "\n", "\r")
             ->willReturn("WORLD\r");
         $command = new BasicCommand('HELLO', "\n", "\r", 1.0);
         $this->assertSame('HELLO\n', (string)$command);

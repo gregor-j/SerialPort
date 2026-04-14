@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort;
 
+use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
+use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\Stream;
@@ -39,22 +41,7 @@ final class SerialStreamCommunication implements Communication
     {
         $this->stream = $stream;
         $this->timeout = self::DEFAULT_TIMEOUT;
-        $this->log[] = sprintf('set timeout to %f seconds', $this->timeout);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function write(string $string, string $terminator = ''): void
-    {
-        $this->stream->setTimeout($this->timeout);
-        $sendString = $string . $terminator;
-        $expectLength = strlen($sendString);
-        $this->log[] = sprintf('write "%s"', ToString::fromString($sendString));
-        $bytes = $this->stream->write($sendString, $this->timeout);
-        if ($bytes !== $expectLength) {
-            throw new WriteException(sprintf('Expected to write %u bytes, but %u bytes were written.', $expectLength, $bytes));
-        }
+        $this->log[] = sprintf('default timeout %f seconds', $this->timeout);
     }
 
     /**
@@ -72,7 +59,44 @@ final class SerialStreamCommunication implements Communication
     /**
      * @inheritDoc
      */
-    public function read(string $terminator = ''): string
+    public function query(string $string, string $writeTerminator = '', string $readTerminator = ''): string
+    {
+        $this->write($string, $writeTerminator);
+        return $this->read($readTerminator);
+    }
+
+    /**
+     * Write the string and append an optional termination character to that string.
+     * @param string $string
+     * @param string $terminator
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws WriteException
+     */
+    private function write(string $string, string $terminator = ''): void
+    {
+        $this->stream->setTimeout($this->timeout);
+        $sendString = $string . $terminator;
+        $expectLength = strlen($sendString);
+        $this->log[] = sprintf('write "%s"', ToString::fromString($sendString));
+        $bytes = $this->stream->write($sendString, $this->timeout);
+        if ($bytes !== $expectLength) {
+            throw new WriteException(sprintf('Expected to write %u bytes, but %u bytes were written.', $expectLength, $bytes));
+        }
+    }
+
+    /**
+     * Read the response.
+     * In case a terminator string is given, read until that string appears.
+     * @param string $terminator
+     * @return string
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     */
+    private function read(string $terminator = ''): string
     {
         $this->stream->setTimeout($this->timeout);
         $response = '';
