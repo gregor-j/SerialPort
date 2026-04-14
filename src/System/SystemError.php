@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\System;
 
-use GregorJ\SerialPort\Interfaces\Error;
+use GregorJ\SerialPort\Interfaces\System\Error;
 
 /**
  * Native error handling functions.
