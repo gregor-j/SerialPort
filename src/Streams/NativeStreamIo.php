@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Streams;
 
-use GregorJ\SerialPort\Interfaces\StreamIo;
-
+use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
 use function fclose;
 use function fgetc;
 use function fwrite;

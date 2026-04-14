@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GregorJ\SerialPort\Interfaces;
+namespace GregorJ\SerialPort\Interfaces\Stream;
 
 /**
  * Abstraction for stream IO operations.

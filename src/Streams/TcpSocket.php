@@ -10,12 +10,11 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Clock;
 use GregorJ\SerialPort\Interfaces\Error;
 use GregorJ\SerialPort\Interfaces\Stream;
-use GregorJ\SerialPort\Interfaces\StreamIo;
-use GregorJ\SerialPort\Interfaces\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
+use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\System\SystemClock;
 use GregorJ\SerialPort\System\SystemError;
 use GregorJ\ToString\ToString;
-
 use function floor;
 use function is_array;
 use function is_resource;
