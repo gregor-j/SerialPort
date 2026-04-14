@@ -11,17 +11,17 @@ use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
-use GregorJ\SerialPort\SerialPort;
+use GregorJ\SerialPort\SerialStreamCommunication;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the SerialPort class.
+ * Unit tests for the SerialStreamCommunication class.
  */
-final class SerialPortTest extends TestCase
+final class SerialStreamCommiunicationTest extends TestCase
 {
     /**
-     * Test __toString() method of SerialPort.
+     * Test __toString() method of SerialStreamCommunication.
      * @return void
      * @throws ConnectionException
      */
@@ -31,7 +31,7 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->once())
             ->method('__toString')
             ->willReturn('abc://de:f');
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $this->assertSame('abc://de:f', (string)$serialPort);
     }
 
@@ -44,9 +44,9 @@ final class SerialPortTest extends TestCase
     public function testInvalidTimeout()
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Response timeout for SerialPort has to be positive.');
+        $this->expectExceptionMessage('Response timeout for SerialStreamCommunication has to be positive.');
         $serialPort->setTimeout(-2.5);
     }
 
@@ -64,7 +64,7 @@ final class SerialPortTest extends TestCase
         $stream = new TcpSocket('a', 1, 1.0, $connector);
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection failed!');
-        $serial = new SerialPort($stream);
+        $serial = new SerialStreamCommunication($stream);
         $serial->write('y');
     }
 
@@ -85,7 +85,7 @@ final class SerialPortTest extends TestCase
             ->method('write')
             ->with("testTestTest\n")
             ->willReturn(2000);
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Expected to write 13 bytes, but 2000 bytes were written.');
         $serialPort->write('testTestTest', "\n");
@@ -101,7 +101,7 @@ final class SerialPortTest extends TestCase
     public function testWriteException(): void
     {
         $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('Cannot write empty string.');
         $serialPort->write('', "\n");
@@ -132,7 +132,7 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->exactly(3))
             ->method('timedOut')
             ->willReturn(false, true, true);
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
         $serialPort->write('testTestTest', "\n");
         $this->expectException(TimeoutException::class);
@@ -165,7 +165,7 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->exactly(2))
             ->method('timedOut')
             ->willReturn(false, false);
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
         $serialPort->write('testTestTest', "\n");
         $response = $serialPort->read("\n");
@@ -197,7 +197,7 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->exactly(3))
             ->method('timedOut')
             ->willReturn(false, false, true);
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(0.5);
         $serialPort->write('testTestTest', "\n");
         $response = $serialPort->read();
@@ -229,14 +229,14 @@ final class SerialPortTest extends TestCase
         $stream->expects($this->exactly(2))
             ->method('timedOut')
             ->willReturn(false, false);
-        $serialPort = new SerialPort($stream);
+        $serialPort = new SerialStreamCommunication($stream);
         $serialPort->setTimeout(5.4);
         $serialPort->write('blaBlaBla', "\n");
         $response = $serialPort->read("\n");
         $this->assertEquals("ab\n", $response);
         $log = $serialPort->getLog();
         $this->assertCount(4, $log);
-        $this->assertSame(sprintf('set timeout to %f seconds', SerialPort::DEFAULT_TIMEOUT), $log[0]);
+        $this->assertSame(sprintf('set timeout to %f seconds', SerialStreamCommunication::DEFAULT_TIMEOUT), $log[0]);
         $this->assertSame('set timeout to 5.400000 seconds', $log[1]);
         $this->assertSame('write "blaBlaBla\n"', $log[2]);
         $this->assertSame('read "ab\n"', $log[3]);
