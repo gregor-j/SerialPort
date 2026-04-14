@@ -86,7 +86,7 @@ final class SerialStreamCommunication implements Communication
 
         if ($terminator !== '' && !$this->endsWith($response, $terminator, $terminatorLength) && $this->stream->timedOut()) {
             $this->log[] = sprintf('read timed out. partial response "%s"', ToString::fromString($response));
-            throw new TimeoutException('Response timed out on serial port.', 0, null, $response);
+            throw new TimeoutException('Response timed out on serial port.');
         }
         $this->log[] = sprintf('read "%s"', ToString::fromString($response));
         return $response;
