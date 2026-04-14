@@ -12,9 +12,10 @@ use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
 use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
-use GregorJ\SerialPort\System\SystemClock;
-use GregorJ\SerialPort\System\SystemError;
 use GregorJ\ToString\ToString;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 use function floor;
 use function is_array;
@@ -69,22 +70,19 @@ final class TcpSocket implements Stream
 
     /**
      * Create a TCP socket.
-     * @param string                     $host The hostname.
-     * @param int                        $port The port number.
-     * @param float|null                 $timeoutSeconds The optional connection timeout, in seconds.
-     * @param TcpSocketConnector|null    $connector Optional connector abstraction.
-     * @param StreamIo|null              $io Optional IO abstraction.
-     * @param Clock|null                 $clock Optional clock abstraction.
+     * @param string $host The hostname.
+     * @param int $port The port number.
+     * @param float|null $timeoutSeconds The optional connection timeout, in seconds.
+     * @param ContainerInterface|null $container Optional container for infrastructure services.
+     * @throws ContainerExceptionInterface
      * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
      */
     public function __construct(
         string $host,
         int $port,
         float $timeoutSeconds = null,
-        TcpSocketConnector $connector = null,
-        StreamIo $io = null,
-        Clock $clock = null,
-        Error $errors = null
+        ContainerInterface $container = null
     ) {
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
@@ -94,10 +92,36 @@ final class TcpSocket implements Stream
         $this->connectionTimeout = $timeoutSeconds;
         $this->host = $host;
         $this->port = $port;
-        $this->connector = $connector ?? new NativeTcpSocketConnector();
-        $this->io = $io ?? new NativeStreamIo();
-        $this->clock = $clock ?? new SystemClock();
-        $this->errors = $errors ?? new SystemError();
+        $container = $container ?? new TcpSocketContainer();
+        $this->connector = $this->resolveDependency($container, TcpSocketConnector::class);
+        $this->io = $this->resolveDependency($container, StreamIo::class);
+        $this->clock = $this->resolveDependency($container, Clock::class);
+        $this->errors = $this->resolveDependency($container, Error::class);
+    }
+
+    /**
+     * Resolve a typed dependency from the DI container.
+     * @template T of object
+     * @param ContainerInterface $container
+     * @param class-string<T> $id
+     * @return T
+     * @throws InvalidParamException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function resolveDependency(ContainerInterface $container, string $id): object
+    {
+        if (!$container->has($id)) {
+            throw new InvalidParamException(sprintf('Missing required TcpSocket dependency "%s" in container.', $id));
+        }
+
+        $dependency = $container->get($id);
+        if (!$dependency instanceof $id) {
+            throw new InvalidParamException(sprintf('TcpSocket dependency "%s" must implement %s.', $id, $id));
+        }
+
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $dependency;
     }
 
     /**
