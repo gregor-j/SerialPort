@@ -19,7 +19,7 @@ use function substr;
 /**
  * Invoke serial port commands on a configured communication and return their response.
  */
-final class SerialPort implements Communication
+final class SerialStreamCommunication implements Communication
 {
     public const DEFAULT_TIMEOUT = 2.0;
     private Stream $stream;
@@ -66,7 +66,7 @@ final class SerialPort implements Communication
     public function setTimeout(float $seconds): void
     {
         if ($seconds < 0.0) {
-            throw new InvalidParamException('Response timeout for SerialPort has to be positive.');
+            throw new InvalidParamException('Response timeout for SerialStreamCommunication has to be positive.');
         }
         $this->log[] = sprintf('set timeout to %f seconds', $seconds);
         $this->timeout = $seconds;
