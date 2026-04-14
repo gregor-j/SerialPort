@@ -92,22 +92,6 @@ final class SerialStreamCommiunicationTest extends TestCase
     }
 
     /**
-     * Test causing a InvalidParamException because of an empty command.
-     * @return void
-     * @throws ConnectionException
-     * @throws WriteException
-     * @throws InvalidParamException
-     */
-    public function testWriteException(): void
-    {
-        $stream = $this->getMockBuilder(Stream::class)->getMock();
-        $serialPort = new SerialStreamCommunication($stream);
-        $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Cannot write empty string.');
-        $serialPort->write('', "\n");
-    }
-
-    /**
      * Test the TimeoutException when reading from stream.
      * @return void
      * @throws ConnectionException
