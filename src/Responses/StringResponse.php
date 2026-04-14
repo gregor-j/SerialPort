@@ -10,6 +10,7 @@ use GregorJ\ToString\ToString;
 
 use function array_key_exists;
 use function explode;
+use function sprintf;
 use function str_contains;
 
 /**
@@ -40,20 +41,20 @@ final class StringResponse implements Response
     /**
      * @inheritDoc
      */
-    public function get(string $name): string
+    public function get(string $id): string
     {
-        if (!$this->has($name)) {
-            throw new NotFoundException(sprintf('StringResponse "%s" not found.', ToString::fromString($name)));
+        if (!$this->has($id)) {
+            throw new NotFoundException(sprintf('StringResponse "%s" not found.', ToString::fromString($id)));
         }
-        return $this->response[$name];
+        return $this->response[$id];
     }
 
     /**
      * @inheritDoc
      */
-    public function has(string $name): bool
+    public function has(string $id): bool
     {
-        return array_key_exists($name, $this->response);
+        return array_key_exists($id, $this->response);
     }
 
     /**
