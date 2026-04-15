@@ -8,7 +8,6 @@ use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Response;
 use GregorJ\ToString\ToString;
 
-use function array_key_exists;
 use function explode;
 use function sprintf;
 use function str_contains;
@@ -54,7 +53,7 @@ final class StringResponse implements Response
      */
     public function has(string $id): bool
     {
-        return array_key_exists($id, $this->response);
+        return isset($this->response[$id]);
     }
 
     /**

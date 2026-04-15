@@ -9,7 +9,7 @@ use GregorJ\SerialPort\Interfaces\System\Error;
 /**
  * Native error handling functions.
  */
-final class SystemError implements Error
+final class NativeError implements Error
 {
     /**
      * Clear the most recent error

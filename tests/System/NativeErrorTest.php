@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\System;
 
-use GregorJ\SerialPort\System\SystemError;
+use GregorJ\SerialPort\System\NativeError;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the SystemError class.
+ * Unit tests for the NativeError class.
  */
-final class SystemErrorTest extends TestCase
+final class NativeErrorTest extends TestCase
 {
     /**
      * Test getting and emptying the last error.
@@ -18,16 +18,16 @@ final class SystemErrorTest extends TestCase
      */
     public function testGetLastErrorReturnsErrorArrayAfterTriggeredError(): void
     {
-        $systemError = new SystemError();
+        $systemError = new NativeError();
         $systemError->clearLastError();
 
-        @trigger_error('SystemError test warning', E_USER_WARNING);
+        @trigger_error('NativeError test warning', E_USER_WARNING);
 
         $lastError = $systemError->getLastError();
 
         $this->assertIsArray($lastError);
         $this->assertSame(E_USER_WARNING, $lastError['type']);
-        $this->assertStringContainsString('SystemError test warning', (string)$lastError['message']);
+        $this->assertStringContainsString('NativeError test warning', (string)$lastError['message']);
         $this->assertArrayHasKey('file', $lastError);
         $this->assertArrayHasKey('line', $lastError);
 

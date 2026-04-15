@@ -11,7 +11,7 @@ use function microtime;
 /**
  * System clock based on microtime(true).
  */
-final class SystemClock implements Clock
+final class NativeClock implements Clock
 {
     /**
      * Return current Unix timestamp with microseconds.

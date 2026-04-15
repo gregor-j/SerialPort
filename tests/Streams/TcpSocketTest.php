@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Streams;
 
+use GregorJ\SerialPort\Container\TcpSocketContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
@@ -13,7 +15,6 @@ use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use GregorJ\SerialPort\Streams\TcpSocket;
-use GregorJ\SerialPort\Streams\TcpSocketContainer;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -320,8 +321,8 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Missing required TcpSocket dependency');
+        $this->expectException(NotFoundExceptionInterface::class);
+        $this->expectExceptionMessage('Missing required dependency');
         new TcpSocket('127.0.0.1', 7777, null, $container);
     }
 
@@ -346,7 +347,7 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $this->expectException(InvalidParamException::class);
+        $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('must implement');
         new TcpSocket('127.0.0.1', 7777, null, $container);
     }

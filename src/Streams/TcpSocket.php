@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Streams;
 
+use GregorJ\SerialPort\Container\TcpSocketContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
+use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
@@ -66,7 +69,7 @@ final class TcpSocket implements Stream
     private TcpSocketConnector $connector;
     private StreamIo $io;
     private Clock $clock;
-    private Error $errors;
+    private Error $error;
 
     /**
      * Create a TCP socket.
@@ -96,30 +99,27 @@ final class TcpSocket implements Stream
         $this->connector = $this->resolveDependency($container, TcpSocketConnector::class);
         $this->io = $this->resolveDependency($container, StreamIo::class);
         $this->clock = $this->resolveDependency($container, Clock::class);
-        $this->errors = $this->resolveDependency($container, Error::class);
+        $this->error = $this->resolveDependency($container, Error::class);
     }
 
     /**
      * Resolve a typed dependency from the DI container.
      * @template T of object
      * @param ContainerInterface $container
-     * @param class-string<T> $id
+     * @param class-string<T> $class
      * @return T
-     * @throws InvalidParamException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function resolveDependency(ContainerInterface $container, string $id): object
+    private function resolveDependency(ContainerInterface $container, string $class): object
     {
-        if (!$container->has($id)) {
-            throw new InvalidParamException(sprintf('Missing required TcpSocket dependency "%s" in container.', $id));
+        if (!$container->has($class)) {
+            throw new NotFoundException(sprintf('Missing required dependency "%s" in container.', $class));
         }
-
-        $dependency = $container->get($id);
-        if (!$dependency instanceof $id) {
-            throw new InvalidParamException(sprintf('TcpSocket dependency "%s" must implement %s.', $id, $id));
+        $dependency = $container->get($class);
+        if (!$dependency instanceof $class) {
+            throw new ContainerException(sprintf('Dependency "%s" must implement %s.', $class, $class));
         }
-
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $dependency;
     }
@@ -172,7 +172,7 @@ final class TcpSocket implements Stream
             return 0;
         }
         $socket = $this->getSocket();
-        $this->errors->clearLastError();
+        $this->error->clearLastError();
         $length = strlen($string);
         $offset = 0;
         $totalBytes = 0;
@@ -199,7 +199,7 @@ final class TcpSocket implements Stream
             }
 
             if ($bytes === false) {
-                $lastError = $this->errors->getLastError();
+                $lastError = $this->error->getLastError();
                 throw new WriteException(
                     sprintf(
                         'Failed to write "%s" to TCP connection %s:%s: %s',

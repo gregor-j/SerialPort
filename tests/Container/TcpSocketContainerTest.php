@@ -1,21 +1,28 @@
 <?php
 
-namespace Tests\GregorJ\SerialPort\Streams;
+declare(strict_types=1);
 
-use GregorJ\SerialPort\Exceptions\NotFoundException;
+namespace Tests\GregorJ\SerialPort\Container;
+
+use GregorJ\SerialPort\Container\TcpSocketContainer;
 use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
 use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
-use GregorJ\SerialPort\Streams\TcpSocketContainer;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * Unit tests for TcpSocketContainer
+ */
 class TcpSocketContainerTest extends TestCase
 {
     /**
      * Test default services.
      * @return void
-     * @throws NotFoundException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function testDefaultServices(): void
     {
@@ -32,13 +39,24 @@ class TcpSocketContainerTest extends TestCase
 
     /**
      * @return void
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function testGetNotFoundException(): void
     {
         $container = new TcpSocketContainer();
-        $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('Service "NonExistentService" was not found in TcpSocketContainer.');
-        $container->get('NonExistentService');
+        $this->expectException(NotFoundExceptionInterface::class);
+        $this->expectExceptionMessage('Missing required dependency');
+        $container->get('NonExistent');
+    }
+
+    /**
+     * @return void
+     */
+    public function testHasNot(): void
+    {
+        $container = new TcpSocketContainer();
+        $this->assertFalse($container->has('NonExistent'));
+        $this->assertFalse($container->has(''));
     }
 }
