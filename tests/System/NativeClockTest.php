@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\System;
 
-use GregorJ\SerialPort\System\SystemClock;
+use GregorJ\SerialPort\System\NativeClock;
 use PHPUnit\Framework\TestCase;
 
 use function microtime;
 
 /**
- * Unit tests for the SystemClock class.
+ * Unit tests for the NativeClock class.
  */
-final class SystemClockTest extends TestCase
+final class NativeClockTest extends TestCase
 {
     /**
      * Test that now() returns a float timestamp in the current time window.
      */
     public function testNowReturnsCurrentTimestampAsFloat(): void
     {
-        $clock = new SystemClock();
+        $clock = new NativeClock();
 
         $before = microtime(true);
         $now = $clock->now();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort;
 
+use GregorJ\SerialPort\Container\TcpSocketContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
@@ -13,7 +14,6 @@ use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\SerialStreamCommunication;
 use GregorJ\SerialPort\Streams\TcpSocket;
-use GregorJ\SerialPort\Streams\TcpSocketContainer;
 use PHPUnit\Framework\TestCase;
 
 /**
