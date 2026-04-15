@@ -3,6 +3,8 @@ tests/          export-ignore
 .gitattributes  export-ignore
 .gitignore      export-ignore
 .phpcs.xml      export-ignore
+AGENTS.md       export-ignore
+AI_PROMPT_HTTP_SERIAL_GATEWAY.md export-ignore
 composer.json   export-ignore
 phpstan.neon    export-ignore
 phpunit.xml     export-ignore
