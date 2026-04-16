@@ -47,7 +47,7 @@
 | `Native*`        | Concrete implementation using PHP built-ins; name = `Native` + interface name | `NativeCurlIo`, `NativeStreamWrapperIo`, `NativeStreamIo`, `NativeTcpStreamConnector` |
 
 ## Dev Workflows (Verified)
-- Run tests: `./vendor/bin/phpunit --testdox` (114 tests currently passing on this repo).
+- Run tests: `./vendor/bin/phpunit --testdox`
 - Run static analysis: `./vendor/bin/phpstan analyse --no-progress` (level 9 via `phpstan.neon`).
 - Fix PSR-12 style issues with `./vendor/bin/phpcbf` every time before presenting code changes (phpcbf-only workflow for faster iteration).
 - Integration-ish stream tests rely on `tests/LocalTcpServer.php` and require `ext-pcntl` + `ext-posix` (Linux/Unix-style process control).
