@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Commands;
 
-use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\Commands\BasicStringCommand;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
@@ -14,12 +14,12 @@ use GregorJ\SerialPort\Interfaces\Communication;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the BasicCommand class.
+ * Unit tests for the BasicStringCommand class.
  */
 class BasicCommandTest extends TestCase
 {
     /**
-     * Test BasicCommand class.
+     * Test BasicStringCommand class.
      * @return void
      * @throws InvalidParamException
      * @throws TimeoutException
@@ -37,7 +37,7 @@ class BasicCommandTest extends TestCase
             ->method('query')
             ->with('HELLO', "\n", "\r")
             ->willReturn("WORLD\r");
-        $command = new BasicCommand('HELLO', "\n", "\r", 1.0);
+        $command = new BasicStringCommand('HELLO', "\n", "\r", 1.0);
         $this->assertSame('HELLO\n', (string)$command);
         $response = $command->invoke($com);
         $this->assertSame('WORLD', (string)$response);
@@ -49,8 +49,8 @@ class BasicCommandTest extends TestCase
     public function testConstructorWithNegativeTimeout(): void
     {
         $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('The response timeout for BasicCommand has to be positive.');
+        $this->expectExceptionMessage('The response timeout for BasicStringCommand has to be positive.');
 
-        new BasicCommand('HELLO', "\n", "\r", -1.0);
+        new BasicStringCommand('HELLO', "\n", "\r", -1.0);
     }
 }
