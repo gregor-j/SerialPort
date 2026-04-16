@@ -24,7 +24,7 @@ abstract class AbstractContainer implements ContainerInterface
     final public function get(string $id): object
     {
         if (!$this->has($id)) {
-            throw new NotFoundException(sprintf('Missing required dependency "%s" in container.', $id));
+            throw new NotFoundException(sprintf('Requested dependency "%s" not found.', $id));
         }
         return $this->dependencies[$id];
     }
