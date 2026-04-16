@@ -6,21 +6,21 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Container\NativeHttpTransportContainer;
+use GregorJ\SerialPort\Container\StreamWrapperTransportContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
-use GregorJ\SerialPort\Interfaces\Http\HttpStreamIo;
+use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use GregorJ\SerialPort\Interfaces\System\Error;
-use GregorJ\SerialPort\NativeHttpTransport;
+use GregorJ\SerialPort\StreamWrapperTransport;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Unit tests for NativeHttpTransport with injected dependencies.
+ * Unit tests for StreamWrapperTransport with injected dependencies.
  */
-final class NativeHttpTransportTest extends TestCase
+final class StreamWrapperTransportTest extends TestCase
 {
     /**
      * @return void
@@ -30,12 +30,12 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testConstructorWithoutContainerUsesDefault(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
-        $transport = new NativeHttpTransport(2.0, 5.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
         // Verify that dependencies are accepted in constructor
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(NativeHttpTransport::class, $transport);
+        $this->assertInstanceOf(StreamWrapperTransport::class, $transport);
     }
 
     /**
@@ -44,10 +44,10 @@ final class NativeHttpTransportTest extends TestCase
     public function testConstructorWithoutDependenciesUsesContainer(): void
     {
         // Default construction without explicit dependencies
-        // should use NativeHttpTransportContainer to resolve HttpStreamIo and Error
-        $transport = new NativeHttpTransport();
+        // should use StreamWrapperTransportContainer to resolve StreamWrapperIo and Error
+        $transport = new StreamWrapperTransport();
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(NativeHttpTransport::class, $transport);
+        $this->assertInstanceOf(StreamWrapperTransport::class, $transport);
     }
 
     /**
@@ -59,15 +59,15 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testConstructorWithDefaultTimeouts(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
-        $transport = new NativeHttpTransport(
-            NativeHttpTransport::DEFAULT_CONNECT_TIMEOUT,
-            NativeHttpTransport::DEFAULT_REQUEST_TIMEOUT,
-            new NativeHttpTransportContainer($streamIo, $errors)
+        $transport = new StreamWrapperTransport(
+            StreamWrapperTransport::DEFAULT_CONNECT_TIMEOUT,
+            StreamWrapperTransport::DEFAULT_REQUEST_TIMEOUT,
+            new StreamWrapperTransportContainer($streamIo, $errors)
         );
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(NativeHttpTransport::class, $transport);
+        $this->assertInstanceOf(StreamWrapperTransport::class, $transport);
     }
 
     /**
@@ -82,7 +82,7 @@ final class NativeHttpTransportTest extends TestCase
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('HTTP transport connect timeout for HttpCommunication has to be positive.');
 
-        new NativeHttpTransport(-1.0, 5.0);
+        new StreamWrapperTransport(-1.0, 5.0);
     }
 
     /**
@@ -96,7 +96,7 @@ final class NativeHttpTransportTest extends TestCase
     {
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('HTTP transport request timeout for HttpCommunication has to be positive.');
-        new NativeHttpTransport(2.0, -1.0);
+        new StreamWrapperTransport(2.0, -1.0);
     }
 
     /**
@@ -108,11 +108,11 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testConstructorWithZeroTimeouts(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
-        $transport = new NativeHttpTransport(0.0, 0.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(0.0, 0.0, new StreamWrapperTransportContainer($streamIo, $errors));
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(NativeHttpTransport::class, $transport);
+        $this->assertInstanceOf(StreamWrapperTransport::class, $transport);
     }
 
     /**
@@ -125,7 +125,7 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testPostJsonReturnsResponseWhenStatusCodeIsAvailable(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
 
         $streamIo->expects($this->once())
@@ -147,7 +147,7 @@ final class NativeHttpTransportTest extends TestCase
         $errors->expects($this->once())
             ->method('clearLastError');
 
-        $transport = new NativeHttpTransport(2.0, 5.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
         $response = $transport->postJson('http://example.com/api', '{"test":"data"}');
 
         $this->assertSame(201, $response->getStatusCode());
@@ -166,7 +166,7 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testPostJsonThrowsConnectionExceptionWhenStatusCodeUnknown(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
 
         $responseBody = '{"responseBase64":"dGVzdA=="}';
@@ -186,7 +186,7 @@ final class NativeHttpTransportTest extends TestCase
         $errors->expects($this->once())
             ->method('clearLastError');
 
-        $transport = new NativeHttpTransport(2.0, 5.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Could not determine HTTP status code');
@@ -204,7 +204,7 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testPostJsonThrowsConnectionExceptionOnStreamIoFailure(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
 
         $errorInfo = ['message' => 'Connection timeout'];
@@ -227,7 +227,7 @@ final class NativeHttpTransportTest extends TestCase
             ->method('getLastError')
             ->willReturn($errorInfo);
 
-        $transport = new NativeHttpTransport(2.0, 5.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessageMatches('/HTTP request to.*failed/');
@@ -245,7 +245,7 @@ final class NativeHttpTransportTest extends TestCase
      */
     public function testPostJsonWithNonArrayErrorInfo(): void
     {
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
 
         $streamIo->expects($this->once())
@@ -266,7 +266,7 @@ final class NativeHttpTransportTest extends TestCase
             ->method('getLastError')
             ->willReturn(null);
 
-        $transport = new NativeHttpTransport(2.0, 5.0, new NativeHttpTransportContainer($streamIo, $errors));
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Unknown error.');
@@ -291,26 +291,26 @@ final class NativeHttpTransportTest extends TestCase
             [0.1, 0.2],
         ];
 
-        $streamIo = $this->getMockBuilder(HttpStreamIo::class)->getMock();
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
         $errors = $this->getMockBuilder(Error::class)->getMock();
 
         foreach ($timeoutCombinations as [$connectTimeout, $requestTimeout]) {
-            $transport = new NativeHttpTransport(
+            $transport = new StreamWrapperTransport(
                 $connectTimeout,
                 $requestTimeout,
-                new NativeHttpTransportContainer($streamIo, $errors)
+                new StreamWrapperTransportContainer($streamIo, $errors)
             );
             /** @noinspection PhpConditionAlreadyCheckedInspection */
-            $this->assertInstanceOf(NativeHttpTransport::class, $transport);
+            $this->assertInstanceOf(StreamWrapperTransport::class, $transport);
         }
     }
 
     /**
-     * Test that NativeHttpTransport implements HttpTransport interface.
+     * Test that StreamWrapperTransport implements HttpTransport interface.
      */
     public function testImplementsHttpInterface(): void
     {
-        $transport = new NativeHttpTransport();
+        $transport = new StreamWrapperTransport();
         /** @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(HttpTransport::class, $transport);
     }

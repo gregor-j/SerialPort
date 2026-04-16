@@ -7,7 +7,7 @@ namespace GregorJ\SerialPort\Interfaces\Http;
 /**
  * Abstraction for HTTP stream operations used by HttpTransport implementations.
  */
-interface HttpStreamIo
+interface StreamWrapperIo
 {
     /**
      * Create a stream context with options.

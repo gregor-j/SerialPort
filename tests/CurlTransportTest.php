@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace Tests\GregorJ\SerialPort;
 
 use CurlHandle;
-use GregorJ\SerialPort\Container\CurlHttpTransportContainer;
-use GregorJ\SerialPort\CurlHttpTransport;
+use GregorJ\SerialPort\Container\CurlTransportContainer;
+use GregorJ\SerialPort\CurlTransport;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
@@ -30,16 +30,16 @@ use function function_exists;
 use function strpos;
 
 /**
- * Unit tests for CurlHttpTransport.
+ * Unit tests for CurlTransport.
  */
-final class CurlHttpTransportTest extends TestCase
+final class CurlTransportTest extends TestCase
 {
     private ?CurlHandle $realHandle = null;
 
     protected function setUp(): void
     {
         if (!function_exists('curl_init')) {
-            self::markTestSkipped('ext-curl is required for CurlHttpTransport tests.');
+            self::markTestSkipped('ext-curl is required for CurlTransport tests.');
         }
     }
 
@@ -69,10 +69,10 @@ final class CurlHttpTransportTest extends TestCase
 
     public function testConstructorWithoutDependenciesUsesContainer(): void
     {
-        $transport = new CurlHttpTransport();
+        $transport = new CurlTransport();
 
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(CurlHttpTransport::class, $transport);
+        $this->assertInstanceOf(CurlTransport::class, $transport);
         /** @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(HttpTransport::class, $transport);
     }
@@ -86,7 +86,7 @@ final class CurlHttpTransportTest extends TestCase
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('HTTP transport connect timeout for HttpCommunication has to be positive.');
 
-        new CurlHttpTransport(-0.1, 1.0);
+        new CurlTransport(-0.1, 1.0);
     }
 
     /**
@@ -98,7 +98,7 @@ final class CurlHttpTransportTest extends TestCase
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('HTTP transport request timeout for HttpCommunication has to be positive.');
 
-        new CurlHttpTransport(1.0, -0.1);
+        new CurlTransport(1.0, -0.1);
     }
 
     /**
@@ -123,7 +123,7 @@ final class CurlHttpTransportTest extends TestCase
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('Missing required dependency "' . CurlIo::class . '" in container.');
 
-        new CurlHttpTransport(1.0, 1.0, $container);
+        new CurlTransport(1.0, 1.0, $container);
     }
 
     /**
@@ -148,7 +148,7 @@ final class CurlHttpTransportTest extends TestCase
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('Dependency "' . CurlIo::class . '" must implement ' . CurlIo::class . '.');
 
-        new CurlHttpTransport(1.0, 1.0, $container);
+        new CurlTransport(1.0, 1.0, $container);
     }
 
     /**
@@ -210,7 +210,7 @@ final class CurlHttpTransportTest extends TestCase
 
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.2, 3.4, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.2, 3.4, new CurlTransportContainer($curlIo, $error));
 
         $response = $transport->postJson('http://example.com/api', '{"x":1}');
 
@@ -247,7 +247,7 @@ final class CurlHttpTransportTest extends TestCase
             ]);
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
         $response = $transport->postJson('http://example.com/api', '{"x":1}');
 
         $this->assertSame('{"ok":true}', $response->getBody());
@@ -280,7 +280,7 @@ final class CurlHttpTransportTest extends TestCase
             ]);
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
         $response = $transport->postJson('http://example.com/api', '{"x":1}');
 
         $this->assertSame('', $response->getBody());
@@ -316,7 +316,7 @@ final class CurlHttpTransportTest extends TestCase
             ]);
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
         $response = $transport->postJson('http://example.com/api', '{"x":1}');
 
         $this->assertSame('', $response->getBody());
@@ -339,7 +339,7 @@ final class CurlHttpTransportTest extends TestCase
         $curlIo->expects($this->once())->method('init')->willReturn(false);
         $curlIo->expects($this->never())->method('close');
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('HTTP request to http://example.com/api failed: Init failed');
@@ -362,7 +362,7 @@ final class CurlHttpTransportTest extends TestCase
 
         $curlIo->expects($this->once())->method('init')->willReturn(false);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Unknown error.');
@@ -385,7 +385,7 @@ final class CurlHttpTransportTest extends TestCase
 
         $curlIo->expects($this->once())->method('init')->willReturn(false);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Unknown error.');
@@ -413,7 +413,7 @@ final class CurlHttpTransportTest extends TestCase
         $curlIo->expects($this->once())->method('getError')->with($handle)->willReturn('Operation timed out');
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('cURL error 28: Operation timed out');
@@ -442,7 +442,7 @@ final class CurlHttpTransportTest extends TestCase
         $curlIo->expects($this->once())->method('getError')->with($handle)->willReturn('');
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Warning from runtime');
@@ -472,7 +472,7 @@ final class CurlHttpTransportTest extends TestCase
             ->willReturn(0);
         $curlIo->expects($this->once())->method('close')->with($handle);
 
-        $transport = new CurlHttpTransport(1.0, 1.0, new CurlHttpTransportContainer($curlIo, $error));
+        $transport = new CurlTransport(1.0, 1.0, new CurlTransportContainer($curlIo, $error));
 
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Could not determine HTTP status code for http://example.com/api.');
