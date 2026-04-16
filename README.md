@@ -41,11 +41,11 @@ echo $response?->get('response');
 <?php
 
 use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\CurlHttpTransport;
 use GregorJ\SerialPort\HttpCommunication;
-use GregorJ\SerialPort\NativeHttpTransport;
 
 $communication = new HttpCommunication(
-	new NativeHttpTransport(),
+	new CurlHttpTransport(),
 	'https://example.com/query',
 	'ttyUSB0',
 	HttpCommunication::DEVICE_TYPE_WIRED
@@ -58,7 +58,7 @@ echo $response?->get('response');
 ```
 
 `HttpCommunication::setTimeout()` configures the serial-device response timeout and sends it to the gateway as `deviceTimeoutMs`.
-HTTP transport timeouts are configured separately in `NativeHttpTransport`.
+HTTP transport timeouts (connect and request) are configured separately in `CurlHttpTransport`.
 
 For the expected HTTP JSON contract and fields, see `src/Http/JsonSerialGatewayContract.php` and `AI_PROMPT_HTTP_SERIAL_GATEWAY.md`.
 

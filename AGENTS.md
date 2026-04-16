@@ -11,8 +11,9 @@
 - `BasicCommand` is the reference command implementation; it sets per-command timeout and returns `StringResponse` (`src/Commands/BasicCommand.php`).
 - `StringResponse` trims the configured read terminator and exposes values as a PSR-11 container (`src/Responses/StringResponse.php`).
 - `TcpSocket` is the concrete `Stream`, with lazy connection creation and explicit handling for partial/zero-byte writes (`src/Streams/TcpSocket.php`).
-- `NativeHttpTransport` is the concrete `HttpTransport`, implemented via PHP stream wrappers and status-line parsing (`src/NativeHttpTransport.php`, `src/Http/NativeHttpStreamIo.php`).
-- `TcpSocketContainer` and `NativeHttpTransportContainer` inject infra abstractions to keep transport behavior unit-testable (`src/Container/TcpSocketContainer.php`, `src/Container/NativeHttpTransportContainer.php`).
+- `CurlHttpTransport` is the primary concrete `HttpTransport`, implemented via cURL with separate connect/request timeouts (`src/CurlHttpTransport.php`, `src/Http/NativeCurlIo.php`).
+- `NativeHttpTransport` is an alternative `HttpTransport` using PHP stream wrappers (`src/NativeHttpTransport.php`, `src/Http/NativeHttpStreamIo.php`).
+- `TcpSocketContainer`, `CurlHttpTransportContainer`, and `NativeHttpTransportContainer` inject infra abstractions to keep transport behavior unit-testable (`src/Container/`).
 
 ## Data-Flow and Behavior Contracts
 - `Communication::query($cmd, $writeTerminator, $readTerminator)` in `SerialStreamCommunication` must append write terminator before send and include read terminator in raw read result (`src/SerialStreamCommunication.php`).
@@ -31,7 +32,7 @@
 - Tests heavily assert exact exception messages; update tests together with wording changes.
 
 ## Dev Workflows (Verified)
-- Run tests: `./vendor/bin/phpunit --testdox` (82 tests currently passing on this repo).
+- Run tests: `./vendor/bin/phpunit --testdox` (115 tests currently passing on this repo).
 - Run static analysis: `./vendor/bin/phpstan analyse --no-progress` (level 9 via `phpstan.neon`).
 - Fix PSR-12 style issues with `./vendor/bin/phpcbf` every time before presenting code changes (phpcbf-only workflow for faster iteration).
 - Integration-ish stream tests rely on `tests/LocalTcpServer.php` and require `ext-pcntl` + `ext-posix` (Linux/Unix-style process control).
@@ -40,7 +41,8 @@
 - `src/SerialStreamCommunication.php` (stream query/write/read semantics + logging)
 - `src/HttpCommunication.php` (HTTP gateway payload/response contract and timeout/error mapping)
 - `src/Streams/TcpSocket.php` (connection lifecycle, timeout/write edge cases)
-- `src/NativeHttpTransport.php` (HTTP transport timeout handling and status/header parsing)
+- `src/CurlHttpTransport.php` (primary HTTP transport – cURL-based, connect/request timeout handling)
+- `src/NativeHttpTransport.php` (alternative HTTP transport – PHP stream wrappers, status/header parsing)
 - `tests/SerialStreamCommiunicationTest.php` and `tests/Streams/TcpSocketTest.php` (authoritative stream behavior expectations)
-- `tests/HttpCommunicationTest.php` and `tests/NativeHttpTransportTest.php` (authoritative HTTP behavior expectations)
+- `tests/HttpCommunicationTest.php`, `tests/CurlHttpTransportTest.php`, and `tests/NativeHttpTransportTest.php` (authoritative HTTP behavior expectations)
 - `tests/LocalTcpServer.php` (how real socket IO is emulated in tests)
