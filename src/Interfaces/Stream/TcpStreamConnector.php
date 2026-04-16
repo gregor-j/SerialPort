@@ -7,7 +7,7 @@ namespace GregorJ\SerialPort\Interfaces\Stream;
 /**
  * Abstraction for opening a TCP socket stream.
  */
-interface TcpSocketConnector
+interface TcpStreamConnector
 {
     /**
      * Open Internet or Unix domain socket connection.

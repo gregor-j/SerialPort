@@ -22,11 +22,9 @@ You can either:
 ```php
 <?php
 
-use GregorJ\SerialPort\Commands\BasicCommand;
-use GregorJ\SerialPort\SerialStreamCommunication;
-use GregorJ\SerialPort\Streams\TcpSocket;
+use GregorJ\SerialPort\Commands\BasicCommand;use GregorJ\SerialPort\SerialStreamCommunication;use GregorJ\SerialPort\TcpStream;
 
-$stream = new TcpSocket('127.0.0.1', 5000);
+$stream = new TcpStream('127.0.0.1', 5000);
 $communication = new SerialStreamCommunication($stream);
 
 $command = new BasicCommand('HELLO', "\n", "\n");

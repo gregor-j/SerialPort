@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Streams;
 
-use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\TcpStreamConnector;
 
 use function fsockopen;
 
 /**
  * Native connector based on fsockopen().
  */
-final class NativeTcpSocketConnector implements TcpSocketConnector
+final class NativeTcpStreamConnector implements TcpStreamConnector
 {
     /**
      * Open Internet or Unix domain socket connection.
