@@ -27,9 +27,9 @@ final class TcpStreamContainer extends AbstractContainer implements ContainerInt
       */
     public function __construct(
         TcpStreamConnector $connector = null,
-        StreamIo           $io = null,
-        Clock              $clock = null,
-        Error              $error = null
+        StreamIo $io = null,
+        Clock $clock = null,
+        Error $error = null
     ) {
         $this->dependencies = [
             TcpStreamConnector::class => $connector ?? new NativeTcpStreamConnector(),

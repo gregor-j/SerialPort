@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit tests for the BasicStringCommand class.
  */
-class BasicCommandTest extends TestCase
+final class BasicStringCommandTest extends TestCase
 {
     /**
      * Test BasicStringCommand class.
@@ -27,7 +27,7 @@ class BasicCommandTest extends TestCase
      * @throws WriteException
      * @throws ConnectionException
      */
-    public function testBasicCommand(): void
+    public function testBasicStringCommand(): void
     {
         $com = $this->getMockBuilder(Communication::class)->getMock();
         $com->expects($this->once())
