@@ -15,16 +15,17 @@ use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
 use GregorJ\SerialPort\SerialStreamCommunication;
 use GregorJ\SerialPort\Streams\TcpSocket;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Unit tests for the SerialStreamCommunication class.
  */
-final class SerialStreamCommiunicationTest extends TestCase
+final class SerialStreamCommunicationTest extends TestCase
 {
     /**
      * Test __toString() method of SerialStreamCommunication.
      * @return void
-     * @throws ConnectionException
      */
     public function testToString(): void
     {
@@ -39,7 +40,6 @@ final class SerialStreamCommiunicationTest extends TestCase
     /**
      * Test setting an invalid timeout.
      * @return void
-     * @throws ConnectionException
      * @throws InvalidParamException
      */
     public function testInvalidTimeout()
@@ -56,6 +56,11 @@ final class SerialStreamCommiunicationTest extends TestCase
      * @return void
      * @throws ConnectionException
      * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function testConnectionFailed(): void
     {
@@ -74,8 +79,10 @@ final class SerialStreamCommiunicationTest extends TestCase
      * Test exception thrown in case the written bytes differ.
      * @return void
      * @throws ConnectionException
-     * @throws WriteException
      * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
      */
     public function testWriteBytesDiffer(): void
     {

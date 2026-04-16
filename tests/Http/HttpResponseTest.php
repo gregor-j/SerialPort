@@ -23,6 +23,7 @@ final class HttpResponseTest extends TestCase
 
         $response = new HttpResponse($statusCode, $body, $headers);
 
+        /** @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(HttpResponse::class, $response);
         $this->assertSame($statusCode, $response->getStatusCode());
         $this->assertSame($body, $response->getBody());

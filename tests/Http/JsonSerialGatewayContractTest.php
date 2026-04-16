@@ -16,6 +16,7 @@ final class JsonSerialGatewayContractTest extends TestCase
 {
     /**
      * @return void
+     * @throws WriteException
      */
     public function testEncodeRequestBuildsExpectedJson(): void
     {
