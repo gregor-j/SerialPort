@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace GregorJ\SerialPort\Streams;
+namespace GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Container\TcpSocketContainer;
+use GregorJ\SerialPort\Container\TcpStreamContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
@@ -12,14 +12,13 @@ use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
 use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
-use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\TcpStreamConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use GregorJ\ToString\ToString;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-
 use function floor;
 use function is_array;
 use function is_resource;
@@ -34,7 +33,7 @@ use function substr;
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
  */
-final class TcpSocket implements Stream
+final class TcpStream implements Stream
 {
     /**
      * Default connection timeout in seconds.
@@ -66,7 +65,7 @@ final class TcpSocket implements Stream
      */
     private $socket = null;
 
-    private TcpSocketConnector $connector;
+    private TcpStreamConnector $connector;
     private StreamIo $io;
     private Clock $clock;
     private Error $error;
@@ -90,13 +89,13 @@ final class TcpSocket implements Stream
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
-            throw new InvalidParamException('Connection timeout for TcpSocket has to be positive.');
+            throw new InvalidParamException('Connection timeout for TcpStream has to be positive.');
         }
         $this->connectionTimeout = $timeoutSeconds;
         $this->host = $host;
         $this->port = $port;
-        $container = $container ?? new TcpSocketContainer();
-        $this->connector = $this->resolveDependency($container, TcpSocketConnector::class);
+        $container = $container ?? new TcpStreamContainer();
+        $this->connector = $this->resolveDependency($container, TcpStreamConnector::class);
         $this->io = $this->resolveDependency($container, StreamIo::class);
         $this->clock = $this->resolveDependency($container, Clock::class);
         $this->error = $this->resolveDependency($container, Error::class);
@@ -125,7 +124,7 @@ final class TcpSocket implements Stream
     }
 
     /**
-     * TcpSocket destructor
+     * TcpStream destructor
      */
     public function __destruct()
     {
@@ -166,7 +165,7 @@ final class TcpSocket implements Stream
     {
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_WRITE_TIMEOUT;
         if ($timeoutSeconds < 0) {
-            throw new InvalidParamException('Write timeout for TcpSocket must be positive.');
+            throw new InvalidParamException('Write timeout for TcpStream must be positive.');
         }
         if ($string === '') {
             return 0;
@@ -237,7 +236,7 @@ final class TcpSocket implements Stream
     public function setTimeout(float $seconds): bool
     {
         if ($seconds < 0.0) {
-            throw new InvalidParamException('Response timeout for TcpSocket has to be positive.');
+            throw new InvalidParamException('Response timeout for TcpStream has to be positive.');
         }
         $timeoutSeconds = floor($seconds);
         $timeoutMicroseconds = ($seconds - $timeoutSeconds) * 1000000;

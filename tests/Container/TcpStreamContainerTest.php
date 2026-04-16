@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Container;
 
-use GregorJ\SerialPort\Container\TcpSocketContainer;
+use GregorJ\SerialPort\Container\TcpStreamContainer;
 use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
-use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\TcpStreamConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use PHPUnit\Framework\TestCase;
@@ -14,9 +14,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Unit tests for TcpSocketContainer
+ * Unit tests for TcpStreamContainer
  */
-class TcpSocketContainerTest extends TestCase
+class TcpStreamContainerTest extends TestCase
 {
     /**
      * Test default services.
@@ -26,9 +26,9 @@ class TcpSocketContainerTest extends TestCase
      */
     public function testDefaultServices(): void
     {
-        $container = new TcpSocketContainer();
-        $this->assertTrue($container->has(TcpSocketConnector::class));
-        $this->assertInstanceOf(TcpSocketConnector::class, $container->get(TcpSocketConnector::class));
+        $container = new TcpStreamContainer();
+        $this->assertTrue($container->has(TcpStreamConnector::class));
+        $this->assertInstanceOf(TcpStreamConnector::class, $container->get(TcpStreamConnector::class));
         $this->assertTrue($container->has(StreamIo::class));
         $this->assertInstanceOf(StreamIo::class, $container->get(StreamIo::class));
         $this->assertTrue($container->has(Clock::class));
@@ -44,7 +44,7 @@ class TcpSocketContainerTest extends TestCase
      */
     public function testGetNotFoundException(): void
     {
-        $container = new TcpSocketContainer();
+        $container = new TcpStreamContainer();
         $this->expectException(NotFoundExceptionInterface::class);
         $this->expectExceptionMessage('Requested dependency "NonExistent" not found.');
         $container->get('NonExistent');
@@ -55,7 +55,7 @@ class TcpSocketContainerTest extends TestCase
      */
     public function testHasNot(): void
     {
-        $container = new TcpSocketContainer();
+        $container = new TcpStreamContainer();
         $this->assertFalse($container->has('NonExistent'));
         $this->assertFalse($container->has(''));
     }

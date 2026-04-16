@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Container\TcpSocketContainer;
+use GregorJ\SerialPort\Container\TcpStreamContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream;
-use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\TcpStreamConnector;
 use GregorJ\SerialPort\SerialStreamCommunication;
-use GregorJ\SerialPort\Streams\TcpSocket;
+use GregorJ\SerialPort\TcpStream;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -64,11 +64,11 @@ final class SerialStreamCommunicationTest extends TestCase
      */
     public function testConnectionFailed(): void
     {
-        $connector = $this->getMockBuilder(TcpSocketConnector::class)->getMock();
+        $connector = $this->getMockBuilder(TcpStreamConnector::class)->getMock();
         $connector->expects($this->once())
             ->method('connect')
             ->willThrowException(new ConnectionException('Connection failed!'));
-        $stream = new TcpSocket('a', 1, 1.0, new TcpSocketContainer($connector));
+        $stream = new TcpStream('a', 1, 1.0, new TcpStreamContainer($connector));
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Connection failed!');
         $serial = new SerialStreamCommunication($stream);

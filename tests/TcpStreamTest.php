@@ -2,30 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Tests\GregorJ\SerialPort\Streams;
+namespace Tests\GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Container\TcpSocketContainer;
+use GregorJ\SerialPort\Container\TcpStreamContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Stream\StreamIo;
-use GregorJ\SerialPort\Interfaces\Stream\TcpSocketConnector;
+use GregorJ\SerialPort\Interfaces\Stream\TcpStreamConnector;
 use GregorJ\SerialPort\Interfaces\System\Clock;
 use GregorJ\SerialPort\Interfaces\System\Error;
-use GregorJ\SerialPort\Streams\TcpSocket;
+use GregorJ\SerialPort\TcpStream;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use stdClass;
-use Tests\GregorJ\SerialPort\LocalTcpServer;
 
 /**
- * Unit tests for the TcpSocket class.
+ * Unit tests for the TcpStream class.
  */
-final class TcpSocketTest extends TestCase
+final class TcpStreamTest extends TestCase
 {
     /**
      * Test actual reading and writing from an echo service.
@@ -40,7 +39,7 @@ final class TcpSocketTest extends TestCase
     public function testReadingAndWriting(): void
     {
         $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket = new TcpStream('127.0.0.1', $server->getTcpPort());
         $this->assertSame('tcp://127.0.0.1:' . $server->getTcpPort(), (string)$socket);
         $bytes = $socket->write('1234');
         $this->assertSame(4, $bytes);
@@ -64,7 +63,7 @@ final class TcpSocketTest extends TestCase
      */
     public function testConnectionError(): void
     {
-        $socket = new TcpSocket('127.0.0.16', 7777);
+        $socket = new TcpStream('127.0.0.16', 7777);
         $this->expectException(ConnectionException::class);
         $this->expectExceptionCode(111);
         $socket->readChar();
@@ -80,9 +79,9 @@ final class TcpSocketTest extends TestCase
     public function testSetInvalidTimeout(): void
     {
         $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket = new TcpStream('127.0.0.1', $server->getTcpPort());
         $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Response timeout for TcpSocket has to be positive.');
+        $this->expectExceptionMessage('Response timeout for TcpStream has to be positive.');
         $socket->setTimeout(-0.5);
     }
 
@@ -97,9 +96,9 @@ final class TcpSocketTest extends TestCase
     public function testSetInvalidWriteTimeout(): void
     {
         $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket = new TcpStream('127.0.0.1', $server->getTcpPort());
         $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Write timeout for TcpSocket must be positive.');
+        $this->expectExceptionMessage('Write timeout for TcpStream must be positive.');
         $socket->write('x', -0.5);
     }
 
@@ -115,7 +114,7 @@ final class TcpSocketTest extends TestCase
     public function testWritingEmptyString(): void
     {
         $server = new LocalTcpServer();
-        $socket = new TcpSocket('127.0.0.1', $server->getTcpPort());
+        $socket = new TcpStream('127.0.0.1', $server->getTcpPort());
         $bytes = $socket->write('');
         $this->assertSame(0, $bytes);
     }
@@ -130,8 +129,8 @@ final class TcpSocketTest extends TestCase
     public function testConstructorWithInvalidTimeout(): void
     {
         $this->expectException(InvalidParamException::class);
-        $this->expectExceptionMessage('Connection timeout for TcpSocket has to be positive.');
-        new TcpSocket('127.0.0.1', 7777, -0.1);
+        $this->expectExceptionMessage('Connection timeout for TcpStream has to be positive.');
+        new TcpStream('127.0.0.1', 7777, -0.1);
     }
 
     /**
@@ -146,7 +145,7 @@ final class TcpSocketTest extends TestCase
      */
     public function testWriteThrowsWhenFwriteReturnsFalse(): void
     {
-        $connector = new class () implements TcpSocketConnector {
+        $connector = new class () implements TcpStreamConnector {
             public function connect(string $hostname, int $port, int &$error_code, string &$error_message, float|null $timeout)
             {
                 return fopen('php://temp', 'w+b');
@@ -206,7 +205,7 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $socket = new TcpSocket('127.0.0.1', 7777, null, new TcpSocketContainer($connector, $io, $clock, $errors));
+        $socket = new TcpStream('127.0.0.1', 7777, null, new TcpStreamContainer($connector, $io, $clock, $errors));
 
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Failed to write "x" to TCP connection 127.0.0.1:7777: simulated fwrite failure');
@@ -227,7 +226,7 @@ final class TcpSocketTest extends TestCase
      */
     public function testWriteThrowsOnWriteTimeout(): void
     {
-        $connector = new class () implements TcpSocketConnector {
+        $connector = new class () implements TcpStreamConnector {
             public function connect(string $hostname, int $port, int &$error_code, string &$error_message, float|null $timeout)
             {
                 return fopen('php://temp', 'w+b');
@@ -293,7 +292,7 @@ final class TcpSocketTest extends TestCase
             }
         };
 
-        $socket = new TcpSocket('127.0.0.1', 7777, null, new TcpSocketContainer($connector, $io, $clock, $errors));
+        $socket = new TcpStream('127.0.0.1', 7777, null, new TcpStreamContainer($connector, $io, $clock, $errors));
 
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Write operation timed out');
@@ -323,7 +322,7 @@ final class TcpSocketTest extends TestCase
 
         $this->expectException(NotFoundExceptionInterface::class);
         $this->expectExceptionMessage('Missing required dependency');
-        new TcpSocket('127.0.0.1', 7777, null, $container);
+        new TcpStream('127.0.0.1', 7777, null, $container);
     }
 
     /**
@@ -349,6 +348,6 @@ final class TcpSocketTest extends TestCase
 
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('must implement');
-        new TcpSocket('127.0.0.1', 7777, null, $container);
+        new TcpStream('127.0.0.1', 7777, null, $container);
     }
 }
