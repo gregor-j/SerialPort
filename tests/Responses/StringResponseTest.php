@@ -7,6 +7,8 @@ namespace Tests\GregorJ\SerialPort\Responses;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Responses\StringResponse;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Unit tests for the StringResponse class.
@@ -16,7 +18,8 @@ final class StringResponseTest extends TestCase
     /**
      * Test the difference between a raw and a clean response.
      * @return void
-     * @throws NotFoundException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function testRawAndCleanResponse(): void
     {
@@ -26,6 +29,10 @@ final class StringResponseTest extends TestCase
         $this->assertSame("abc", (string)$response);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function testNotFoundException(): void
     {
         $response = new StringResponse("abc\n", "\n");

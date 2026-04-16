@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection HttpUrlsUsage */
 
 declare(strict_types=1);
 
@@ -103,7 +103,7 @@ final class NativeHttpStreamIoTest extends TestCase
     /**
      * Test getContents returns false on invalid URL.
      */
-    public function testGetContentsWithInvalidUrlReturnsfalse(): void
+    public function testGetContentsWithInvalidUrlReturnsFalse(): void
     {
         $context = $this->streamIo->createStreamContext([]);
         @$result = $this->streamIo->getContents(
@@ -175,7 +175,7 @@ final class NativeHttpStreamIoTest extends TestCase
     /**
      * Test getContents with non-existent local file.
      */
-    public function testGetContentsWithNonExistentFileReturnsfalse(): void
+    public function testGetContentsWithNonExistentFileReturnsFalse(): void
     {
         $context = $this->streamIo->createStreamContext([]);
 
