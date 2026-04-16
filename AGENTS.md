@@ -12,7 +12,7 @@
 - `StringResponse` trims the configured read terminator and exposes values as a PSR-11 container (`src/Responses/StringResponse.php`).
 - `TcpSocket` is the concrete `Stream`, with lazy connection creation and explicit handling for partial/zero-byte writes (`src/Streams/TcpSocket.php`).
 - `CurlTransport` is the primary concrete `HttpTransport`, implemented via cURL with separate connect/request timeouts (`src/CurlTransport.php`, `src/Http/NativeCurlIo.php`).
-- `StreamWrapperTransport` is an alternative `HttpTransport` using PHP stream wrappers (`src/StreamWrapperTransport.php`, `src/Http/NativeHttpStreamIo.php`).
+- `StreamWrapperTransport` is an alternative `HttpTransport` using PHP stream wrappers (`src/StreamWrapperTransport.php`, `src/Http/NativeStreamWrapperIo.php`).
 - `TcpSocketContainer`, `CurlTransportContainer`, and `StreamWrapperTransportContainer` inject infra abstractions to keep transport behavior unit-testable (`src/Container/`).
 
 ## Data-Flow and Behavior Contracts
@@ -43,6 +43,6 @@
 - `src/Streams/TcpSocket.php` (connection lifecycle, timeout/write edge cases)
 - `src/CurlTransport.php` (primary HTTP transport – cURL-based, connect/request timeout handling)
 - `src/StreamWrapperTransport.php` (alternative HTTP transport – PHP stream wrappers, status/header parsing)
-- `tests/SerialStreamCommiunicationTest.php` and `tests/Streams/TcpSocketTest.php` (authoritative stream behavior expectations)
+- `tests/SerialStreamCommunicationTest.php` and `tests/Streams/TcpSocketTest.php` (authoritative stream behavior expectations)
 - `tests/HttpCommunicationTest.php`, `tests/CurlTransportTest.php`, and `tests/StreamWrapperTransportTest.php` (authoritative HTTP behavior expectations)
 - `tests/LocalTcpServer.php` (how real socket IO is emulated in tests)

@@ -58,7 +58,7 @@ echo $response?->get('response');
 ```
 
 `HttpCommunication::setTimeout()` configures the serial-device response timeout and sends it to the gateway as `deviceTimeoutMs`.
-HTTP transport timeouts (connect and request) are configured separately in `CurlHttpTransport`.
+HTTP transport timeouts (connect and request) are configured separately in `CurlTransport`.
 
 For the expected HTTP JSON contract and fields, see `src/Http/JsonSerialGatewayContract.php` and `AI_PROMPT_HTTP_SERIAL_GATEWAY.md`.
 
