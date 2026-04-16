@@ -22,10 +22,10 @@ You can either:
 ```php
 <?php
 
-use GregorJ\SerialPort\Commands\BasicCommand;use GregorJ\SerialPort\SerialStreamCommunication;use GregorJ\SerialPort\TcpStream;
+use GregorJ\SerialPort\Commands\BasicCommand;use GregorJ\SerialPort\StreamCommunication;use GregorJ\SerialPort\TcpStream;
 
 $stream = new TcpStream('127.0.0.1', 5000);
-$communication = new SerialStreamCommunication($stream);
+$communication = new StreamCommunication($stream);
 
 $command = new BasicCommand('HELLO', "\n", "\n");
 $response = $command->invoke($communication);
