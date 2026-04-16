@@ -10,7 +10,9 @@ use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Http\HttpResponse;
+use GregorJ\SerialPort\Http\SerialGatewayResponse;
 use GregorJ\SerialPort\HttpCommunication;
+use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use PHPUnit\Framework\TestCase;
 
@@ -32,6 +34,47 @@ final class HttpCommunicationTest extends TestCase
         $communication = new HttpCommunication($transport, 'https://gateway.example/query', 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED);
 
         $this->assertSame('https://gateway.example/query', (string)$communication);
+    }
+
+    /**
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
+     */
+    public function testQueryUsesInjectedGatewayContract(): void
+    {
+        $transport = $this->getMockBuilder(HttpTransport::class)->getMock();
+        $contract = $this->getMockBuilder(SerialGatewayContract::class)->getMock();
+
+        $contract->expects($this->once())
+            ->method('encodeRequest')
+            ->with('HELLO', "\n", "\r\n", 1200, 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED)
+            ->willReturn('{"dummy":"payload"}');
+
+        $transport->expects($this->once())
+            ->method('postJson')
+            ->with('https://gateway.example/query', '{"dummy":"payload"}')
+            ->willReturn(new HttpResponse(200, '{"any":"response"}'));
+
+        $contract->expects($this->once())
+            ->method('decodeResponse')
+            ->with('{"any":"response"}')
+            ->willReturn(new SerialGatewayResponse(false, "WORLD\r\n", ''));
+
+        $communication = new HttpCommunication(
+            $transport,
+            'https://gateway.example/query',
+            'ttyS0',
+            HttpCommunication::DEVICE_TYPE_WIRED,
+            $contract
+        );
+        $communication->setTimeout(1.2);
+
+        $response = $communication->query('HELLO', "\n", "\r\n");
+        $this->assertSame("WORLD\r\n", $response);
     }
 
     /**

@@ -7,20 +7,14 @@ namespace GregorJ\SerialPort;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
-use GregorJ\SerialPort\Exceptions\WriteException;
+use GregorJ\SerialPort\Http\JsonSerialGatewayContract;
+use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use GregorJ\ToString\ToString;
-use JsonException;
 
-use function base64_decode;
-use function base64_encode;
 use function filter_var;
 use function in_array;
-use function is_array;
-use function is_string;
-use function json_decode;
-use function json_encode;
 use function parse_url;
 use function round;
 use function sprintf;
@@ -39,6 +33,7 @@ final class HttpCommunication implements Communication
     private float $timeout;
     private string $deviceId;
     private string $deviceType;
+    private SerialGatewayContract $gatewayContract;
 
     /**
      * @var string[]
@@ -50,10 +45,16 @@ final class HttpCommunication implements Communication
      * @param string $endpoint
      * @param string $deviceId
      * @param string $deviceType Allowed values: bluetooth, wired
+     * @param SerialGatewayContract|null $gatewayContract
      * @throws InvalidParamException
      */
-    public function __construct(HttpTransport $httpTransport, string $endpoint, string $deviceId, string $deviceType)
-    {
+    public function __construct(
+        HttpTransport $httpTransport,
+        string $endpoint,
+        string $deviceId,
+        string $deviceType,
+        SerialGatewayContract $gatewayContract = null
+    ) {
         if (!is_string(filter_var($endpoint, FILTER_VALIDATE_URL))) {
             throw new InvalidParamException('HTTP endpoint for HttpCommunication has to be a valid URL.');
         }
@@ -74,6 +75,7 @@ final class HttpCommunication implements Communication
         $this->endpoint = $endpoint;
         $this->deviceId = $deviceId;
         $this->deviceType = $deviceType;
+        $this->gatewayContract = $gatewayContract ?? new JsonSerialGatewayContract();
         $this->timeout = self::DEFAULT_TIMEOUT;
         $this->log[] = sprintf('default timeout %f seconds', $this->timeout);
     }
@@ -104,21 +106,16 @@ final class HttpCommunication implements Communication
      */
     public function query(string $string, string $writeTerminator = '', string $readTerminator = ''): string
     {
-        $commandWithTerminator = $string . $writeTerminator;
-        $this->log[] = sprintf('write "%s"', ToString::fromString($commandWithTerminator));
+        $this->log[] = sprintf('write "%s"', ToString::fromString($string . $writeTerminator));
 
-        try {
-            $jsonPayload = json_encode([
-                'commandBase64' => base64_encode($string),
-                'writeTerminatorBase64' => base64_encode($writeTerminator),
-                'readTerminatorBase64' => base64_encode($readTerminator),
-                'deviceTimeoutMs' => (int)round($this->timeout * 1000),
-                'deviceId' => $this->deviceId,
-                'deviceType' => $this->deviceType,
-            ], JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new WriteException('Failed to encode HTTP serial request payload.', (int)$exception->getCode(), $exception);
-        }
+        $jsonPayload = $this->gatewayContract->encodeRequest(
+            $string,
+            $writeTerminator,
+            $readTerminator,
+            (int)round($this->timeout * 1000),
+            $this->deviceId,
+            $this->deviceType
+        );
 
         $httpResponse = $this->httpTransport->postJson(
             $this->endpoint,
@@ -131,63 +128,21 @@ final class HttpCommunication implements Communication
             );
         }
 
-        try {
-            $decodedResponse = json_decode($httpResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new UnexpectedResponseException('HTTP gateway returned invalid JSON response.', (int)$exception->getCode(), $exception);
-        }
+        $gatewayResponse = $this->gatewayContract->decodeResponse($httpResponse->getBody());
 
-        if (!is_array($decodedResponse)) {
-            throw new UnexpectedResponseException('HTTP gateway returned invalid JSON response.');
-        }
-
-        if (($decodedResponse['deviceTimedOut'] ?? false) === true) {
-            $partialResponse = $this->extractOptionalBase64Response($decodedResponse, 'partialResponseBase64');
+        if ($gatewayResponse->isDeviceTimedOut()) {
+            $partialResponse = $gatewayResponse->getPartialResponse();
             $this->log[] = sprintf('read timed out. partial response "%s"', ToString::fromString($partialResponse));
             throw new TimeoutException('Response timed out on serial device.');
         }
 
-        if (!isset($decodedResponse['responseBase64']) || !is_string($decodedResponse['responseBase64'])) {
-            throw new UnexpectedResponseException('HTTP gateway response field "responseBase64" is missing.');
-        }
-
-        $response = base64_decode($decodedResponse['responseBase64'], true);
-        if (!is_string($response)) {
-            throw new UnexpectedResponseException('HTTP gateway returned invalid base64 in field "responseBase64".');
-        }
+        $response = $gatewayResponse->getResponse();
 
         $this->log[] = sprintf('read "%s"', ToString::fromString($response));
 
         return $response;
     }
 
-    /**
-     * @param array<string, mixed> $response
-     * @param string $field
-     * @return string
-     * @throws UnexpectedResponseException
-     */
-    private function extractOptionalBase64Response(array $response, string $field): string
-    {
-        if (!isset($response[$field])) {
-            return '';
-        }
-
-        if (!is_string($response[$field])) {
-            throw new UnexpectedResponseException(
-                sprintf('HTTP gateway response field "%s" has invalid type.', $field)
-            );
-        }
-
-        $decoded = base64_decode($response[$field], true);
-        if (!is_string($decoded)) {
-            throw new UnexpectedResponseException(
-                sprintf('HTTP gateway returned invalid base64 in field "%s".', $field)
-            );
-        }
-
-        return $decoded;
-    }
 
     /**
      * @inheritDoc
