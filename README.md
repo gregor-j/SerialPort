@@ -2,24 +2,65 @@
 
 [![License: MIT][license-mit]](LICENSE)
 
-PHP classes to connect to serial ports using streams or HTTP(S) gateways.
+PHP classes to connect to serial devices using streams or HTTP(S) gateways.
 
-You need to create classes implementing `Command` and `Response`.
-The implementations of these interfaces depend on the device you want to communicate with.
+This library separates the command model from the transport:
+
+- `Command` defines command payload, terminators, timeout, and response mapping
+- `Communication` executes the command (`SerialStreamCommunication` or `HttpCommunication`)
+- transport is provided by either `Stream` (for sockets) or `HttpTransport` (for gateways)
 
 ## Usage
 
-Use [pySerial] to map a serial device to a TCP port.
+You can either:
 
-Create a `Streams\TcpSocket` class and pass it to a new `SerialStreamCommunication` instance.
-Alternatively use `HttpCommunication` with a `Interfaces\Http\HttpTransport` implementation such as `Http\NativeHttpTransport`.
-Then implement a `Command` class and invoke it via `$command->invoke($serialPort)` to get either `null` or a `Response`.
+1. bridge a serial device to TCP (for example with [pySerial] `tcp_serial_redirect`) and use `Streams\TcpSocket`
+2. call an HTTP(S) serial gateway and use `HttpCommunication`
 
-A `Command` instance represents a string to send to a device using a `Communication` instance.
-Your implementation of `Command` needs to define the command string, its terminators, and how to read and parse the device's response into a `Response` object.
+### TCP stream communication
 
-When using `HttpCommunication`, `Communication::setTimeout()` is interpreted as device response timeout and sent to the gateway.
-HTTP transport timeouts are configured separately in the `HttpCommunication` constructor.
+```php
+<?php
+
+use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\SerialStreamCommunication;
+use GregorJ\SerialPort\Streams\TcpSocket;
+
+$stream = new TcpSocket('127.0.0.1', 5000);
+$communication = new SerialStreamCommunication($stream);
+
+$command = new BasicCommand('HELLO', "\n", "\n");
+$response = $command->invoke($communication);
+
+echo $response?->get('response');
+```
+
+### HTTP gateway communication
+
+```php
+<?php
+
+use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\HttpCommunication;
+use GregorJ\SerialPort\NativeHttpTransport;
+
+$communication = new HttpCommunication(
+	new NativeHttpTransport(),
+	'https://example.com/query',
+	'ttyUSB0',
+	HttpCommunication::DEVICE_TYPE_WIRED
+);
+
+$command = new BasicCommand('HELLO', "\n", "\n");
+$response = $command->invoke($communication);
+
+echo $response?->get('response');
+```
+
+`HttpCommunication::setTimeout()` configures the serial-device response timeout and sends it to the gateway as `deviceTimeoutMs`.
+HTTP transport timeouts are configured separately in `NativeHttpTransport`.
+
+For the expected HTTP JSON contract and fields, see `src/HttpCommunication.php` and `AI_PROMPT_HTTP_SERIAL_GATEWAY.md`.
 
 [pySerial]: https://pyserial.readthedocs.io/en/latest/examples.html
 [license-mit]: https://img.shields.io/badge/license-MIT-blue.svg
