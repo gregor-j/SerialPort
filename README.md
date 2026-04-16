@@ -7,14 +7,14 @@ PHP classes to connect to serial devices using streams or HTTP(S) gateways.
 This library separates the command model from the transport:
 
 - `Command` defines command payload, terminators, timeout, and response mapping
-- `Communication` executes the command (`SerialStreamCommunication` or `HttpCommunication`)
+- `Communication` executes the command (`StreamCommunication` or `HttpCommunication`)
 - transport is provided by either `Stream` (for sockets) or `HttpTransport` (for gateways)
 
 ## Usage
 
 You can either:
 
-1. bridge a serial device to TCP (for example with [pySerial] `tcp_serial_redirect`) and use `Streams\TcpSocket`
+1. bridge a serial device to TCP (for example with [pySerial] `tcp_serial_redirect`) and use `TcpStream`
 2. call an HTTP(S) serial gateway and use `HttpCommunication`
 
 ### TCP stream communication
@@ -22,7 +22,9 @@ You can either:
 ```php
 <?php
 
-use GregorJ\SerialPort\Commands\BasicStringCommand;use GregorJ\SerialPort\StreamCommunication;use GregorJ\SerialPort\TcpStream;
+use GregorJ\SerialPort\Commands\BasicStringCommand;
+use GregorJ\SerialPort\StreamCommunication;
+use GregorJ\SerialPort\TcpStream;
 
 $stream = new TcpStream('127.0.0.1', 5000);
 $communication = new StreamCommunication($stream);
