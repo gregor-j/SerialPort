@@ -8,14 +8,19 @@ namespace Tests\GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Container\StreamWrapperTransportContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
+use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use GregorJ\SerialPort\StreamWrapperTransport;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
+use stdClass;
 
 /**
  * Unit tests for StreamWrapperTransport with injected dependencies.
@@ -154,6 +159,130 @@ final class StreamWrapperTransportTest extends TestCase
         $this->assertSame('{"ok":true}', $response->getBody());
         $this->assertSame('application/json', $response->getHeaders()['content-type']);
         $this->assertSame('abc123', $response->getHeaders()['x-trace-id']);
+    }
+
+    /**
+     * Test postJson ignores malformed header lines without ':' separator.
+     * @return void
+     * @throws ConnectionException
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     */
+    public function testPostJsonIgnoresMalformedHeadersWithoutSeparator(): void
+    {
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
+        $errors = $this->getMockBuilder(Error::class)->getMock();
+
+        $streamIo->expects($this->once())
+            ->method('createStreamContext')
+            ->willReturn(tmpfile());
+
+        $streamIo->expects($this->once())
+            ->method('getContents')
+            ->willReturn('{"ok":true}');
+
+        $streamIo->expects($this->once())
+            ->method('getResponseHeaders')
+            ->willReturn([
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                'BrokenHeaderWithoutColon',
+                'X-Trace-Id: abc123',
+            ]);
+
+        $errors->expects($this->once())
+            ->method('clearLastError');
+
+        $transport = new StreamWrapperTransport(2.0, 5.0, new StreamWrapperTransportContainer($streamIo, $errors));
+        $response = $transport->postJson('http://example.com/api', '{"test":"data"}');
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaders()['content-type']);
+        $this->assertSame('abc123', $response->getHeaders()['x-trace-id']);
+        $this->assertArrayNotHasKey('brokenheaderwithoutcolon', $response->getHeaders());
+    }
+
+    /**
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     */
+    public function testConstructorThrowsWhenDependencyIsMissing(): void
+    {
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
+
+        $container = new class ($streamIo) implements ContainerInterface {
+            private StreamWrapperIo $streamIo;
+
+            public function __construct(StreamWrapperIo $streamIo)
+            {
+                $this->streamIo = $streamIo;
+            }
+
+            public function get(string $id): object
+            {
+                if ($id === StreamWrapperIo::class) {
+                    return $this->streamIo;
+                }
+
+                throw new RuntimeException('Unexpected call to get().');
+            }
+
+            public function has(string $id): bool
+            {
+                if ($id === StreamWrapperIo::class) {
+                    return true;
+                }
+
+                return false;
+            }
+        };
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('Missing required dependency "' . Error::class . '" in container.');
+
+        new StreamWrapperTransport(1.0, 1.0, $container);
+    }
+
+    /**
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws InvalidParamException
+     * @throws NotFoundExceptionInterface
+     */
+    public function testConstructorThrowsWhenDependencyHasWrongType(): void
+    {
+        $streamIo = $this->getMockBuilder(StreamWrapperIo::class)->getMock();
+
+        $container = new class ($streamIo) implements ContainerInterface {
+            private StreamWrapperIo $streamIo;
+
+            public function __construct(StreamWrapperIo $streamIo)
+            {
+                $this->streamIo = $streamIo;
+            }
+
+            public function get(string $id): object
+            {
+                if ($id === StreamWrapperIo::class) {
+                    return $this->streamIo;
+                }
+
+                return new stdClass();
+            }
+
+            public function has(string $id): bool
+            {
+                return $id === StreamWrapperIo::class || $id === Error::class;
+            }
+        };
+
+        $this->expectException(ContainerException::class);
+        $this->expectExceptionMessage('Dependency "' . Error::class . '" must implement ' . Error::class . '.');
+
+        new StreamWrapperTransport(1.0, 1.0, $container);
     }
 
     /**
