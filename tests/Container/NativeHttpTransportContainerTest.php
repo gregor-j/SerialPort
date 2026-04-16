@@ -46,7 +46,7 @@ final class NativeHttpTransportContainerTest extends TestCase
         $container = new NativeHttpTransportContainer();
 
         $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('Missing required dependency');
+        $this->expectExceptionMessage('Requested dependency "NonExistent" not found.');
         $container->get('NonExistent');
     }
 

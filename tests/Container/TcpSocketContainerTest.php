@@ -46,7 +46,7 @@ class TcpSocketContainerTest extends TestCase
     {
         $container = new TcpSocketContainer();
         $this->expectException(NotFoundExceptionInterface::class);
-        $this->expectExceptionMessage('Missing required dependency');
+        $this->expectExceptionMessage('Requested dependency "NonExistent" not found.');
         $container->get('NonExistent');
     }
 
