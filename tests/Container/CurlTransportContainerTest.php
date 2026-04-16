@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Container;
 
-use GregorJ\SerialPort\Container\CurlHttpTransportContainer;
+use GregorJ\SerialPort\Container\CurlTransportContainer;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Http\CurlIo;
 use GregorJ\SerialPort\Interfaces\System\Error;
@@ -13,9 +13,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Unit tests for CurlHttpTransportContainer.
+ * Unit tests for CurlTransportContainer.
  */
-final class CurlHttpTransportContainerTest extends TestCase
+final class CurlTransportContainerTest extends TestCase
 {
     /**
      * @return void
@@ -24,7 +24,7 @@ final class CurlHttpTransportContainerTest extends TestCase
      */
     public function testDefaultServices(): void
     {
-        $container = new CurlHttpTransportContainer();
+        $container = new CurlTransportContainer();
 
         $this->assertTrue($container->has(CurlIo::class));
         $this->assertTrue($container->has(Error::class));
@@ -43,7 +43,7 @@ final class CurlHttpTransportContainerTest extends TestCase
      */
     public function testGetNotFoundException(): void
     {
-        $container = new CurlHttpTransportContainer();
+        $container = new CurlTransportContainer();
 
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('Requested dependency "NonExistent" not found.');
@@ -55,7 +55,7 @@ final class CurlHttpTransportContainerTest extends TestCase
      */
     public function testHasNot(): void
     {
-        $container = new CurlHttpTransportContainer();
+        $container = new CurlTransportContainer();
 
         $this->assertFalse($container->has('NonExistent'));
         $this->assertFalse($container->has(''));

@@ -6,29 +6,29 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Http;
 
-use GregorJ\SerialPort\Http\NativeHttpStreamIo;
-use GregorJ\SerialPort\Interfaces\Http\HttpStreamIo;
+use GregorJ\SerialPort\Http\NativeStreamWrapperIo;
+use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the NativeHttpStreamIo class.
+ * Unit tests for the NativeStreamWrapperIo class.
  */
-final class NativeHttpStreamIoTest extends TestCase
+final class NativeStreamWrapperIoTest extends TestCase
 {
-    private NativeHttpStreamIo $streamIo;
+    private NativeStreamWrapperIo $streamIo;
 
     protected function setUp(): void
     {
-        $this->streamIo = new NativeHttpStreamIo();
+        $this->streamIo = new NativeStreamWrapperIo();
     }
 
     /**
-     * Test that the class implements HttpStreamIo interface.
+     * Test that the class implements StreamWrapperIo interface.
      */
     public function testImplementsHttpStreamIoInterface(): void
     {
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(HttpStreamIo::class, $this->streamIo);
+        $this->assertInstanceOf(StreamWrapperIo::class, $this->streamIo);
     }
 
     /**

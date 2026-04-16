@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Http;
 
-use GregorJ\SerialPort\Interfaces\Http\HttpStreamIo;
+use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 
 use function file_get_contents;
 use function stream_context_create;
@@ -12,7 +12,7 @@ use function stream_context_create;
 /**
  * Native HTTP stream operations using PHP built-in functions.
  */
-final class NativeHttpStreamIo implements HttpStreamIo
+final class NativeStreamWrapperIo implements StreamWrapperIo
 {
     /**
      * Create a stream context

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Container;
 
-use GregorJ\SerialPort\Container\NativeHttpTransportContainer;
+use GregorJ\SerialPort\Container\StreamWrapperTransportContainer;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
-use GregorJ\SerialPort\Interfaces\Http\HttpStreamIo;
+use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Unit tests for NativeHttpTransportContainer.
+ * Unit tests for StreamWrapperTransportContainer.
  */
-final class NativeHttpTransportContainerTest extends TestCase
+final class StreamWrapperTransportContainerTest extends TestCase
 {
     /**
      * @return void
@@ -24,13 +24,13 @@ final class NativeHttpTransportContainerTest extends TestCase
      */
     public function testDefaultServices(): void
     {
-        $container = new NativeHttpTransportContainer();
+        $container = new StreamWrapperTransportContainer();
 
-        $this->assertTrue($container->has(HttpStreamIo::class));
+        $this->assertTrue($container->has(StreamWrapperIo::class));
         $this->assertTrue($container->has(Error::class));
 
-        $streamIo = $container->get(HttpStreamIo::class);
-        $this->assertInstanceOf(HttpStreamIo::class, $streamIo);
+        $streamIo = $container->get(StreamWrapperIo::class);
+        $this->assertInstanceOf(StreamWrapperIo::class, $streamIo);
 
         $errors = $container->get(Error::class);
         $this->assertInstanceOf(Error::class, $errors);
@@ -43,7 +43,7 @@ final class NativeHttpTransportContainerTest extends TestCase
      */
     public function testGetNotFoundException(): void
     {
-        $container = new NativeHttpTransportContainer();
+        $container = new StreamWrapperTransportContainer();
 
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('Requested dependency "NonExistent" not found.');
@@ -55,7 +55,7 @@ final class NativeHttpTransportContainerTest extends TestCase
      */
     public function testHasNot(): void
     {
-        $container = new NativeHttpTransportContainer();
+        $container = new StreamWrapperTransportContainer();
         $this->assertFalse($container->has('NonExistent'));
         $this->assertFalse($container->has(''));
     }

@@ -41,11 +41,11 @@ echo $response?->get('response');
 <?php
 
 use GregorJ\SerialPort\Commands\BasicCommand;
-use GregorJ\SerialPort\CurlHttpTransport;
+use GregorJ\SerialPort\CurlTransport;
 use GregorJ\SerialPort\HttpCommunication;
 
 $communication = new HttpCommunication(
-	new CurlHttpTransport(),
+	new CurlTransport(),
 	'https://example.com/query',
 	'ttyUSB0',
 	HttpCommunication::DEVICE_TYPE_WIRED

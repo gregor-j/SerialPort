@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort;
 
-use GregorJ\SerialPort\Container\NativeHttpTransportContainer;
+use GregorJ\SerialPort\Container\StreamWrapperTransportContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Http\HttpResponse;
-use GregorJ\SerialPort\Interfaces\Http\HttpStreamIo;
+use GregorJ\SerialPort\Interfaces\Http\StreamWrapperIo;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use GregorJ\SerialPort\Interfaces\System\Error;
 use Psr\Container\ContainerExceptionInterface;
@@ -29,14 +29,14 @@ use function trim;
 /**
  * HTTP transport using PHP stream wrappers.
  */
-final class NativeHttpTransport implements HttpTransport
+final class StreamWrapperTransport implements HttpTransport
 {
     public const DEFAULT_CONNECT_TIMEOUT = 2.0;
     public const DEFAULT_REQUEST_TIMEOUT = 5.0;
 
     private float $connectTimeout;
     private float $requestTimeout;
-    private HttpStreamIo $streamIo;
+    private StreamWrapperIo $streamIo;
     private Error $error;
 
     /**
@@ -60,8 +60,8 @@ final class NativeHttpTransport implements HttpTransport
             throw new InvalidParamException('HTTP transport request timeout for HttpCommunication has to be positive.');
         }
         $this->requestTimeout = $requestTimeoutSeconds;
-        $container = $container ?? new NativeHttpTransportContainer();
-        $this->streamIo = $this->resolveDependency($container, HttpStreamIo::class);
+        $container = $container ?? new StreamWrapperTransportContainer();
+        $this->streamIo = $this->resolveDependency($container, StreamWrapperIo::class);
         $this->error = $this->resolveDependency($container, Error::class);
     }
 

@@ -11,9 +11,9 @@ use GregorJ\SerialPort\System\NativeError;
 use Psr\Container\ContainerInterface;
 
 /**
- * PSR-11 container for CurlHttpTransport dependencies.
+ * PSR-11 container for CurlTransport dependencies.
  */
-final class CurlHttpTransportContainer extends AbstractContainer implements ContainerInterface
+final class CurlTransportContainer extends AbstractContainer implements ContainerInterface
 {
     /**
      * @param CurlIo|null $curlIo

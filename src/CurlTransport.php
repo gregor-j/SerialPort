@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort;
 
 use CurlHandle;
-use GregorJ\SerialPort\Container\CurlHttpTransportContainer;
+use GregorJ\SerialPort\Container\CurlTransportContainer;
 use GregorJ\SerialPort\Exceptions\ConnectionException;
 use GregorJ\SerialPort\Exceptions\ContainerException;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
@@ -31,7 +31,7 @@ use function trim;
 /**
  * HTTP transport using cURL.
  */
-final class CurlHttpTransport implements HttpTransport
+final class CurlTransport implements HttpTransport
 {
     public const DEFAULT_CONNECT_TIMEOUT = 2.0;
     public const DEFAULT_REQUEST_TIMEOUT = 5.0;
@@ -64,7 +64,7 @@ final class CurlHttpTransport implements HttpTransport
         }
         $this->requestTimeout = $requestTimeoutSeconds;
 
-        $dependencies = $dependencies ?? new CurlHttpTransportContainer();
+        $dependencies = $dependencies ?? new CurlTransportContainer();
         $this->curlIo = $this->resolveDependency($dependencies, CurlIo::class);
         $this->error = $this->resolveDependency($dependencies, Error::class);
     }
