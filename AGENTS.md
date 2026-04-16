@@ -33,8 +33,7 @@
 ## Dev Workflows (Verified)
 - Run tests: `./vendor/bin/phpunit --testdox` (82 tests currently passing on this repo).
 - Run static analysis: `./vendor/bin/phpstan analyse --no-progress` (level 9 via `phpstan.neon`).
-- Run style checks: `./vendor/bin/phpcs` (PSR-12 via `.phpcs.xml`).
-- Fix all PSR-12 style violations before merging; use `./vendor/bin/phpcbf` for auto-fixes, then re-run `./vendor/bin/phpcs`.
+- Fix PSR-12 style issues with `./vendor/bin/phpcbf` every time before presenting code changes (phpcbf-only workflow for faster iteration).
 - Integration-ish stream tests rely on `tests/LocalTcpServer.php` and require `ext-pcntl` + `ext-posix` (Linux/Unix-style process control).
 
 ## High-Value Files To Read Before Changing Behavior
