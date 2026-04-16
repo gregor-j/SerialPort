@@ -31,6 +31,21 @@
 - Public APIs expose domain exceptions (`ConnectionException`, `WriteException`, `TimeoutException`, `UnexpectedResponseException`, etc.) instead of raw PHP warnings/errors.
 - Tests heavily assert exact exception messages; update tests together with wording changes.
 
+### Naming Conventions
+| Pattern          | Meaning                                                                       | Examples                                                                              |
+|------------------|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| `*Communication` | Orchestrates commands over a transport                                        | `StreamCommunication`, `HttpCommunication`                                            |
+| `*Transport`     | HTTP transport implementation                                                 | `CurlTransport`, `StreamWrapperTransport`                                             |
+| `*Stream`        | Socket stream implementation                                                  | `TcpStream`                                                                           |
+| `*Command`       | Command producing a response                                                  | `BasicStringCommand`                                                                  |
+| `*Response`      | Implements the `Response` interface; returned by a `Command`                  | `StringResponse`                                                                      |
+| `*Container`     | PSR-11 DI container for a class                                               | `TcpStreamContainer`, `CurlTransportContainer`, `StreamWrapperTransportContainer`     |
+| `*Io`            | Interface for native I/O operations                                           | `CurlIo`, `StreamWrapperIo`, `StreamIo`                                               |
+| `*Connector`     | Interface for establishing a connection                                       | `TcpStreamConnector`                                                                  |
+| `*Contract`      | Interface for a serialization contract                                        | `SerialGatewayContract`                                                               |
+| `*Exception`     | Domain exception                                                              | `ConnectionException`, `TimeoutException`                                             |
+| `Native*`        | Concrete implementation using PHP built-ins; name = `Native` + interface name | `NativeCurlIo`, `NativeStreamWrapperIo`, `NativeStreamIo`, `NativeTcpStreamConnector` |
+
 ## Dev Workflows (Verified)
 - Run tests: `./vendor/bin/phpunit --testdox` (114 tests currently passing on this repo).
 - Run static analysis: `./vendor/bin/phpstan analyse --no-progress` (level 9 via `phpstan.neon`).
