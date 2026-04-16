@@ -29,7 +29,7 @@ use function strlen;
 use function substr;
 
 /**
- * Create a TCP socket connection.
+ * Create a TCP stream connection.
  *
  * Bluntly copied and adapted from Peter Gribanovs example:
  * @link https://github.com/jupeter/clean-code-php/issues/178
@@ -72,7 +72,7 @@ final class TcpStream implements Stream
     private Error $error;
 
     /**
-     * Create a TCP socket.
+     * Create a TCP stream.
      * @param string $host The hostname.
      * @param int $port The port number.
      * @param float|null $timeoutSeconds The optional connection timeout, in seconds.
@@ -254,7 +254,7 @@ final class TcpStream implements Stream
     }
 
     /**
-     * String representation of the TCP socket connection details.
+     * String representation of the TCP connection details.
      * @return string
      */
     public function __toString(): string
