@@ -22,12 +22,12 @@ You can either:
 ```php
 <?php
 
-use GregorJ\SerialPort\Commands\BasicCommand;use GregorJ\SerialPort\StreamCommunication;use GregorJ\SerialPort\TcpStream;
+use GregorJ\SerialPort\Commands\BasicStringCommand;use GregorJ\SerialPort\StreamCommunication;use GregorJ\SerialPort\TcpStream;
 
 $stream = new TcpStream('127.0.0.1', 5000);
 $communication = new StreamCommunication($stream);
 
-$command = new BasicCommand('HELLO', "\n", "\n");
+$command = new BasicStringCommand('HELLO', "\n", "\n");
 $response = $command->invoke($communication);
 
 echo $response?->get('response');
@@ -38,7 +38,7 @@ echo $response?->get('response');
 ```php
 <?php
 
-use GregorJ\SerialPort\Commands\BasicCommand;
+use GregorJ\SerialPort\Commands\BasicStringCommand;
 use GregorJ\SerialPort\CurlTransport;
 use GregorJ\SerialPort\HttpCommunication;
 
@@ -49,7 +49,7 @@ $communication = new HttpCommunication(
 	HttpCommunication::DEVICE_TYPE_WIRED
 );
 
-$command = new BasicCommand('HELLO', "\n", "\n");
+$command = new BasicStringCommand('HELLO', "\n", "\n");
 $response = $command->invoke($communication);
 
 echo $response?->get('response');

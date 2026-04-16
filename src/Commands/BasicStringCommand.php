@@ -14,7 +14,7 @@ use GregorJ\ToString\ToString;
  * Invoke a basic string command on a Communication and return its
  * StringResponse.
  */
-final class BasicCommand implements Command
+final class BasicStringCommand implements Command
 {
     public const DEFAULT_TIMEOUT = 2.0;
     private string $command;
@@ -38,7 +38,7 @@ final class BasicCommand implements Command
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_TIMEOUT;
         if ($timeoutSeconds < 0.0) {
-            throw new InvalidParamException('The response timeout for BasicCommand has to be positive.');
+            throw new InvalidParamException('The response timeout for BasicStringCommand has to be positive.');
         }
         $this->timeout = $timeoutSeconds;
     }
