@@ -4,29 +4,23 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Http;
 
+use GregorJ\SerialPort\Interfaces\Http\HttpResponseInterface;
+
 /**
  * Value object containing HTTP response data required by HttpCommunication.
  */
-final class HttpResponse
+final class HttpResponse implements HttpResponseInterface
 {
-    private int $statusCode;
-    private string $body;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $headers;
-
     /**
      * @param int $statusCode
      * @param string $body
      * @param array<string, string> $headers
      */
-    public function __construct(int $statusCode, string $body, array $headers = [])
-    {
-        $this->statusCode = $statusCode;
-        $this->body = $body;
-        $this->headers = $headers;
+    public function __construct(
+        readonly int $statusCode,
+        readonly string $body,
+        readonly array $headers = []
+    ) {
     }
 
     /**
