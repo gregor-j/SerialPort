@@ -10,6 +10,7 @@ use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
+use GregorJ\SerialPort\Interfaces\Http\HttpResponseInterface;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use JsonException;
 
@@ -68,8 +69,14 @@ final class JsonSerialGatewayContract implements SerialGatewayContract
      * @inheritDoc
      * @throws Exception
      */
-    public function decodeResponse(string $responseBody): string
+    public function decodeResponse(HttpResponseInterface $httpResponse): string
     {
+        if ($httpResponse->getStatusCode() < 200 || $httpResponse->getStatusCode() >= 300) {
+            throw new UnexpectedResponseException(
+                sprintf('HTTP gateway returned unexpected status code %d.', $httpResponse->getStatusCode())
+            );
+        }
+        $responseBody = $httpResponse->getBody();
         try {
             $decodedResponse = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
