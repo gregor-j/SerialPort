@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Interfaces\Http;
 
+use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
+use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
-use GregorJ\SerialPort\Http\SerialGatewayResponse;
 
 /**
  * Encodes/decodes the HTTP JSON contract for the serial gateway.
@@ -18,7 +20,7 @@ interface SerialGatewayContract
      * @param string $command
      * @param string $writeTerminator
      * @param string $readTerminator
-     * @param int $deviceTimeoutMs
+     * @param float $deviceTimeout
      * @param string $deviceId
      * @param string $deviceType
      * @return string
@@ -28,7 +30,7 @@ interface SerialGatewayContract
         string $command,
         string $writeTerminator,
         string $readTerminator,
-        int $deviceTimeoutMs,
+        float $deviceTimeout,
         string $deviceId,
         string $deviceType
     ): string;
@@ -36,8 +38,11 @@ interface SerialGatewayContract
     /**
      * Decode and validate the JSON response returned by the gateway.
      * @param string $responseBody
-     * @return SerialGatewayResponse
+     * @return string
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws TimeoutException
      * @throws UnexpectedResponseException
      */
-    public function decodeResponse(string $responseBody): SerialGatewayResponse;
+    public function decodeResponse(string $responseBody): string;
 }

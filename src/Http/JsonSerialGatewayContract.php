@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Http;
 
+use Exception;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
+use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
@@ -11,6 +15,7 @@ use JsonException;
 
 use function base64_decode;
 use function base64_encode;
+use function gettype;
 use function is_array;
 use function is_string;
 use function json_decode;
@@ -28,9 +33,11 @@ final class JsonSerialGatewayContract implements SerialGatewayContract
     public const REQUEST_TIMEOUT = 'deviceTimeoutMs';
     public const REQUEST_DEVICE = 'deviceId';
     public const REQUEST_DEVICE_TYPE = 'deviceType';
+    public const RESPONSE_INVALID_PARAM_ERROR = 'invalidParamError';
+    public const RESPONSE_CONNECTION_ERROR = 'connectionError';
+    public const RESPONSE_TIMEOUT_ERROR = 'timeoutError';
+    public const RESPONSE_ERROR = 'error'; //any other error
     public const RESPONSE_VALUE = 'responseBase64';
-    public const RESPONSE_TIMED_OUT = 'deviceTimedOut';
-    public const RESPONSE_PARTIAL = 'partialResponseBase64';
 
     /**
      * @inheritDoc
@@ -39,7 +46,7 @@ final class JsonSerialGatewayContract implements SerialGatewayContract
         string $command,
         string $writeTerminator,
         string $readTerminator,
-        int $deviceTimeoutMs,
+        float $deviceTimeout,
         string $deviceId,
         string $deviceType
     ): string {
@@ -48,7 +55,7 @@ final class JsonSerialGatewayContract implements SerialGatewayContract
                 self::REQUEST_COMMAND => base64_encode($command),
                 self::REQUEST_WRITE_TERMINATOR => base64_encode($writeTerminator),
                 self::REQUEST_READ_TERMINATOR => base64_encode($readTerminator),
-                self::REQUEST_TIMEOUT => $deviceTimeoutMs,
+                self::REQUEST_TIMEOUT => (int)round($deviceTimeout * 1000),
                 self::REQUEST_DEVICE => $deviceId,
                 self::REQUEST_DEVICE_TYPE => $deviceType,
             ], JSON_THROW_ON_ERROR);
@@ -59,60 +66,50 @@ final class JsonSerialGatewayContract implements SerialGatewayContract
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
-    public function decodeResponse(string $responseBody): SerialGatewayResponse
+    public function decodeResponse(string $responseBody): string
     {
         try {
             $decodedResponse = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             throw new UnexpectedResponseException('HTTP gateway returned invalid JSON response.', (int)$exception->getCode(), $exception);
         }
-
         if (!is_array($decodedResponse)) {
             throw new UnexpectedResponseException('HTTP gateway returned invalid JSON response.');
         }
-
-        if (($decodedResponse[self::RESPONSE_TIMED_OUT] ?? false) === true) {
-            $partialResponse = $this->extractPartialResponse($decodedResponse);
-            return new SerialGatewayResponse(true, '', $partialResponse);
+        /**
+         * Check for errors.
+         */
+        if (isset($decodedResponse[self::RESPONSE_INVALID_PARAM_ERROR]) && is_string($decodedResponse[self::RESPONSE_INVALID_PARAM_ERROR])) {
+            throw new InvalidParamException($decodedResponse[self::RESPONSE_INVALID_PARAM_ERROR]);
         }
-
-        if (!isset($decodedResponse[self::RESPONSE_VALUE]) || !is_string($decodedResponse[self::RESPONSE_VALUE])) {
-            throw new UnexpectedResponseException('HTTP gateway response field "responseBase64" is missing.');
+        if (isset($decodedResponse[self::RESPONSE_CONNECTION_ERROR]) && is_string($decodedResponse[self::RESPONSE_CONNECTION_ERROR])) {
+            throw new ConnectionException($decodedResponse[self::RESPONSE_CONNECTION_ERROR]);
         }
-
-        $response = base64_decode($decodedResponse[self::RESPONSE_VALUE], true);
-        if (!is_string($response)) {
-            throw new UnexpectedResponseException('HTTP gateway returned invalid base64 in field "responseBase64".');
+        if (isset($decodedResponse[self::RESPONSE_TIMEOUT_ERROR]) && is_string($decodedResponse[self::RESPONSE_TIMEOUT_ERROR])) {
+            throw new TimeoutException($decodedResponse[self::RESPONSE_TIMEOUT_ERROR]);
         }
-
-        return new SerialGatewayResponse(false, $response, '');
-    }
-
-    /**
-     * @param array<string, mixed> $response
-     * @return string
-     * @throws UnexpectedResponseException
-     */
-    private function extractPartialResponse(array $response): string
-    {
-        if (!isset($response[self::RESPONSE_PARTIAL])) {
-            return '';
+        if (isset($decodedResponse[self::RESPONSE_ERROR]) && is_string($decodedResponse[self::RESPONSE_ERROR])) {
+            throw new Exception($decodedResponse[self::RESPONSE_ERROR]);
         }
-
-        if (!is_string($response[self::RESPONSE_PARTIAL])) {
+        /**
+         * Decode response.
+         */
+        if (!isset($decodedResponse[self::RESPONSE_VALUE])) {
+            throw new UnexpectedResponseException(sprintf('HTTP gateway response field "%s" is missing.', self::RESPONSE_VALUE));
+        }
+        if (!is_string($decodedResponse[self::RESPONSE_VALUE])) {
             throw new UnexpectedResponseException(
-                sprintf('HTTP gateway response field "%s" has invalid type.', self::RESPONSE_PARTIAL)
+                sprintf('HTTP gateway response field "%s" is %s, not string.', self::RESPONSE_VALUE, gettype($decodedResponse[self::RESPONSE_VALUE]))
             );
         }
-
-        $decoded = base64_decode($response[self::RESPONSE_PARTIAL], true);
-        if (!is_string($decoded)) {
+        $decodedMessage = base64_decode($decodedResponse[self::RESPONSE_VALUE], true);
+        if (!is_string($decodedMessage)) {
             throw new UnexpectedResponseException(
-                sprintf('HTTP gateway returned invalid base64 in field "%s".', self::RESPONSE_PARTIAL)
+                sprintf('HTTP gateway returned invalid base64 in field "%s".', self::RESPONSE_VALUE)
             );
         }
-
-        return $decoded;
+        return $decodedMessage;
     }
 }
