@@ -40,6 +40,9 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->assertInstanceOf(SerialGatewayContract::class, $this->contract);
     }
 
+    /**
+     * @throws WriteException
+     */
     public function testEncodeRequestCreatesExpectedJsonPayload(): void
     {
         $payload = $this->contract->encodeRequest('HELLO', "\n", "\r\n", 1.2, 'ttyS0', 'wired');
@@ -50,6 +53,10 @@ final class JsonSerialGatewayContractTest extends TestCase
         );
     }
 
+    /**
+     * @throws WriteException
+     * @throws JsonException
+     */
     public function testEncodeRequestRoundsTimeoutToMilliseconds(): void
     {
         $payload = $this->contract->encodeRequest('A', '', '', 1.2346, 'ttyS0', 'wired');
@@ -78,6 +85,12 @@ final class JsonSerialGatewayContractTest extends TestCase
         }
     }
 
+    /**
+     * @throws UnexpectedResponseException
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseReturnsDecodedMessage(): void
     {
         $httpResponse = new HttpResponse(200, '{"responseBase64":"V09STEQNCg=="}');
@@ -86,6 +99,13 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->assertSame("WORLD\r\n", $decoded);
     }
 
+    /**
+     * @throws UnexpectedResponseException
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     * @throws JsonException
+     */
     public function testDecodeResponseReturnsBinaryMessage(): void
     {
         $binary = "\x00\x01A\n";
@@ -100,6 +120,11 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->assertSame($binary, $decoded);
     }
 
+    /**
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseThrowsOnInvalidJson(): void
     {
         $this->expectException(UnexpectedResponseException::class);
@@ -108,6 +133,11 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->contract->decodeResponse(new HttpResponse(200, '{invalid'));
     }
 
+    /**
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseThrowsOnNonArrayJson(): void
     {
         $this->expectException(UnexpectedResponseException::class);
@@ -117,7 +147,13 @@ final class JsonSerialGatewayContractTest extends TestCase
     }
 
     /**
+     * @param string $responseBody
      * @param class-string<Throwable> $expectedException
+     * @param string $expectedMessage
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
      */
     #[DataProvider('errorMappingProvider')]
     public function testDecodeResponseMapsGatewayErrors(
@@ -160,6 +196,11 @@ final class JsonSerialGatewayContractTest extends TestCase
         ];
     }
 
+    /**
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseThrowsWhenResponseBase64IsMissing(): void
     {
         $this->expectException(UnexpectedResponseException::class);
@@ -168,6 +209,11 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->contract->decodeResponse(new HttpResponse(200, '{"foo":"bar"}'));
     }
 
+    /**
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseThrowsWhenResponseBase64IsNotString(): void
     {
         $this->expectException(UnexpectedResponseException::class);
@@ -176,6 +222,11 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->contract->decodeResponse(new HttpResponse(200, '{"responseBase64":123}'));
     }
 
+    /**
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws TimeoutException
+     */
     public function testDecodeResponseThrowsWhenResponseBase64IsInvalid(): void
     {
         $this->expectException(UnexpectedResponseException::class);
