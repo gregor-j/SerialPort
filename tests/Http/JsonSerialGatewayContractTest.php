@@ -15,6 +15,7 @@ use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 use function base64_encode;
 use function json_decode;
@@ -53,7 +54,13 @@ final class JsonSerialGatewayContractTest extends TestCase
         $payload = $this->contract->encodeRequest('A', '', '', 1.2346, 'ttyS0', 'wired');
         $decoded = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->assertSame(1235, $decoded[JsonSerialGatewayContract::REQUEST_TIMEOUT]);
+        $this->assertIsArray($decoded);
+        $this->assertArrayHasKey(JsonSerialGatewayContract::REQUEST_TIMEOUT, $decoded);
+
+        $timeout = $decoded[JsonSerialGatewayContract::REQUEST_TIMEOUT];
+        $this->assertIsInt($timeout);
+
+        $this->assertSame(1235, $timeout);
     }
 
     public function testEncodeRequestThrowsWriteExceptionWhenJsonEncodingFails(): void
@@ -108,6 +115,9 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->contract->decodeResponse('"just-a-string"');
     }
 
+    /**
+     * @param class-string<Throwable> $expectedException
+     */
     #[DataProvider('errorMappingProvider')]
     public function testDecodeResponseMapsGatewayErrors(
         string $responseBody,
@@ -121,7 +131,7 @@ final class JsonSerialGatewayContractTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, class-string<Exception>, string}>
+     * @return array<string, array{string, class-string<Throwable>, string}>
      */
     public static function errorMappingProvider(): array
     {
