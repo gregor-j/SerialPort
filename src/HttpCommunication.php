@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
-use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Http\JsonSerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
@@ -16,7 +15,6 @@ use GregorJ\ToString\ToString;
 use function filter_var;
 use function in_array;
 use function parse_url;
-use function round;
 use function sprintf;
 
 /**
@@ -112,7 +110,7 @@ final class HttpCommunication implements Communication
             $string,
             $writeTerminator,
             $readTerminator,
-            (int)round($this->timeout * 1000),
+            $this->timeout,
             $this->deviceId,
             $this->deviceType
         );
@@ -128,21 +126,12 @@ final class HttpCommunication implements Communication
             );
         }
 
-        $gatewayResponse = $this->gatewayContract->decodeResponse($httpResponse->getBody());
-
-        if ($gatewayResponse->isDeviceTimedOut()) {
-            $partialResponse = $gatewayResponse->getPartialResponse();
-            $this->log[] = sprintf('read timed out. partial response "%s"', ToString::fromString($partialResponse));
-            throw new TimeoutException('Response timed out on serial device.');
-        }
-
-        $response = $gatewayResponse->getResponse();
+        $response = $this->gatewayContract->decodeResponse($httpResponse->getBody());
 
         $this->log[] = sprintf('read "%s"', ToString::fromString($response));
 
         return $response;
     }
-
 
     /**
      * @inheritDoc
