@@ -50,7 +50,7 @@ final class NativeStreamIoTest extends TestCase
      * Opens a real TCP socket to the local echo server for tests that need a network stream.
      * @return resource
      */
-    private function openNetworkSocket(): mixed
+    private function openNetworkSocket()
     {
         $server = new LocalTcpServer();
         $errno = 0;
