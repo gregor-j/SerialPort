@@ -37,12 +37,12 @@ interface SerialGatewayContract
 
     /**
      * Decode and validate the JSON response returned by the gateway.
-     * @param string $responseBody
+     * @param HttpResponseInterface $httpResponse
      * @return string
      * @throws ConnectionException
      * @throws InvalidParamException
      * @throws TimeoutException
      * @throws UnexpectedResponseException
      */
-    public function decodeResponse(string $responseBody): string;
+    public function decodeResponse(HttpResponseInterface $httpResponse): string;
 }

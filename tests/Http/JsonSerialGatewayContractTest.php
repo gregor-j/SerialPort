@@ -10,6 +10,7 @@ use GregorJ\SerialPort\Exceptions\InvalidParamException;
 use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
+use GregorJ\SerialPort\Http\HttpResponse;
 use GregorJ\SerialPort\Http\JsonSerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use JsonException;
@@ -79,9 +80,8 @@ final class JsonSerialGatewayContractTest extends TestCase
 
     public function testDecodeResponseReturnsDecodedMessage(): void
     {
-        $responseBody = '{"responseBase64":"V09STEQNCg=="}';
-
-        $decoded = $this->contract->decodeResponse($responseBody);
+        $httpResponse = new HttpResponse(200, '{"responseBase64":"V09STEQNCg=="}');
+        $decoded = $this->contract->decodeResponse($httpResponse);
 
         $this->assertSame("WORLD\r\n", $decoded);
     }
@@ -93,8 +93,9 @@ final class JsonSerialGatewayContractTest extends TestCase
             [JsonSerialGatewayContract::RESPONSE_VALUE => base64_encode($binary)],
             JSON_THROW_ON_ERROR
         );
+        $httpResponse = new HttpResponse(200, $responseBody);
 
-        $decoded = $this->contract->decodeResponse($responseBody);
+        $decoded = $this->contract->decodeResponse($httpResponse);
 
         $this->assertSame($binary, $decoded);
     }
@@ -104,7 +105,7 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid JSON response.');
 
-        $this->contract->decodeResponse('{invalid');
+        $this->contract->decodeResponse(new HttpResponse(200, '{invalid'));
     }
 
     public function testDecodeResponseThrowsOnNonArrayJson(): void
@@ -112,7 +113,7 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid JSON response.');
 
-        $this->contract->decodeResponse('"just-a-string"');
+        $this->contract->decodeResponse(new HttpResponse(200, '"just-a-string"'));
     }
 
     /**
@@ -127,7 +128,7 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException($expectedException);
         $this->expectExceptionMessage($expectedMessage);
 
-        $this->contract->decodeResponse($responseBody);
+        $this->contract->decodeResponse(new HttpResponse(200, $responseBody));
     }
 
     /**
@@ -164,7 +165,7 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway response field "responseBase64" is missing.');
 
-        $this->contract->decodeResponse('{"foo":"bar"}');
+        $this->contract->decodeResponse(new HttpResponse(200, '{"foo":"bar"}'));
     }
 
     public function testDecodeResponseThrowsWhenResponseBase64IsNotString(): void
@@ -172,7 +173,7 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway response field "responseBase64" is integer, not string.');
 
-        $this->contract->decodeResponse('{"responseBase64":123}');
+        $this->contract->decodeResponse(new HttpResponse(200, '{"responseBase64":123}'));
     }
 
     public function testDecodeResponseThrowsWhenResponseBase64IsInvalid(): void
@@ -180,6 +181,6 @@ final class JsonSerialGatewayContractTest extends TestCase
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid base64 in field "responseBase64".');
 
-        $this->contract->decodeResponse('{"responseBase64":"%%"}');
+        $this->contract->decodeResponse(new HttpResponse(200, '{"responseBase64":"%%"}'));
     }
 }
