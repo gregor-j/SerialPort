@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GregorJ\SerialPort;
 
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
-use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Http\JsonSerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\Communication;
@@ -120,13 +119,7 @@ final class HttpCommunication implements Communication
             $jsonPayload
         );
 
-        if ($httpResponse->getStatusCode() < 200 || $httpResponse->getStatusCode() >= 300) {
-            throw new UnexpectedResponseException(
-                sprintf('HTTP gateway returned unexpected status code %d.', $httpResponse->getStatusCode())
-            );
-        }
-
-        $response = $this->gatewayContract->decodeResponse($httpResponse->getBody());
+        $response = $this->gatewayContract->decodeResponse($httpResponse);
 
         $this->log[] = sprintf('read "%s"', ToString::fromString($response));
 

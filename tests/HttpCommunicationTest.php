@@ -15,7 +15,6 @@ use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
 use PHPUnit\Framework\TestCase;
 
-use function base64_encode;
 use function sprintf;
 
 /**
@@ -60,7 +59,7 @@ final class HttpCommunicationTest extends TestCase
 
         $contract->expects($this->once())
             ->method('decodeResponse')
-            ->with('{"any":"response"}')
+            ->with(new HttpResponse(200, '{"any":"response"}'))
             ->willReturn("WORLD\r\n");
 
         $communication = new HttpCommunication(
