@@ -10,7 +10,6 @@ use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Http\HttpResponse;
-use GregorJ\SerialPort\Http\SerialGatewayResponse;
 use GregorJ\SerialPort\HttpCommunication;
 use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
 use GregorJ\SerialPort\Interfaces\HttpTransport;
@@ -51,7 +50,7 @@ final class HttpCommunicationTest extends TestCase
 
         $contract->expects($this->once())
             ->method('encodeRequest')
-            ->with('HELLO', "\n", "\r\n", 1200, 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED)
+            ->with('HELLO', "\n", "\r\n", 1.2, 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED)
             ->willReturn('{"dummy":"payload"}');
 
         $transport->expects($this->once())
@@ -62,7 +61,7 @@ final class HttpCommunicationTest extends TestCase
         $contract->expects($this->once())
             ->method('decodeResponse')
             ->with('{"any":"response"}')
-            ->willReturn(new SerialGatewayResponse(false, "WORLD\r\n", ''));
+            ->willReturn("WORLD\r\n");
 
         $communication = new HttpCommunication(
             $transport,
@@ -235,12 +234,12 @@ final class HttpCommunicationTest extends TestCase
         $transport = $this->getMockBuilder(HttpTransport::class)->getMock();
         $transport->expects($this->once())
             ->method('postJson')
-            ->willReturn(new HttpResponse(200, sprintf('{"deviceTimedOut":true,"partialResponseBase64":"%s"}', base64_encode('WO'))));
+            ->willReturn(new HttpResponse(200, '{"timeoutError":"reading from device timed out"}'));
 
         $communication = new HttpCommunication($transport, 'https://gateway.example/query', 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED);
 
         $this->expectException(TimeoutException::class);
-        $this->expectExceptionMessage('Response timed out on serial device.');
+        $this->expectExceptionMessage('reading from device timed out');
         $communication->query('HELLO');
     }
 
