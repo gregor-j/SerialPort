@@ -4,158 +4,172 @@ declare(strict_types=1);
 
 namespace Tests\GregorJ\SerialPort\Http;
 
+use Exception;
+use GregorJ\SerialPort\Exceptions\ConnectionException;
+use GregorJ\SerialPort\Exceptions\InvalidParamException;
+use GregorJ\SerialPort\Exceptions\TimeoutException;
 use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Exceptions\WriteException;
 use GregorJ\SerialPort\Http\JsonSerialGatewayContract;
+use GregorJ\SerialPort\Interfaces\Http\SerialGatewayContract;
+use JsonException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+use function base64_encode;
+use function json_decode;
+use function json_encode;
 
 /**
  * Unit tests for JsonSerialGatewayContract.
  */
 final class JsonSerialGatewayContractTest extends TestCase
 {
-    /**
-     * @return void
-     * @throws WriteException
-     */
-    public function testEncodeRequestBuildsExpectedJson(): void
-    {
-        $contract = new JsonSerialGatewayContract();
+    private JsonSerialGatewayContract $contract;
 
-        $jsonPayload = $contract->encodeRequest('HELLO', "\n", "\r\n", 1200, 'ttyS0', 'wired');
+    protected function setUp(): void
+    {
+        $this->contract = new JsonSerialGatewayContract();
+    }
+
+    public function testImplementsSerialGatewayContractInterface(): void
+    {
+        /** @noinspection PhpConditionAlreadyCheckedInspection */
+        $this->assertInstanceOf(SerialGatewayContract::class, $this->contract);
+    }
+
+    public function testEncodeRequestCreatesExpectedJsonPayload(): void
+    {
+        $payload = $this->contract->encodeRequest('HELLO', "\n", "\r\n", 1.2, 'ttyS0', 'wired');
 
         $this->assertSame(
             '{"commandBase64":"SEVMTE8=","writeTerminatorBase64":"Cg==","readTerminatorBase64":"DQo=","deviceTimeoutMs":1200,"deviceId":"ttyS0","deviceType":"wired"}',
-            $jsonPayload
+            $payload
         );
     }
 
-    /**
-     * @return void
-     */
-    public function testEncodeRequestThrowsWriteExceptionForInvalidUtf8DeviceId(): void
+    public function testEncodeRequestRoundsTimeoutToMilliseconds(): void
     {
-        $contract = new JsonSerialGatewayContract();
+        $payload = $this->contract->encodeRequest('A', '', '', 1.2346, 'ttyS0', 'wired');
+        $decoded = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage('Failed to encode HTTP serial request payload.');
-
-        $contract->encodeRequest('HELLO', "\n", "\r\n", 1200, "\xB1", 'wired');
+        $this->assertSame(1235, $decoded[JsonSerialGatewayContract::REQUEST_TIMEOUT]);
     }
 
-    /**
-     * @return void
-     * @throws UnexpectedResponseException
-     */
-    public function testDecodeResponseSuccess(): void
+    public function testEncodeRequestThrowsWriteExceptionWhenJsonEncodingFails(): void
     {
-        $contract = new JsonSerialGatewayContract();
+        // Force json_encode(JSON_THROW_ON_ERROR) to fail via malformed UTF-8 in a raw JSON field.
+        $invalidUtf8DeviceId = "\xB1\x31";
 
-        $response = $contract->decodeResponse('{"responseBase64":"V09STEQNCg=="}');
-
-        $this->assertFalse($response->isDeviceTimedOut());
-        $this->assertSame("WORLD\r\n", $response->getResponse());
-        $this->assertSame('', $response->getPartialResponse());
+        try {
+            $this->contract->encodeRequest('HELLO', "\n", "\r\n", 1.2, $invalidUtf8DeviceId, 'wired');
+            $this->fail('Expected WriteException was not thrown.');
+        } catch (WriteException $exception) {
+            $this->assertSame('Failed to encode HTTP serial request payload.', $exception->getMessage());
+            $this->assertInstanceOf(JsonException::class, $exception->getPrevious());
+        }
     }
 
-    /**
-     * @return void
-     * @throws UnexpectedResponseException
-     */
-    public function testDecodeResponseTimeoutWithPartialResponse(): void
+    public function testDecodeResponseReturnsDecodedMessage(): void
     {
-        $contract = new JsonSerialGatewayContract();
+        $responseBody = '{"responseBase64":"V09STEQNCg=="}';
 
-        $response = $contract->decodeResponse('{"deviceTimedOut":true,"partialResponseBase64":"V08="}');
+        $decoded = $this->contract->decodeResponse($responseBody);
 
-        $this->assertTrue($response->isDeviceTimedOut());
-        $this->assertSame('', $response->getResponse());
-        $this->assertSame('WO', $response->getPartialResponse());
+        $this->assertSame("WORLD\r\n", $decoded);
     }
 
-    /**
-     * @return void
-     * @throws UnexpectedResponseException
-     */
-    public function testDecodeResponseTimeoutWithoutPartialResponse(): void
+    public function testDecodeResponseReturnsBinaryMessage(): void
     {
-        $contract = new JsonSerialGatewayContract();
+        $binary = "\x00\x01A\n";
+        $responseBody = json_encode(
+            [JsonSerialGatewayContract::RESPONSE_VALUE => base64_encode($binary)],
+            JSON_THROW_ON_ERROR
+        );
 
-        $response = $contract->decodeResponse('{"deviceTimedOut":true}');
+        $decoded = $this->contract->decodeResponse($responseBody);
 
-        $this->assertTrue($response->isDeviceTimedOut());
-        $this->assertSame('', $response->getPartialResponse());
+        $this->assertSame($binary, $decoded);
     }
 
-    /**
-     * @return void
-     */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForInvalidJson(): void
+    public function testDecodeResponseThrowsOnInvalidJson(): void
     {
-        $contract = new JsonSerialGatewayContract();
-
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid JSON response.');
-        $contract->decodeResponse('{');
+
+        $this->contract->decodeResponse('{invalid');
     }
 
-    /**
-     * @return void
-     */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForNonArrayJson(): void
+    public function testDecodeResponseThrowsOnNonArrayJson(): void
     {
-        $contract = new JsonSerialGatewayContract();
-
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid JSON response.');
-        $contract->decodeResponse('"just a string"');
+
+        $this->contract->decodeResponse('"just-a-string"');
+    }
+
+    #[DataProvider('errorMappingProvider')]
+    public function testDecodeResponseMapsGatewayErrors(
+        string $responseBody,
+        string $expectedException,
+        string $expectedMessage
+    ): void {
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->contract->decodeResponse($responseBody);
     }
 
     /**
-     * @return void
+     * @return array<string, array{string, class-string<Exception>, string}>
      */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForMissingResponseBase64(): void
+    public static function errorMappingProvider(): array
     {
-        $contract = new JsonSerialGatewayContract();
+        return [
+            'invalid param error' => [
+                '{"invalidParamError":"bad parameter"}',
+                InvalidParamException::class,
+                'bad parameter',
+            ],
+            'connection error' => [
+                '{"connectionError":"connection failed"}',
+                ConnectionException::class,
+                'connection failed',
+            ],
+            'timeout error' => [
+                '{"timeoutError":"timed out"}',
+                TimeoutException::class,
+                'timed out',
+            ],
+            'generic error' => [
+                '{"error":"generic error"}',
+                Exception::class,
+                'generic error',
+            ],
+        ];
+    }
 
+    public function testDecodeResponseThrowsWhenResponseBase64IsMissing(): void
+    {
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway response field "responseBase64" is missing.');
-        $contract->decodeResponse('{"foo":"bar"}');
+
+        $this->contract->decodeResponse('{"foo":"bar"}');
     }
 
-    /**
-     * @return void
-     */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForInvalidResponseBase64(): void
+    public function testDecodeResponseThrowsWhenResponseBase64IsNotString(): void
     {
-        $contract = new JsonSerialGatewayContract();
+        $this->expectException(UnexpectedResponseException::class);
+        $this->expectExceptionMessage('HTTP gateway response field "responseBase64" is integer, not string.');
 
+        $this->contract->decodeResponse('{"responseBase64":123}');
+    }
+
+    public function testDecodeResponseThrowsWhenResponseBase64IsInvalid(): void
+    {
         $this->expectException(UnexpectedResponseException::class);
         $this->expectExceptionMessage('HTTP gateway returned invalid base64 in field "responseBase64".');
-        $contract->decodeResponse('{"responseBase64":"%%"}');
-    }
 
-    /**
-     * @return void
-     */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForInvalidPartialResponseType(): void
-    {
-        $contract = new JsonSerialGatewayContract();
-
-        $this->expectException(UnexpectedResponseException::class);
-        $this->expectExceptionMessage('HTTP gateway response field "partialResponseBase64" has invalid type.');
-        $contract->decodeResponse('{"deviceTimedOut":true,"partialResponseBase64":123}');
-    }
-
-    /**
-     * @return void
-     */
-    public function testDecodeResponseThrowsUnexpectedResponseExceptionForInvalidPartialResponseBase64(): void
-    {
-        $contract = new JsonSerialGatewayContract();
-
-        $this->expectException(UnexpectedResponseException::class);
-        $this->expectExceptionMessage('HTTP gateway returned invalid base64 in field "partialResponseBase64".');
-        $contract->decodeResponse('{"deviceTimedOut":true,"partialResponseBase64":"%%"}');
+        $this->contract->decodeResponse('{"responseBase64":"%%"}');
     }
 }
