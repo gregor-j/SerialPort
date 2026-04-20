@@ -64,6 +64,24 @@ HTTP transport timeouts (connect and request) are configured separately in `Curl
 
 For the expected HTTP JSON contract and fields, see `src/Http/JsonSerialGatewayContract.php` and `AI_PROMPT_HTTP_SERIAL_GATEWAY.md`.
 
+## Development
+
+### Security rule: always use `use function`
+
+In every namespaced PHP file under `src/` and `tests/`, global/native functions must be imported explicitly via `use function ...;`.
+
+- Required: `use function strlen;` and then `strlen($value)`
+- Not allowed: relying on namespace fallback
+- Not allowed: `\strlen($value)` as a substitute for an import
+
+This prevents accidental or malicious shadowing of built-in PHP functions by the current namespace.
+
+You can verify the rule locally with the dedicated convention test:
+
+```bash
+./vendor/bin/phpunit --filter UseFunctionImportConventionTest
+```
+
 [pySerial]: https://pyserial.readthedocs.io/en/latest/examples.html
 [license-mit]: https://img.shields.io/badge/license-MIT-blue.svg
 [level]: https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Fgregor-j%2FSerialPort%2Fraw%2Frefs%2Fheads%2Fmain%2Fphpstan.neon&query=%24.parameters.level&prefix=level%20&style=flat-square&label=PHPStan
