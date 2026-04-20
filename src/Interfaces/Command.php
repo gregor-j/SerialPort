@@ -13,13 +13,15 @@ use GregorJ\SerialPort\Exceptions\WriteException;
 /**
  * A Command is a string sent to a serial port. Depending on the Command,
  * there can be a Response.
+ *
+ * @template TResponse of Response|null
  */
 interface Command
 {
     /**
      * Invoke this Command on the given communication instance.
      * @param Communication $communication
-     * @return Response|null
+     * @return TResponse
      * @throws InvalidParamException
      * @throws ConnectionException
      * @throws TimeoutException

@@ -13,8 +13,10 @@ use GregorJ\ToString\ToString;
 
 /**
  * Invoke a command on a communication, that doesn't return anything.
+ *
+ * @implements Command<null>
  */
-class BasicVoidCommand implements Command
+final class BasicVoidCommand implements Command
 {
     public const DEFAULT_TIMEOUT = 2.0;
     private string $command;

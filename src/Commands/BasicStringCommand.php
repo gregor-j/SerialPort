@@ -13,6 +13,8 @@ use GregorJ\ToString\ToString;
 /**
  * Invoke a basic string command on a Communication and return its
  * StringResponse.
+ *
+ * @implements Command<StringResponse>
  */
 final class BasicStringCommand implements Command
 {
