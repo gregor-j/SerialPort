@@ -27,6 +27,7 @@
 ## Project-Specific Conventions
 - `declare(strict_types=1);` is used everywhere; keep strict scalar typing and explicit nullable defaults.
 - Classes are mostly `final`; prefer extension via interfaces + composition, not inheritance.
+- In namespaced PHP files, import every global/native function via `use function ...;`; do not rely on namespace fallback and do not use `\strlen()`-style call-site qualification as a substitute. This is a security rule so functions cannot be shadowed by the current namespace.
 - Parameter validation throws domain exceptions with stable, test-asserted messages (see timeout and endpoint validation tests).
 - Public APIs expose domain exceptions (`ConnectionException`, `WriteException`, `TimeoutException`, `UnexpectedResponseException`, etc.) instead of raw PHP warnings/errors.
 - Tests heavily assert exact exception messages; update tests together with wording changes.

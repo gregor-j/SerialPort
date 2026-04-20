@@ -7,6 +7,8 @@ namespace Tests\GregorJ\SerialPort\System;
 use GregorJ\SerialPort\System\NativeError;
 use PHPUnit\Framework\TestCase;
 
+use function trigger_error;
+
 /**
  * Unit tests for the NativeError class.
  */

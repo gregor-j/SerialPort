@@ -7,6 +7,8 @@ namespace GregorJ\SerialPort\Container;
 use GregorJ\SerialPort\Exceptions\NotFoundException;
 use Psr\Container\ContainerInterface;
 
+use function sprintf;
+
 /**
  * PSR-11 container for dependencies.
  * Extend this abstract class with a constructor.

@@ -11,6 +11,10 @@ use GregorJ\SerialPort\Interfaces\Communication;
 use GregorJ\SerialPort\Interfaces\Response;
 use GregorJ\ToString\ToString;
 
+use function explode;
+use function sprintf;
+use function str_contains;
+
 /**
  * Invoke a command on a communication, that doesn't return anything.
  *

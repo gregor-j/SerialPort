@@ -6,6 +6,9 @@ namespace GregorJ\SerialPort\System;
 
 use GregorJ\SerialPort\Interfaces\System\Error;
 
+use function error_clear_last;
+use function error_get_last;
+
 /**
  * Native error handling functions.
  */
