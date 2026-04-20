@@ -22,6 +22,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
 
+use function tmpfile;
+
 /**
  * Unit tests for StreamWrapperTransport with injected dependencies.
  */

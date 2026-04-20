@@ -21,6 +21,10 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use stdClass;
 
+use function fclose;
+use function fopen;
+use function is_resource;
+
 /**
  * Unit tests for the TcpStream class.
  */

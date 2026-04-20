@@ -19,6 +19,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 use function array_filter;
+use function array_pop;
 use function explode;
 use function is_array;
 use function is_string;

@@ -13,6 +13,7 @@ use GregorJ\ToString\ToString;
 
 use function filter_var;
 use function in_array;
+use function is_string;
 use function parse_url;
 use function sprintf;
 

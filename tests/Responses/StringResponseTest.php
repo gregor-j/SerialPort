@@ -7,6 +7,9 @@ namespace Tests\GregorJ\SerialPort\Responses;
 use GregorJ\SerialPort\Responses\StringResponse;
 use PHPUnit\Framework\TestCase;
 
+use function str_repeat;
+use function strlen;
+
 /**
  * Unit tests for the StringResponse class.
  */
