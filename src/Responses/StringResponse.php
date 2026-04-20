@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace GregorJ\SerialPort\Responses;
 
-use GregorJ\SerialPort\Exceptions\NotFoundException;
 use GregorJ\SerialPort\Interfaces\Response;
 use GregorJ\ToString\ToString;
 
 use function explode;
-use function sprintf;
 use function str_contains;
 
 /**
@@ -17,12 +15,7 @@ use function str_contains;
  */
 final class StringResponse implements Response
 {
-    public const RESPONSE = 'response';
-
-    /**
-     * @var array<string, string>
-     */
-    private array $response;
+    private string $response;
 
     /**
      * @param string $response
@@ -34,26 +27,17 @@ final class StringResponse implements Response
             $parts = explode($readTerminator, $response);
             $response = $parts[0];
         }
-        $this->response[self::RESPONSE] = $response;
+        $this->response = $response;
     }
 
     /**
-     * @inheritDoc
+     * Get the plain response.
+     * Beware of non-printable characters. If you want only printable characters, cast this class to string.
+     * @return string
      */
-    public function get(string $id): string
+    public function getResponse(): string
     {
-        if (!$this->has($id)) {
-            throw new NotFoundException(sprintf('StringResponse "%s" not found.', ToString::fromString($id)));
-        }
-        return $this->response[$id];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function has(string $id): bool
-    {
-        return isset($this->response[$id]);
+        return $this->response;
     }
 
     /**
@@ -61,7 +45,6 @@ final class StringResponse implements Response
      */
     public function __toString(): string
     {
-        $response = $this->response[self::RESPONSE] ?? '';
-        return ToString::fromString($response);
+        return ToString::fromString($this->response);
     }
 }
