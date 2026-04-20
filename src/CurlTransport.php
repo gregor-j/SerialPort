@@ -42,23 +42,24 @@ final class CurlTransport implements HttpTransport
     private Error $error;
 
     /**
-     * @param float $connectTimeoutSeconds
-     * @param float $requestTimeoutSeconds
+     * @param float|null $connectTimeoutSeconds
+     * @param float|null $requestTimeoutSeconds
      * @param ContainerInterface|null $dependencies
      * @throws ContainerExceptionInterface
      * @throws InvalidParamException
      * @throws NotFoundExceptionInterface
      */
     public function __construct(
-        float $connectTimeoutSeconds = self::DEFAULT_CONNECT_TIMEOUT,
-        float $requestTimeoutSeconds = self::DEFAULT_REQUEST_TIMEOUT,
+        float|null $connectTimeoutSeconds = null,
+        float|null $requestTimeoutSeconds = null,
         ContainerInterface $dependencies = null
     ) {
+        $connectTimeoutSeconds = $connectTimeoutSeconds ?? self::DEFAULT_CONNECT_TIMEOUT;
         if ($connectTimeoutSeconds < 0.0) {
             throw new InvalidParamException('HTTP transport connect timeout for HttpCommunication has to be positive.');
         }
         $this->connectTimeout = $connectTimeoutSeconds;
-
+        $requestTimeoutSeconds = $requestTimeoutSeconds ?? self::DEFAULT_REQUEST_TIMEOUT;
         if ($requestTimeoutSeconds < 0.0) {
             throw new InvalidParamException('HTTP transport request timeout for HttpCommunication has to be positive.');
         }
