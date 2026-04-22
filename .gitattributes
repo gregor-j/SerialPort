@@ -5,6 +5,7 @@ tests/          export-ignore
 .phpcs.xml      export-ignore
 AGENTS.md       export-ignore
 composer.json   export-ignore
+CONTRIBUTING.md export-ignore
 phpstan.neon    export-ignore
 phpunit.xml     export-ignore
 README.md       export-ignore
