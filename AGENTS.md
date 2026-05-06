@@ -5,11 +5,11 @@
 - Typical runtime setup is external: map a physical serial device to TCP (e.g. pySerial `tcp_serial_redirect`) and talk to it through this library (`README.md`).
 
 ## Architecture You Need First
-- Core flow is `Command -> Communication -> Stream` (`src/Interfaces/Command.php`, `src/Interfaces/Communication.php`, `src/Interfaces/Stream.php`).
-- `StreamCommunication` is the stream orchestrator: it writes command+terminator, then reads char-by-char until read terminator or timeout (`src/StreamCommunication.php`).
+- Core flow is `Command -> Communication -> transport` (`src/Interfaces/Command.php`, `src/Interfaces/Communication.php`, `src/Interfaces/Stream.php`, `src/Interfaces/HttpTransport.php`).
+- `StreamCommunication` is the stream orchestrator: `write()` sends command+terminator, `query()` sends and then reads char-by-char until read terminator or timeout (`src/StreamCommunication.php`).
 - `HttpCommunication` is the HTTP orchestrator: it maps command/query inputs to a JSON gateway contract and returns decoded response bytes (`src/HttpCommunication.php`, `src/Interfaces/HttpTransport.php`).
 - `BasicStringCommand` is the reference command implementation for commands with responses; it sets per-command timeout and returns `StringResponse` (`src/Commands/BasicStringCommand.php`).
-- `BasicVoidCommand` is a command implementation for commands without responses; it throws `UnexpectedResponseException` if the response contains non-terminator characters (`src/Commands/BasicVoidCommand.php`).
+- `BasicVoidCommand` is a reference command implementation for commands without responses; it sets timeout and delegates to `Communication::write(...)` (`src/Commands/BasicVoidCommand.php`).
 - `StringResponse` trims the configured read terminator and exposes values as a PSR-11 container (`src/Responses/StringResponse.php`).
 - `TcpStream` is the concrete `Stream`, with lazy connection creation and explicit handling for partial/zero-byte writes (`src/TcpStream.php`).
 - `CurlTransport` is the primary concrete `HttpTransport`, implemented via cURL with separate connect/request timeouts (`src/CurlTransport.php`, `src/Http/NativeCurlIo.php`).
@@ -18,14 +18,16 @@
 - `StreamIo`, `TcpStreamConnector`, `CurlIo`, and `StreamWrapperIo` are low-level I/O abstractions; their `Native*` implementations wrap PHP built-ins and enable testability via dependency injection (inject via constructor params and `Container` classes).
 
 ## Data-Flow and Behavior Contracts
+- `Communication::write($cmd, $writeTerminator)` sends command bytes without reading a response (`src/Interfaces/Communication.php`, `src/StreamCommunication.php`, `src/HttpCommunication.php`).
 - `Communication::query($cmd, $writeTerminator, $readTerminator)` in `StreamCommunication` must append write terminator before send and include read terminator in raw read result (`src/StreamCommunication.php`).
 - Read loop in `StreamCommunication` throws `TimeoutException` only when a non-empty read terminator was requested and not reached before timeout.
 - If no read terminator is provided, stream reads stop on stream timeout and return collected bytes (no exception).
 - `HttpCommunication::query(...)` sends JSON with base64 fields (`commandBase64`, `writeTerminatorBase64`, `readTerminatorBase64`) plus `deviceTimeoutMs`, `deviceId`, and `deviceType` (`src/HttpCommunication.php`, `tests/HttpCommunicationTest.php`).
+- `HttpCommunication::write(...)` uses the same request contract with an empty `readTerminatorBase64` and still validates gateway-level response status via contract decoding (`src/HttpCommunication.php`, `tests/HttpCommunicationTest.php`).
 - `HttpCommunication` treats gateway-level device timeout (`deviceTimedOut: true`) as `TimeoutException`, but transport/network failures remain `ConnectionException` from `HttpTransport`.
 - `HttpCommunication` requires HTTP 2xx plus valid JSON and valid base64 `responseBase64`; otherwise it throws `UnexpectedResponseException` (`tests/HttpCommunicationTest.php`).
 - `BasicStringCommand::__toString()` and response/log rendering use printable escaping via `ToString::fromString(...)`; keep this for non-printable bytes (`src/Commands/BasicStringCommand.php`, `src/Responses/StringResponse.php`).
-- `BasicVoidCommand` expects empty response (or only read terminator); it throws `UnexpectedResponseException` if the response contains any non-terminator characters (`src/Commands/BasicVoidCommand.php`).
+- `BasicVoidCommand` is fire-and-forget and does not parse/validate a response body (`src/Commands/BasicVoidCommand.php`).
 
 ## Project-Specific Conventions
 - `declare(strict_types=1);` is used everywhere; keep strict scalar typing and explicit nullable defaults.
@@ -67,7 +69,7 @@ All tools auto-detect their config files (`phpunit.xml`, `phpstan.neon`, `.phpcs
 - `src/StreamWrapperTransport.php` (alternative HTTP transport – PHP stream wrappers, status/header parsing)
 - `src/Http/JsonSerialGatewayContract.php` (JSON contract encode/decode and error mapping)
 - `src/Commands/BasicStringCommand.php` (reference command implementation with response parsing)
-- `src/Commands/BasicVoidCommand.php` (void command implementation – expects empty or terminator-only response)
+- `src/Commands/BasicVoidCommand.php` (reference void command implementation – writes without expecting/validating a response)
 - `tests/StreamCommunicationTest.php` and `tests/TcpStreamTest.php` (authoritative stream behavior expectations)
 - `tests/HttpCommunicationTest.php`, `tests/CurlTransportTest.php`, and `tests/StreamWrapperTransportTest.php` (authoritative HTTP behavior expectations)
 - `tests/LocalTcpServer.php` (how real socket IO is emulated in tests)
