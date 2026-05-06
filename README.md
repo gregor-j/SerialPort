@@ -9,15 +9,17 @@ PHP classes to connect to serial devices using streams or HTTP(S) gateways.
 This library separates the command model from the transport:
 
 - `Command` defines command payload, terminators, timeout, and response mapping
-- `Communication` executes the command (`StreamCommunication` or `HttpCommunication`)
+- `Communication` executes the command (`StreamCommunication` or `HttpCommunication`) via `query()` or `write()`
 - transport is provided by either `Stream` (for sockets) or `HttpTransport` (for gateways)
+
+`BasicStringCommand`, `BasicVoidCommand`, and `StringResponse` are reference implementations for common command/response patterns.
 
 ## Usage
 
 You can either:
 
 1. bridge a serial device to TCP (for example with [pySerial] `tcp_serial_redirect`) and use `TcpStream`
-2. call an HTTP(S) serial gateway and use `HttpCommunication`
+2. call an HTTP(S) serial gateway and use `HttpCommunication` with `CurlTransport` or `StreamWrapperTransport`
 
 ### TCP stream communication
 
@@ -60,7 +62,25 @@ echo $response?->get('response');
 ```
 
 `HttpCommunication::setTimeout()` configures the serial-device response timeout and sends it to the gateway as `deviceTimeoutMs`.
-HTTP transport timeouts (connect and request) are configured separately in `CurlTransport`.
+HTTP transport timeouts (connect and request) are configured separately in `CurlTransport` and `StreamWrapperTransport`.
+
+### Fire-and-forget commands
+
+If your command does not expect a response, call `Communication::write()` directly (or use `BasicVoidCommand`, which now delegates to `write()`):
+
+```php
+<?php
+
+use GregorJ\SerialPort\Commands\BasicVoidCommand;
+use GregorJ\SerialPort\StreamCommunication;
+use GregorJ\SerialPort\TcpStream;
+
+$communication = new StreamCommunication(new TcpStream('127.0.0.1', 5000));
+$command = new BasicVoidCommand('AT+RESET', "\r\n");
+$command->invoke($communication);
+```
+
+For custom command types, implement `GregorJ\SerialPort\Interfaces\Command` and decide per command whether to call `query()` or `write()`.
 
 For the expected HTTP JSON contract and fields, see `src/Http/JsonSerialGatewayContract.php`.
 
