@@ -22,6 +22,19 @@ interface Communication
     public function __toString(): string;
 
     /**
+     * Write the string but don't expect a response.
+     * @param string $string
+     * @param string $writeTerminator optional termination string to append to the string
+     * @return void
+     * @throws InvalidParamException
+     * @throws ConnectionException
+     * @throws WriteException
+     * @throws UnexpectedResponseException
+     * @throws TimeoutException
+     */
+    public function write(string $string, string $writeTerminator = ''): void;
+
+    /**
      * Write the string and read the response.
      * @param string $string
      * @param string $writeTerminator optional termination string to append to the string

@@ -66,18 +66,12 @@ final class StreamCommunication implements Communication
     }
 
     /**
-     * Write the string and append an optional termination character to that string.
-     * @param string $string
-     * @param string $terminator
-     * @return void
-     * @throws ConnectionException
-     * @throws InvalidParamException
-     * @throws WriteException
+     * @inheritDoc
      */
-    private function write(string $string, string $terminator = ''): void
+    public function write(string $string, string $writeTerminator = ''): void
     {
         $this->stream->setTimeout($this->timeout);
-        $sendString = $string . $terminator;
+        $sendString = $string . $writeTerminator;
         $expectLength = strlen($sendString);
         $this->log[] = sprintf('write "%s"', ToString::fromString($sendString));
         $bytes = $this->stream->write($sendString, $this->timeout);

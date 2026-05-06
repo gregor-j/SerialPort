@@ -77,6 +77,51 @@ final class HttpCommunicationTest extends TestCase
 
     /**
      * @return void
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
+     */
+    public function testWriteUsesInjectedGatewayContract(): void
+    {
+        $transport = $this->getMockBuilder(HttpTransport::class)->getMock();
+        $contract = $this->getMockBuilder(SerialGatewayContract::class)->getMock();
+
+        $contract->expects($this->once())
+            ->method('encodeRequest')
+            ->with('HELLO', "\n", '', 1.2, 'ttyS0', HttpCommunication::DEVICE_TYPE_WIRED)
+            ->willReturn('{"dummy":"payload"}');
+
+        $transport->expects($this->once())
+            ->method('postJson')
+            ->with('https://gateway.example/query', '{"dummy":"payload"}')
+            ->willReturn(new HttpResponse(200, '{"responseBase64":""}'));
+
+        $contract->expects($this->once())
+            ->method('decodeResponse')
+            ->with(new HttpResponse(200, '{"responseBase64":""}'))
+            ->willReturn('');
+
+        $communication = new HttpCommunication(
+            $transport,
+            'https://gateway.example/query',
+            'ttyS0',
+            HttpCommunication::DEVICE_TYPE_WIRED,
+            $contract
+        );
+        $communication->setTimeout(1.2);
+        $communication->write('HELLO', "\n");
+
+        $log = $communication->getLog();
+        $this->assertCount(3, $log);
+        $this->assertSame(sprintf('default timeout %f seconds', HttpCommunication::DEFAULT_TIMEOUT), $log[0]);
+        $this->assertSame('set timeout to 1.200000 seconds', $log[1]);
+        $this->assertSame('write "HELLO\n"', $log[2]);
+    }
+
+    /**
+     * @return void
      * @throws InvalidParamException
      */
     public function testInvalidEndpoint(): void
