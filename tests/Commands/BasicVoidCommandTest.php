@@ -6,19 +6,17 @@ namespace Tests\GregorJ\SerialPort\Commands;
 
 use GregorJ\SerialPort\Commands\BasicVoidCommand;
 use GregorJ\SerialPort\Exceptions\InvalidParamException;
-use GregorJ\SerialPort\Exceptions\UnexpectedResponseException;
 use GregorJ\SerialPort\Interfaces\Communication;
 use PHPUnit\Framework\TestCase;
 
 final class BasicVoidCommandTest extends TestCase
 {
-    public function testInvokeSetsTimeoutAndQueriesCommunicationAndReturnsNullOnEmptyResponse(): void
+    public function testInvokeSetsTimeoutAndWritesToCommunicationAndReturnsNull(): void
     {
         $communication = $this->createMock(Communication::class);
 
         $command = 'AT';
         $writeTerminator = "\r\n";
-        $readTerminator = "\n";
         $timeout = 1.5;
 
         $communication
@@ -28,11 +26,10 @@ final class BasicVoidCommandTest extends TestCase
 
         $communication
             ->expects(self::once())
-            ->method('query')
-            ->with($command, $writeTerminator, $readTerminator)
-            ->willReturn('');
+            ->method('write')
+            ->with($command, $writeTerminator);
 
-        $sut = new BasicVoidCommand($command, $writeTerminator, $readTerminator, $timeout);
+        $sut = new BasicVoidCommand($command, $writeTerminator, $timeout);
 
         self::assertNull($sut->invoke($communication));
     }
@@ -48,16 +45,19 @@ final class BasicVoidCommandTest extends TestCase
 
         $communication
             ->expects(self::once())
-            ->method('query')
-            ->with('AT', '', '')
-            ->willReturn('');
+            ->method('write')
+            ->with('AT', '');
+
+        $communication
+            ->expects(self::never())
+            ->method('query');
 
         $sut = new BasicVoidCommand('AT');
 
         self::assertNull($sut->invoke($communication));
     }
 
-    public function testInvokeTrimsReadTerminatorAndAcceptsPureTerminatorResponse(): void
+    public function testInvokeNeverCallsQuery(): void
     {
         $communication = $this->createMock(Communication::class);
 
@@ -68,59 +68,16 @@ final class BasicVoidCommandTest extends TestCase
 
         $communication
             ->expects(self::once())
-            ->method('query')
-            ->with('AT', '', "\r\n")
-            ->willReturn("\r\n");
+            ->method('write')
+            ->with('AT', "\r\n");
 
-        $sut = new BasicVoidCommand('AT', '', "\r\n");
+        $communication
+            ->expects(self::never())
+            ->method('query');
+
+        $sut = new BasicVoidCommand('AT', "\r\n");
 
         self::assertNull($sut->invoke($communication));
-    }
-
-    public function testInvokeThrowsUnexpectedResponseExceptionWhenUnexpectedCharactersAreReturned(): void
-    {
-        $communication = $this->createMock(Communication::class);
-
-        $communication
-            ->expects(self::once())
-            ->method('setTimeout')
-            ->with(BasicVoidCommand::DEFAULT_TIMEOUT);
-
-        $communication
-            ->expects(self::once())
-            ->method('query')
-            ->with('AT', '', '')
-            ->willReturn('ERROR');
-
-        $sut = new BasicVoidCommand('AT');
-
-        $this->expectException(UnexpectedResponseException::class);
-        $this->expectExceptionMessage('Unexpected characters in response "ERROR"');
-
-        $sut->invoke($communication);
-    }
-
-    public function testInvokeThrowsUnexpectedResponseExceptionWhenCharactersExistBeforeReadTerminator(): void
-    {
-        $communication = $this->createMock(Communication::class);
-
-        $communication
-            ->expects(self::once())
-            ->method('setTimeout')
-            ->with(BasicVoidCommand::DEFAULT_TIMEOUT);
-
-        $communication
-            ->expects(self::once())
-            ->method('query')
-            ->with('AT', '', "\n")
-            ->willReturn("X\n");
-
-        $sut = new BasicVoidCommand('AT', '', "\n");
-
-        $this->expectException(UnexpectedResponseException::class);
-        $this->expectExceptionMessage('Unexpected characters in response "X"');
-
-        $sut->invoke($communication);
     }
 
     public function testConstructorThrowsInvalidParamExceptionForNegativeTimeout(): void
@@ -128,7 +85,7 @@ final class BasicVoidCommandTest extends TestCase
         $this->expectException(InvalidParamException::class);
         $this->expectExceptionMessage('The response timeout for BasicStringCommand has to be positive.');
 
-        new BasicVoidCommand('AT', '', '', -0.1);
+        new BasicVoidCommand('AT', '', -0.1);
     }
 
     public function testToStringContainsCommandAndWriteTerminator(): void
