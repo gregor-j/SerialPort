@@ -99,7 +99,34 @@ final class StreamCommunicationTest extends TestCase
         $serialPort = new StreamCommunication($stream);
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('Expected to write 13 bytes, but 2000 bytes were written.');
-        $serialPort->query('testTestTest', "\n");
+        $serialPort->write('testTestTest', "\n");
+    }
+
+    /**
+     * Test writing to stream without reading a response.
+     * @return void
+     * @throws ConnectionException
+     * @throws InvalidParamException
+     * @throws TimeoutException
+     * @throws UnexpectedResponseException
+     * @throws WriteException
+     */
+    public function testWriteWithoutResponse(): void
+    {
+        $stream = $this->getMockBuilder(Stream::class)->getMock();
+        $stream->expects($this->once())
+            ->method('setTimeout')
+            ->with(0.5);
+        $stream->expects($this->once())
+            ->method('write')
+            ->with("PING\r\n")
+            ->willReturn(6);
+        $stream->expects($this->never())
+            ->method('readChar');
+
+        $serialPort = new StreamCommunication($stream);
+        $serialPort->setTimeout(0.5);
+        $serialPort->write('PING', "\r\n");
     }
 
     /**

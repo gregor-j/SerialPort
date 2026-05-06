@@ -102,6 +102,31 @@ final class HttpCommunication implements Communication
     /**
      * @inheritDoc
      */
+    public function write(string $string, string $writeTerminator = ''): void
+    {
+        $this->log[] = sprintf('write "%s"', ToString::fromString($string . $writeTerminator));
+
+        $jsonPayload = $this->gatewayContract->encodeRequest(
+            $string,
+            $writeTerminator,
+            '',
+            $this->timeout,
+            $this->deviceId,
+            $this->deviceType
+        );
+
+        $httpResponse = $this->httpTransport->postJson(
+            $this->endpoint,
+            $jsonPayload
+        );
+
+        // Validate gateway-level success/errors even for fire-and-forget writes.
+        $this->gatewayContract->decodeResponse($httpResponse);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function query(string $string, string $writeTerminator = '', string $readTerminator = ''): string
     {
         $this->log[] = sprintf('write "%s"', ToString::fromString($string . $writeTerminator));
