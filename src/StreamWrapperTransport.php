@@ -50,7 +50,7 @@ final class StreamWrapperTransport implements HttpTransport
     public function __construct(
         float $connectTimeoutSeconds = self::DEFAULT_CONNECT_TIMEOUT,
         float $requestTimeoutSeconds = self::DEFAULT_REQUEST_TIMEOUT,
-        ContainerInterface $container = null
+        ?ContainerInterface $container = null
     ) {
         if ($connectTimeoutSeconds < 0.0) {
             throw new InvalidParamException('HTTP transport connect timeout for HttpCommunication has to be positive.');

@@ -32,7 +32,7 @@ interface Stream
      * @throws ConnectionException
      * @throws WriteException
      */
-    public function write(string $string, float $timeoutSeconds = null): int;
+    public function write(string $string, ?float $timeoutSeconds = null): int;
 
     /**
      * Read a single character from the stream.

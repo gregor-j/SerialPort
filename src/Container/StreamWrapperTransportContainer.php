@@ -19,7 +19,7 @@ final class StreamWrapperTransportContainer extends AbstractContainer implements
      * @param StreamWrapperIo|null $streamIo
      * @param Error|null $error
      */
-    public function __construct(StreamWrapperIo $streamIo = null, Error $error = null)
+    public function __construct(?StreamWrapperIo $streamIo = null, ?Error $error = null)
     {
         $this->dependencies = [
             StreamWrapperIo::class => $streamIo ?? new NativeStreamWrapperIo(),

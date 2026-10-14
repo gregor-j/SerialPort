@@ -29,7 +29,7 @@ final class BasicVoidCommand implements Command
      * @param float|null $timeoutSeconds
      * @throws InvalidParamException
      */
-    public function __construct(string $command, string $commandTerminator = '', float $timeoutSeconds = null)
+    public function __construct(string $command, string $commandTerminator = '', ?float $timeoutSeconds = null)
     {
         $this->command = $command;
         $this->commandTerminator = $commandTerminator;

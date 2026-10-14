@@ -32,7 +32,7 @@ final class BasicStringCommand implements Command
      * @param float|null $timeoutSeconds
      * @throws InvalidParamException
      */
-    public function __construct(string $command, string $commandTerminator = '', string $readTerminator = '', float $timeoutSeconds = null)
+    public function __construct(string $command, string $commandTerminator = '', string $readTerminator = '', ?float $timeoutSeconds = null)
     {
         $this->command = $command;
         $this->commandTerminator = $commandTerminator;

@@ -203,6 +203,7 @@ final class TcpStreamTest extends TestCase
             {
             }
 
+            /** @return array{type: int, message: string} */
             public function getLastError(): array
             {
                 return ['type' => 2, 'message' => 'simulated fwrite failure'];

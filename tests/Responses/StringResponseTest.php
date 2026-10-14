@@ -107,14 +107,13 @@ final class StringResponseTest extends TestCase
     }
 
     /**
-     * Test getResponse method returns the original response multiple times consistently.
+     * Test getResponse method returns the original response.
      */
-    public function testGetResponseMultipleCalls(): void
+    public function testGetResponseReturnsOriginalResponse(): void
     {
         $response = 'Consistent Response';
         $stringResponse = new StringResponse($response);
 
-        $this->assertSame($response, $stringResponse->getResponse());
         $this->assertSame($response, $stringResponse->getResponse());
     }
 

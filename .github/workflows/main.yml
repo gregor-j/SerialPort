@@ -17,59 +17,50 @@ permissions:
   contents: "read"
 
 jobs:
-
   composer:
     name: "Composer config validation"
     runs-on: "ubuntu-latest"
     steps:
       - name: "GIT checkout"
-        # noinspection UndefinedAction
         uses: "actions/checkout@v4"
       - name: "Validate composer.json"
-        run: "composer validate --strict"
+        run: "make validate"
+      - name: "Audit dependencies"
+        run: "make audit"
 
-  # tests depending on PHP version
   php:
     name: "PHP"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [ '8.1', '8.2', '8.3' ]
-
+        php_version: [ '8.1', '8.2', '8.3', '8.4' ]
     steps:
-
       - name: "GIT checkout"
-        # noinspection UndefinedAction
         uses: "actions/checkout@v4"
-
-      - name: "Setup PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php_version }}"
-          coverage: "xdebug"
-
-      - name: "Get composer cache directory"
-        id: "composer-cache"
-        run: 'echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT'
-
-      - name: "Cache composer dependencies"
-        uses: "actions/cache@v3"
-        with:
-          path: "${{ steps.composer-cache.outputs.dir }}"
-          key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
-          restore-keys: "${{ runner.os }}-composer-"
-
-      - name: "Composer install dependencies"
-        run: "composer install --prefer-dist --no-progress"
-
+      - name: "Install dependencies"
+        run: "make install PHP_VERSION=${{ matrix.php_version }}"
+      - name: "Lint PHP"
+        run: "make lint PHP_VERSION=${{ matrix.php_version }}"
       - name: "PHP_CodeSniffer"
-        run: "php vendor/bin/phpcs"
-
+        run: "make sniff PHP_VERSION=${{ matrix.php_version }}"
       - name: "PHPStan Static Analysis"
-        uses: "php-actions/phpstan@v3"
-        with:
-          php_version: "${{ matrix.php_version }}"
-          configuration: "phpstan.neon"
-
+        run: "make analyze PHP_VERSION=${{ matrix.php_version }}"
       - name: "PHPUnit tests"
-        run: "php vendor/bin/phpunit --coverage-text"
+        run: "make test PHP_VERSION=${{ matrix.php_version }}"
+
+  php-lowest:
+    name: "PHP 8.1 (lowest dependencies)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "GIT checkout"
+        uses: "actions/checkout@v4"
+      - name: "Install lowest dependencies"
+        run: "make install PHP_VERSION=8.1 DEPENDENCIES_LOWEST=1"
+      - name: "Lint PHP"
+        run: "make lint PHP_VERSION=8.1"
+      - name: "PHP_CodeSniffer"
+        run: "make sniff PHP_VERSION=8.1"
+      - name: "PHPStan Static Analysis"
+        run: "make analyze PHP_VERSION=8.1"
+      - name: "PHPUnit tests"
+        run: "make test PHP_VERSION=8.1"

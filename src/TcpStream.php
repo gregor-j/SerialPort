@@ -84,8 +84,8 @@ final class TcpStream implements Stream
     public function __construct(
         string $host,
         int $port,
-        float $timeoutSeconds = null,
-        ContainerInterface $container = null
+        ?float $timeoutSeconds = null,
+        ?ContainerInterface $container = null
     ) {
         // set default timeout in case no timeout is provided
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_CONNECTION_TIMEOUT;
@@ -162,7 +162,7 @@ final class TcpStream implements Stream
     /**
      * @inheritDoc
      */
-    public function write(string $string, float $timeoutSeconds = null): int
+    public function write(string $string, ?float $timeoutSeconds = null): int
     {
         $timeoutSeconds = $timeoutSeconds ?? self::DEFAULT_WRITE_TIMEOUT;
         if ($timeoutSeconds < 0) {

@@ -19,7 +19,7 @@ final class CurlTransportContainer extends AbstractContainer implements Containe
      * @param CurlIo|null $curlIo
      * @param Error|null $error
      */
-    public function __construct(CurlIo $curlIo = null, Error $error = null)
+    public function __construct(?CurlIo $curlIo = null, ?Error $error = null)
     {
         $this->dependencies = [
             CurlIo::class => $curlIo ?? new NativeCurlIo(),

@@ -53,7 +53,7 @@ final class CurlTransport implements HttpTransport
     public function __construct(
         float|null $connectTimeoutSeconds = null,
         float|null $requestTimeoutSeconds = null,
-        ContainerInterface $dependencies = null
+        ?ContainerInterface $dependencies = null
     ) {
         $connectTimeoutSeconds = $connectTimeoutSeconds ?? self::DEFAULT_CONNECT_TIMEOUT;
         if ($connectTimeoutSeconds < 0.0) {

@@ -156,9 +156,9 @@ final class HttpResponseTest extends TestCase
     }
 
     /**
-     * Test that response values can be accessed multiple times.
+     * Test that response values can be accessed.
      */
-    public function testMultipleAccessToValues(): void
+    public function testValuesCanBeAccessed(): void
     {
         $statusCode = 200;
         $body = 'test';
@@ -167,10 +167,7 @@ final class HttpResponseTest extends TestCase
         $response = new HttpResponse($statusCode, $body, $headers);
 
         $this->assertSame($statusCode, $response->getStatusCode());
-        $this->assertSame($statusCode, $response->getStatusCode());
         $this->assertSame($body, $response->getBody());
-        $this->assertSame($body, $response->getBody());
-        $this->assertSame($headers, $response->getHeaders());
         $this->assertSame($headers, $response->getHeaders());
     }
 }

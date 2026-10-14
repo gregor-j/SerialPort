@@ -51,7 +51,7 @@ final class HttpCommunication implements Communication
         string $endpoint,
         string $deviceId,
         string $deviceType,
-        SerialGatewayContract $gatewayContract = null
+        ?SerialGatewayContract $gatewayContract = null
     ) {
         if (!is_string(filter_var($endpoint, FILTER_VALIDATE_URL))) {
             throw new InvalidParamException('HTTP endpoint for HttpCommunication has to be a valid URL.');
